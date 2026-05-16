@@ -4,13 +4,7 @@ import { FileText, Map as MapIcon, Route, ArrowRight, ShieldCheck } from "lucide
 import { Container } from "@/components/Container";
 import { IconBadge } from "@/components/IconBadge";
 import { Logo } from "@/components/Logo";
-import {
-  GlassButton,
-  GlassDock,
-  GlassFilter,
-  type DockItem,
-} from "@/components/ui/liquid-glass";
-import { cn } from "@/lib/cn";
+import { GlassButton, GlassFilter } from "@/components/ui/liquid-glass";
 
 export default function LandingPage() {
   return (
@@ -23,29 +17,6 @@ export default function LandingPage() {
 }
 
 function Hero() {
-  const dockItems: DockItem[] = [
-    {
-      icon: <ShieldCheck className="h-7 w-7" strokeWidth={1.6} />,
-      label: "Safety Score",
-      href: "/places",
-    },
-    {
-      icon: <FileText className="h-7 w-7" strokeWidth={1.6} />,
-      label: "Document an incident",
-      href: "/document",
-    },
-    {
-      icon: <MapIcon className="h-7 w-7" strokeWidth={1.6} />,
-      label: "Care Map",
-      href: "/map",
-    },
-    {
-      icon: <Route className="h-7 w-7" strokeWidth={1.6} />,
-      label: "Continuity",
-      href: "/continuity",
-    },
-  ];
-
   return (
     <section className="relative isolate -mt-16 pt-16 overflow-hidden ocean-hero">
       <div
@@ -80,8 +51,6 @@ function Hero() {
           </p>
 
           <div className="mt-12 flex flex-col items-center justify-center gap-6">
-            <GlassDock items={dockItems} />
-
             <GlassButton href="/places" ariaLabel="Check a Safety Score">
               <span className="inline-flex items-center gap-2 text-[17px] font-medium text-sea-ink">
                 Check a Safety Score
@@ -109,7 +78,6 @@ function ToolCards() {
       icon: ShieldCheck,
       title: "Safety Score",
       desc: "Look up a physical business and see a transparent score from state law, corporate policy, and first-party reports.",
-      featured: true,
     },
     {
       href: "/document",
@@ -133,15 +101,12 @@ function ToolCards() {
   return (
     <section className="pb-section">
       <Container>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 items-stretch">
           {tools.map((t) => (
             <Link
               key={t.href}
               href={t.href}
-              className={cn(
-                "group relative bg-surface rounded-card shadow-card p-7 hover:shadow-cardHover hover:-translate-y-0.5 transition-all duration-200 ease-out",
-                t.featured && "ring-1 ring-accent/20"
-              )}
+              className="group relative flex h-full flex-col bg-surface rounded-card shadow-card p-7 hover:shadow-cardHover hover:-translate-y-0.5 transition-all duration-200 ease-out"
             >
               <IconBadge>
                 <t.icon className="h-6 w-6" strokeWidth={1.75} />
@@ -150,7 +115,7 @@ function ToolCards() {
                 {t.title}
               </h3>
               <p className="mt-2 text-meta text-ink-secondary leading-relaxed">{t.desc}</p>
-              <div className="mt-6 inline-flex items-center gap-1.5 text-meta text-ink-primary">
+              <div className="mt-auto pt-6 inline-flex items-center gap-1.5 text-meta text-ink-primary">
                 Open
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
               </div>
