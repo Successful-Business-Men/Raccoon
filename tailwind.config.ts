@@ -27,13 +27,19 @@ const config: Config = {
         divider: "rgba(0,0,0,0.08)",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "-apple-system", "sans-serif"],
+        sans: [
+          "var(--font-body)",
+          "ui-monospace",
+          "SFMono-Regular",
+          "monospace",
+        ],
+        display: ["var(--font-display)", "cursive"],
       },
       fontSize: {
-        hero: ["56px", { lineHeight: "1.05", fontWeight: "600", letterSpacing: "-0.02em" }],
-        section: ["32px", { lineHeight: "1.15", fontWeight: "600", letterSpacing: "-0.01em" }],
-        body: ["17px", { lineHeight: "1.5", fontWeight: "400" }],
-        meta: ["14px", { lineHeight: "1.4", fontWeight: "400" }],
+        hero: ["48px", { lineHeight: "1.15", fontWeight: "700", letterSpacing: "-0.01em" }],
+        section: ["28px", { lineHeight: "1.2", fontWeight: "700", letterSpacing: "-0.01em" }],
+        body: ["16px", { lineHeight: "1.55", fontWeight: "400" }],
+        meta: ["13px", { lineHeight: "1.4", fontWeight: "400" }],
       },
       borderRadius: {
         card: "20px",

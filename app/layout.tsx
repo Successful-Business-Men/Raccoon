@@ -1,13 +1,24 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Courier_Prime, Caveat_Brush } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import "./globals.css";
 
-const inter = Inter({
+// Body font. Courier Prime ships weights 400 and 700 only.
+const courier = Courier_Prime({
   subsets: ["latin"],
-  variable: "--font-inter",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+  weight: ["400", "700"],
+  display: "swap",
+});
+
+// Display font for the "Seagull" wordmark. Caveat Brush is the closest
+// free Google Fonts match for TT Milks Casual Script One — swap in
+// the real TT Milks via @font-face if you have a license.
+const caveatBrush = Caveat_Brush({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["400"],
   display: "swap",
 });
 
@@ -27,7 +38,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${courier.variable} ${caveatBrush.variable}`}>
       <body className="min-h-screen flex flex-col">
         <Nav />
         <main className="flex-1">{children}</main>

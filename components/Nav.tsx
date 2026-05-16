@@ -20,10 +20,12 @@ export function Nav() {
         <nav className="flex h-16 items-center justify-between gap-6">
           <Link
             href="/"
-            className="flex items-center gap-2.5 text-[18px] font-semibold tracking-tight text-ink-primary"
+            className="flex items-center gap-2.5 text-ink-primary"
           >
-            <Logo size={28} />
-            <span>Seagull</span>
+            <Logo size={32} />
+            <span className="font-display text-[28px] leading-none translate-y-[1px]">
+              Seagull
+            </span>
           </Link>
 
           <div className="hidden md:flex items-center gap-1">
