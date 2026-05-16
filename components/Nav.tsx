@@ -23,8 +23,8 @@ export function Nav() {
             href="/"
             className="flex items-center gap-2.5 text-ink-primary"
           >
-            <Logo size={32} />
-            <span className="font-display text-[28px] leading-none translate-y-[1px]">
+            <Logo size={44} />
+            <span className="font-display text-[20px] leading-none">
               Seagull
             </span>
           </Link>
