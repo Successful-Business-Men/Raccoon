@@ -149,43 +149,43 @@ function TrustSection() {
   return (
     <section className="pb-section">
       <Container>
-        <div className="bg-surface-inset rounded-card py-10 text-center">
+        <div className="text-center">
           <div className="text-meta uppercase tracking-[0.18em] text-ink-secondary">
             Built with data from
           </div>
-          <div
-            className="mt-8 overflow-hidden"
-            style={{
-              maskImage:
-                "linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%)",
-              WebkitMaskImage:
-                "linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%)",
-            }}
-          >
-            <div className="flex w-max items-center gap-16 animate-marquee">
-              {track.map((o, i) => (
-                <div
-                  key={`${o.name}-${i}`}
-                  className="relative h-16 w-48 shrink-0"
-                >
-                  <Image
-                    src={o.src}
-                    alt={o.name}
-                    fill
-                    sizes="192px"
-                    className="object-contain"
-                    style={
-                      o.scale !== 1
-                        ? { transform: `scale(${o.scale})` }
-                        : undefined
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </Container>
+      <div
+        className="mt-8 overflow-hidden w-full"
+        style={{
+          maskImage:
+            "linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%)",
+        }}
+      >
+        <div className="flex w-max items-center gap-24 animate-marquee">
+          {track.map((o, i) => (
+            <div
+              key={`${o.name}-${i}`}
+              className="relative h-16 w-48 shrink-0"
+            >
+              <Image
+                src={o.src}
+                alt={o.name}
+                fill
+                sizes="192px"
+                className="object-contain"
+                style={
+                  o.scale !== 1
+                    ? { transform: `scale(${o.scale})` }
+                    : undefined
+                }
+              />
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
