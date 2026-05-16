@@ -24,6 +24,14 @@ const config: Config = {
           banned: "#FF3B30",
           litigation: "#8E8E93",
         },
+        sea: {
+          sky: "#F0F9FF",
+          foam: "#E0F2FE",
+          mist: "#BAE6FD",
+          tide: "#7DD3FC",
+          deep: "#38BDF8",
+          ink: "#0F2A3D",
+        },
         divider: "rgba(0,0,0,0.08)",
       },
       fontFamily: {

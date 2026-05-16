@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { FileText, Map as MapIcon, Route, ArrowRight, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/Container";
-import { Button } from "@/components/Button";
 import { IconBadge } from "@/components/IconBadge";
 import { Logo } from "@/components/Logo";
+import {
+  GlassButton,
+  GlassDock,
+  GlassFilter,
+  type DockItem,
+} from "@/components/ui/liquid-glass";
 import { cn } from "@/lib/cn";
 
 export default function LandingPage() {
@@ -17,31 +22,78 @@ export default function LandingPage() {
 }
 
 function Hero() {
+  const dockItems: DockItem[] = [
+    {
+      icon: <ShieldCheck className="h-7 w-7" strokeWidth={1.6} />,
+      label: "Safety Score",
+      href: "/places",
+    },
+    {
+      icon: <FileText className="h-7 w-7" strokeWidth={1.6} />,
+      label: "Document an incident",
+      href: "/document",
+    },
+    {
+      icon: <MapIcon className="h-7 w-7" strokeWidth={1.6} />,
+      label: "Care Map",
+      href: "/map",
+    },
+    {
+      icon: <Route className="h-7 w-7" strokeWidth={1.6} />,
+      label: "Continuity",
+      href: "/continuity",
+    },
+  ];
+
   return (
-    <section className="pt-24 pb-section">
+    <section className="relative isolate -mt-16 pt-16 overflow-hidden ocean-hero">
+      <div
+        aria-hidden
+        className="absolute inset-0 ocean-waves pointer-events-none"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.92) 100%)",
+        }}
+      />
+      <GlassFilter />
+
       <Container>
-        <div className="mx-auto max-w-[820px] text-center">
-          <div className="mb-10 flex justify-center">
-            <Logo size={144} />
+        <div className="relative mx-auto max-w-[820px] text-center pt-20 pb-section">
+          <div className="mb-8 flex justify-center">
+            <Logo
+              size={120}
+              className="drop-shadow-[0_8px_24px_rgba(15,42,61,0.25)]"
+            />
           </div>
-          <h1 className="text-hero text-balance">
+          <h1 className="text-hero text-balance text-sea-ink">
             Resourceful tools for hostile terrain
           </h1>
-          <p className="mt-6 text-[19px] leading-relaxed text-ink-secondary text-balance max-w-[640px] mx-auto">
+          <p className="mt-5 text-[19px] leading-relaxed text-sea-ink/75 text-balance max-w-[640px] mx-auto">
             Three tools to help you document discrimination, understand your
             state&apos;s laws, and plan for care continuity. Free, private, built
             with the trans community in mind.
           </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild>
-              <Link href="/places">
+
+          <div className="mt-12 flex flex-col items-center justify-center gap-6">
+            <GlassDock items={dockItems} />
+
+            <GlassButton href="/places" ariaLabel="Check a Safety Score">
+              <span className="inline-flex items-center gap-2 text-[17px] font-medium text-sea-ink">
                 Check a Safety Score
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild variant="secondary">
-              <Link href="/document">Document an incident</Link>
-            </Button>
+                <ArrowRight className="h-4 w-4" strokeWidth={2} />
+              </span>
+            </GlassButton>
+
+            <Link
+              href="/document"
+              className="text-meta text-sea-ink/70 hover:text-sea-ink underline-offset-4 hover:underline transition-colors"
+            >
+              Or document an incident →
+            </Link>
           </div>
         </div>
       </Container>
