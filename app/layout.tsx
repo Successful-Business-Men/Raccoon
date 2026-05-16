@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Fraunces } from "next/font/google";
+import { Nunito, Fredoka } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import "./globals.css";
 
-const geist = Geist({
+const nunito = Nunito({
   subsets: ["latin"],
   variable: "--font-body",
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const fraunces = Fraunces({
+const fredoka = Fredoka({
   subsets: ["latin"],
   variable: "--font-display",
+  weight: ["400", "500", "600", "700"],
   display: "swap",
-  axes: ["SOFT", "opsz"],
 });
 
 export const metadata: Metadata = {
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} ${fraunces.variable}`}>
+    <html lang="en" className={`${nunito.variable} ${fredoka.variable}`}>
       <body className="min-h-screen flex flex-col">
         <Nav />
         <main className="flex-1">{children}</main>
