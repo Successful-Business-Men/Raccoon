@@ -115,7 +115,7 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
     <Container className="py-12">
       <header className="mb-8 max-w-prose">
         <h1 className="text-section">Safety Score</h1>
-        <p className="mt-3 text-ink-secondary leading-relaxed">
+        <p className="mt-3 text-lede text-ink-secondary leading-relaxed">
           A decision aid for physical businesses — combining state legal
           posture, corporate non-discrimination policy, and first-party incident
           reports filed through Seagull. Each score shows its receipts.
@@ -136,7 +136,7 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by name, chain, city, or state"
-              className="w-full pl-11 pr-4 py-3 rounded-btn border border-divider bg-surface focus:outline-none focus:ring-2 focus:ring-accent/30 text-[15px]"
+              className="w-full pl-11 pr-4 py-3 rounded-btn border border-divider bg-surface focus:outline-none focus:ring-2 focus:ring-accent/30 text-body"
             />
           </div>
           <div className="relative">
@@ -144,7 +144,7 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="pl-10 pr-8 py-3 rounded-btn border border-divider bg-surface text-[14px] focus:outline-none focus:ring-2 focus:ring-accent/30 appearance-none"
+              className="pl-10 pr-8 py-3 rounded-btn border border-divider bg-surface text-meta focus:outline-none focus:ring-2 focus:ring-accent/30 appearance-none"
             >
               {SORTS.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -247,7 +247,7 @@ function PlaceCard({ place, score }: { place: PlaceRecord; score: SafetyScore })
             <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
               {place.category} · {place.city}, {place.state_code}
             </div>
-            <h3 className="mt-1.5 text-[20px] font-bold tracking-tight truncate">
+            <h3 className="mt-1.5 text-subsection truncate">
               {place.name}
             </h3>
             <div className="mt-1 text-meta text-ink-secondary truncate">
@@ -335,7 +335,7 @@ export function ComponentList({ score }: { score: SafetyScore }) {
             {Math.round(c.contribution)}
           </span>
           <div className="flex-1 min-w-0">
-            <div className="text-[14px] text-ink-primary leading-snug">{c.label}</div>
+            <div className="text-meta text-ink-primary leading-snug">{c.label}</div>
             <div className="text-meta text-ink-secondary mt-0.5">
               {c.source_url ? (
                 <a
@@ -364,7 +364,7 @@ function Methodology() {
       <div className="flex items-start gap-3">
         <AlertTriangle className="h-5 w-5 mt-0.5 shrink-0 text-ink-primary" />
         <div className="text-meta text-ink-secondary leading-relaxed">
-          <div className="text-ink-primary text-[14px] font-bold mb-2">
+          <div className="text-ink-primary text-meta font-bold mb-2">
             How the score works
           </div>
           <p>

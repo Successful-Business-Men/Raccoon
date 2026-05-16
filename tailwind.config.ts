@@ -44,10 +44,13 @@ const config: Config = {
         display: ["var(--font-display)", "cursive"],
       },
       fontSize: {
-        hero: ["48px", { lineHeight: "1.15", fontWeight: "700", letterSpacing: "-0.01em" }],
-        section: ["28px", { lineHeight: "1.2", fontWeight: "700", letterSpacing: "-0.01em" }],
-        body: ["16px", { lineHeight: "1.55", fontWeight: "400" }],
-        meta: ["13px", { lineHeight: "1.4", fontWeight: "400" }],
+        hero: ["64px", { lineHeight: "1.08", fontWeight: "700", letterSpacing: "-0.02em" }],
+        section: ["40px", { lineHeight: "1.15", fontWeight: "700", letterSpacing: "-0.015em" }],
+        subsection: ["26px", { lineHeight: "1.3", fontWeight: "700", letterSpacing: "-0.005em" }],
+        card: ["20px", { lineHeight: "1.35", fontWeight: "700" }],
+        lede: ["20px", { lineHeight: "1.5", fontWeight: "400" }],
+        body: ["17px", { lineHeight: "1.55", fontWeight: "400" }],
+        meta: ["14px", { lineHeight: "1.45", fontWeight: "400" }],
       },
       borderRadius: {
         card: "20px",

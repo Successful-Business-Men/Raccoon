@@ -141,7 +141,7 @@ export default function AboutPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-12">
-      <h2 className="text-[22px] font-semibold tracking-tight">{title}</h2>
+      <h2 className="text-subsection">{title}</h2>
       <div className="mt-4 space-y-4 text-ink-primary leading-relaxed">
         {children}
       </div>

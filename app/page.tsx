@@ -43,7 +43,7 @@ function Hero() {
             A toolkit for trans Americans navigating discrimination
             and shifting laws.
           </h1>
-          <p className="mt-5 text-[19px] leading-relaxed text-sea-ink/75 text-balance max-w-[640px] mx-auto">
+          <p className="mt-6 text-lede text-sea-ink/75 text-balance max-w-[640px] mx-auto">
             Document an incident for a lawyer or filing agency, score a
             business before you walk in, see where your state stands on
             gender-affirming care, and plan a move without losing access.
@@ -52,7 +52,7 @@ function Hero() {
 
           <div className="mt-12 flex flex-col items-center justify-center gap-6">
             <GlassButton href="/places" ariaLabel="Check a Safety Score">
-              <span className="inline-flex items-center gap-2 text-[17px] font-medium text-sea-ink">
+              <span className="inline-flex items-center gap-2 text-body font-medium text-sea-ink">
                 Check a Safety Score
                 <ArrowRight className="h-4 w-4" strokeWidth={2} />
               </span>
@@ -111,10 +111,10 @@ function ToolCards() {
               <IconBadge>
                 <t.icon className="h-6 w-6" strokeWidth={1.75} />
               </IconBadge>
-              <h3 className="mt-5 text-[18px] font-bold tracking-tight">
+              <h3 className="mt-5 text-card tracking-tight">
                 {t.title}
               </h3>
-              <p className="mt-2 text-meta text-ink-secondary leading-relaxed">{t.desc}</p>
+              <p className="mt-3 text-body text-ink-secondary leading-relaxed">{t.desc}</p>
               <div className="mt-auto pt-6 inline-flex items-center gap-1.5 text-meta text-ink-primary">
                 Open
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />

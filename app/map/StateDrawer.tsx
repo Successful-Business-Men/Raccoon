@@ -34,7 +34,7 @@ export function StateDrawer({
       />
       <aside className="w-full max-w-[480px] glass-strong h-full overflow-y-auto animate-[slidein_0.18s_ease-out]">
         <div className="sticky top-0 glass-nav px-7 py-5 flex items-center justify-between">
-          <h2 className="text-[22px] font-semibold tracking-tight">
+          <h2 className="text-subsection">
             {state.state_name}
             <span className="ml-2 text-ink-secondary text-meta font-normal">
               {state.state_code}
@@ -58,7 +58,7 @@ export function StateDrawer({
         <div className="px-7 pb-6">
           <div className="rounded-card bg-status-restricted/10 p-5 flex gap-3 items-start">
             <AlertTriangle className="h-5 w-5 text-status-restricted mt-0.5 shrink-0" />
-            <div className="text-[15px] leading-relaxed">
+            <div className="text-body leading-relaxed">
               <div className="font-medium">Verify before acting</div>
               <p className="text-ink-secondary mt-1">
                 The law in some states changes weekly. Before making medical or
@@ -79,7 +79,7 @@ export function StateDrawer({
 
         {state.related_orgs && state.related_orgs.length > 0 ? (
           <div className="px-7 pb-10">
-            <h3 className="text-[16px] font-medium mb-3">Related organizations</h3>
+            <h3 className="text-card mb-3">Related organizations</h3>
             <ul className="space-y-2">
               {state.related_orgs.map((o) => (
                 <li key={o.url}>
@@ -131,7 +131,7 @@ function ProcedureRow({
         className="w-full px-4 py-3 flex items-center justify-between gap-3 text-left"
       >
         <div className="flex flex-col">
-          <span className="text-[15px] font-medium">
+          <span className="text-body font-medium">
             {PROCEDURE_LABELS[procedure]}
           </span>
           <span className="text-meta text-ink-secondary">

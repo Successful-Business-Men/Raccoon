@@ -215,7 +215,7 @@ export function ContinuityClient() {
     <Container size="plan" className="py-12">
       <header className="mb-8">
         <h1 className="text-section">Plan continuity of care</h1>
-        <p className="mt-3 text-ink-secondary leading-relaxed">
+        <p className="mt-3 text-lede text-ink-secondary leading-relaxed">
           Tell us where you are and what you need. We&apos;ll generate a
           personalized checklist — records, insurance, medication risk, legal —
           with the most urgent steps surfaced first.
@@ -228,7 +228,7 @@ export function ContinuityClient() {
           <div>
             Your plan lives in <strong className="text-ink-primary">this browser</strong>.
             Seagull never sees it unless you choose to sync. Hit{" "}
-            <kbd className="rounded border border-divider bg-surface px-1.5 py-0.5 text-[11px] font-medium">
+            <kbd className="rounded border border-divider bg-surface px-1.5 py-0.5 text-meta font-medium">
               Esc
             </kbd>{" "}
             to wipe everything instantly.
@@ -335,7 +335,7 @@ export function ContinuityClient() {
                       : undefined,
                   })
                 }
-                className="w-full rounded-btn border border-divider bg-surface px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-accent/30"
+                className="w-full rounded-btn border border-divider bg-surface px-4 py-3 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
                 placeholder="e.g. 60"
               />
             </FormCard>
@@ -559,11 +559,11 @@ function RiskHero({ plan }: { plan: ContinuityPlan }) {
           </div>
           <div className="mt-2 flex items-center gap-3">
             <span className={cn("h-3 w-3 rounded-full", styles.dot)} />
-            <span className="text-[28px] font-semibold leading-none">
+            <span className="text-subsection leading-none">
               {styles.label}
             </span>
           </div>
-          <p className="mt-3 text-[15px] leading-relaxed max-w-xl">
+          <p className="mt-3 text-body leading-relaxed max-w-xl">
             {risk.rationale}
           </p>
         </div>
@@ -584,7 +584,7 @@ function RiskHero({ plan }: { plan: ContinuityPlan }) {
           <div className="text-ink-secondary">
             Risk is computed from your inputs, <em>not</em> by AI.
           </div>
-          <div className="font-mono text-[12px] leading-relaxed text-ink-primary">
+          <div className="font-mono text-meta leading-relaxed text-ink-primary">
             supplyDays:{" "}
             <span className="font-semibold">
               {typeof assessment.inputs.supplyDays === "number"
@@ -633,7 +633,7 @@ function NextThree({
     <div className="glass rounded-card p-7 border-l-4 border-accent">
       <div className="flex items-center gap-2 mb-1">
         <Sparkles className="h-4 w-4 text-ink-primary" />
-        <h3 className="text-[20px] font-semibold tracking-tight">
+        <h3 className="text-subsection">
           Next {items.length === 1 ? "action" : `${items.length} actions`}
         </h3>
       </div>
@@ -692,8 +692,8 @@ function NextItem({
         </span>
         <span className={cn("flex-1", done && "text-ink-secondary line-through")}>
           <span className="flex items-center gap-2">
-            <span className="text-[16px] font-semibold">{item.title}</span>
-            <span className="rounded-chip bg-surface-inset px-2 py-0.5 text-[11px] text-ink-secondary uppercase tracking-wide">
+            <span className="text-card">{item.title}</span>
+            <span className="rounded-chip bg-surface-inset px-2 py-0.5 text-meta text-ink-secondary uppercase tracking-wide">
               {item.sectionLabel}
             </span>
           </span>
@@ -744,7 +744,7 @@ function PhaseTabs({
           <span>{t.label}</span>
           <span
             className={cn(
-              "rounded-full px-1.5 text-[11px]",
+              "rounded-full px-1.5 text-meta",
               value === t.id ? "bg-white/20" : "bg-surface text-ink-secondary"
             )}
           >
@@ -794,12 +794,12 @@ function Sections({
           />
           {phaseFilter === "all" && (
             <div className="mt-6">
-              <div className="text-[15px] font-medium mb-2">Template letter</div>
+              <div className="text-body font-medium mb-2">Template letter</div>
               <textarea
                 value={plan.records_transfer.template_letter}
                 onChange={(e) => onLetterChange(e.target.value)}
                 rows={8}
-                className="w-full rounded-btn border border-divider bg-surface p-4 text-[14px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/30 font-mono"
+                className="w-full rounded-btn border border-divider bg-surface p-4 text-meta leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/30 font-mono"
               />
             </div>
           )}
@@ -854,13 +854,13 @@ function Sections({
         <>
           {phaseFilter === "all" && (
             <>
-              <div className="text-[15px] font-medium mb-2">Questions to ask</div>
+              <div className="text-body font-medium mb-2">Questions to ask</div>
               <ul className="list-disc pl-5 space-y-1.5 mb-4 text-ink-primary">
                 {plan.finding_new_care.questions_to_ask.map((q, i) => (
                   <li key={i}>{q}</li>
                 ))}
               </ul>
-              <div className="text-[15px] font-medium mb-2">Red flags</div>
+              <div className="text-body font-medium mb-2">Red flags</div>
               <ul className="list-disc pl-5 space-y-1.5 mb-4 text-ink-primary">
                 {plan.finding_new_care.red_flags.map((q, i) => (
                   <li key={i}>{q}</li>
@@ -999,7 +999,7 @@ function FilteredChecklist({
                 )}
               >
                 <span className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[15px] font-medium">{it.title}</span>
+                  <span className="text-body font-medium">{it.title}</span>
                   <PhaseChip phase={phaseOf(it)} />
                 </span>
                 <span className="block text-meta text-ink-secondary mt-0.5">
@@ -1024,7 +1024,7 @@ function PhaseChip({ phase }: { phase: Phase }) {
   return (
     <span
       className={cn(
-        "rounded-chip px-2 py-0.5 text-[11px] uppercase tracking-wide",
+        "rounded-chip px-2 py-0.5 text-meta uppercase tracking-wide",
         tone[phase]
       )}
     >
@@ -1042,7 +1042,7 @@ function PlanSection({
 }) {
   return (
     <div className="glass rounded-card p-7">
-      <h3 className="text-[20px] font-semibold tracking-tight mb-4">{title}</h3>
+      <h3 className="text-subsection mb-4">{title}</h3>
       {children}
     </div>
   );
@@ -1107,7 +1107,7 @@ function RefineBox({
     <div className="rounded-card bg-surface-inset p-6 border border-divider">
       <div className="flex items-center gap-2 mb-1">
         <RotateCcw className="h-4 w-4 text-ink-primary" />
-        <h3 className="text-[18px] font-semibold tracking-tight">
+        <h3 className="text-card">
           Update my plan
         </h3>
       </div>
@@ -1122,7 +1122,7 @@ function RefineBox({
         onChange={(e) => setDelta(e.target.value)}
         rows={3}
         placeholder="Describe what changed…"
-        className="w-full rounded-btn border border-divider bg-surface p-4 text-[15px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/30"
+        className="w-full rounded-btn border border-divider bg-surface p-4 text-body leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/30"
       />
       {applied.length > 0 && (
         <div className="mt-3 text-meta text-ink-secondary">
@@ -1182,7 +1182,7 @@ function PanicConfirm({
       >
         <div className="flex items-center gap-2 mb-2">
           <Trash2 className="h-5 w-5 text-status-banned" />
-          <h3 className="text-[18px] font-semibold tracking-tight">
+          <h3 className="text-card">
             Clear everything?
           </h3>
         </div>
@@ -1218,7 +1218,7 @@ function FormCard({
 }) {
   return (
     <div className="glass rounded-card p-7">
-      <div className="text-[16px] font-medium">{label}</div>
+      <div className="text-body font-medium">{label}</div>
       {hint && <div className="text-meta text-ink-secondary mt-1">{hint}</div>}
       <div className="mt-4">{children}</div>
     </div>
@@ -1240,7 +1240,7 @@ function StateSelect({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-btn border border-divider bg-surface px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-accent/30"
+      className="w-full rounded-btn border border-divider bg-surface px-4 py-3 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
     >
       <option value="">{placeholder || "Select"}</option>
       {allowExploring && (
@@ -1282,7 +1282,7 @@ function RadioGroup<T extends string>({
             onChange={() => onChange(o.id)}
             className="h-4 w-4 accent-accent"
           />
-          <span className="text-[15px]">{o.label}</span>
+          <span className="text-body">{o.label}</span>
         </label>
       ))}
     </div>
@@ -1303,7 +1303,7 @@ function DocumentsSection({ careTypes }: { careTypes: CareType[] }) {
       <div className="space-y-6">
         {groups.map((g) => (
           <div key={g.care_type}>
-            <div className="text-[15px] font-semibold tracking-tight">
+            <div className="text-card">
               {g.label}
             </div>
             {g.intro && (
@@ -1331,7 +1331,7 @@ function DocumentsSection({ careTypes }: { careTypes: CareType[] }) {
                     )}
                   </span>
                   <span className="flex-1">
-                    <span className="block text-[15px] font-medium">
+                    <span className="block text-body font-medium">
                       {d.title}
                     </span>
                     <span className="block text-meta text-ink-secondary mt-0.5 leading-relaxed">
@@ -1403,7 +1403,7 @@ function SaveDialog({
         className="glass rounded-card p-8 max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-[20px] font-semibold tracking-tight">
+        <h3 className="text-subsection">
           Sync to cloud
         </h3>
         <p className="text-meta text-ink-secondary mt-2">
@@ -1412,7 +1412,7 @@ function SaveDialog({
           don&apos;t sync.
         </p>
         {sent ? (
-          <p className="mt-6 text-[15px]">
+          <p className="mt-6 text-body">
             Check your email for a sign-in link. You can close this dialog.
           </p>
         ) : (
@@ -1422,7 +1422,7 @@ function SaveDialog({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="mt-4 w-full rounded-btn border border-divider bg-surface px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-accent/30"
+              className="mt-4 w-full rounded-btn border border-divider bg-surface px-4 py-3 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
             />
             {error && (
               <div className="mt-3 text-meta text-status-banned">{error}</div>

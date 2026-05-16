@@ -16,9 +16,9 @@ const buttonVariants = cva(
         link: "bg-transparent text-ink-primary underline-offset-4 hover:underline px-0 py-0",
       },
       size: {
-        default: "px-6 py-4 text-[15px]",
-        sm: "px-4 py-2.5 text-[14px]",
-        lg: "px-7 py-4 text-[16px]",
+        default: "px-6 py-4 text-body",
+        sm: "px-4 py-2.5 text-meta",
+        lg: "px-7 py-4 text-card",
       },
     },
     defaultVariants: { variant: "primary", size: "default" },

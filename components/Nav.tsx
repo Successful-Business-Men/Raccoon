@@ -24,7 +24,7 @@ export function Nav() {
             className="flex items-center gap-2.5 text-ink-primary"
           >
             <Logo size={44} />
-            <span className="font-display text-[20px] leading-none">
+            <span className="font-display text-[22px] leading-none">
               Seagull
             </span>
           </Link>

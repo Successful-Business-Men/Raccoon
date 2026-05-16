@@ -51,7 +51,7 @@ export function MapClient() {
     <Container className="py-10 relative">
       <header className="mb-6">
         <h1 className="text-section">Care Map</h1>
-        <p className="mt-2 text-ink-primary/80 max-w-prose">
+        <p className="mt-3 text-lede text-ink-primary/80 max-w-prose">
           Current legal landscape for gender-affirming care, ID changes, and
           shield laws — by state. Hover for a quick read, click a state for the
           full breakdown.
@@ -131,7 +131,7 @@ export function MapClient() {
       {/* Legend + methodology */}
       <section className="grid gap-6 lg:grid-cols-2 mb-8">
         <div className="glass rounded-card p-7">
-          <h2 className="text-[20px] font-semibold tracking-tight mb-4">
+          <h2 className="text-subsection mb-4">
             Color legend
           </h2>
           <ul className="space-y-3">
@@ -151,7 +151,7 @@ export function MapClient() {
             onClick={() => setMethodologyOpen((o) => !o)}
             className="flex items-center justify-between w-full text-left"
           >
-            <h2 className="text-[20px] font-semibold tracking-tight">
+            <h2 className="text-subsection">
               How we source this data
             </h2>
             <ChevronDown
@@ -159,7 +159,7 @@ export function MapClient() {
             />
           </button>
           {methodologyOpen && (
-            <div className="mt-4 text-[15px] text-ink-primary leading-relaxed space-y-3">
+            <div className="mt-4 text-body text-ink-primary leading-relaxed space-y-3">
               <p>
                 Care Map combines weekly snapshots from the Movement Advancement
                 Project, Lambda Legal&apos;s case tracker, KFF, and direct reads

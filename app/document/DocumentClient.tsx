@@ -174,7 +174,7 @@ export function DocumentClient() {
         <div className="flex flex-col min-h-[70vh]">
           <header className="mb-6">
             <h1 className="text-section">Document an incident</h1>
-            <p className="mt-2 text-ink-secondary">
+            <p className="mt-3 text-lede text-ink-secondary">
               I&apos;ll ask a few questions and build a structured packet you can
               hand to a lawyer or filing agency.
             </p>
@@ -259,7 +259,7 @@ function Bubble({
     <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
       <div
         className={cn(
-          "max-w-[85%] rounded-card px-5 py-3.5 text-[15px] leading-relaxed whitespace-pre-wrap",
+          "max-w-[85%] rounded-card px-5 py-3.5 text-body leading-relaxed whitespace-pre-wrap",
           isUser
             ? "glass-inset text-ink-primary"
             : "glass text-ink-primary"
@@ -296,7 +296,7 @@ function ChatInput({
         }}
         placeholder="Type a reply…"
         rows={1}
-        className="flex-1 resize-none bg-transparent px-3 py-2 text-[15px] placeholder:text-ink-secondary focus:outline-none"
+        className="flex-1 resize-none bg-transparent px-3 py-2 text-body placeholder:text-ink-secondary focus:outline-none"
         style={{ minHeight: 40, maxHeight: 160 }}
         disabled={disabled}
       />
@@ -341,7 +341,7 @@ function PacketPreview({ packet, ready }: { packet: IncidentPacket; ready: boole
   return (
     <div className="glass rounded-card p-7">
       <div className="flex items-center justify-between">
-        <h2 className="text-[20px] font-semibold tracking-tight">Your packet</h2>
+        <h2 className="text-subsection">Your packet</h2>
         {ready && (
           <Button size="sm" onClick={download} disabled={downloading}>
             {downloading ? (
@@ -430,7 +430,7 @@ function Field({
       </div>
       <div
         className={cn(
-          "mt-1.5 text-[15px] whitespace-pre-wrap",
+          "mt-1.5 text-body whitespace-pre-wrap",
           value ? "text-ink-primary" : "text-ink-secondary",
           clamp && "line-clamp-4"
         )}

@@ -83,7 +83,7 @@ export function PlaceDetailClient({ place }: { place: PlaceRecord }) {
               {place.chain ? ` · ${place.chain}` : ""}
             </div>
             <h1 className="mt-2 text-section">{place.name}</h1>
-            <div className="mt-3 flex items-start gap-2 text-ink-secondary">
+            <div className="mt-3 flex items-start gap-2 text-body text-ink-secondary">
               <MapPin className="h-4 w-4 mt-1 shrink-0" />
               <div>
                 <div>{place.address}</div>
@@ -124,7 +124,7 @@ export function PlaceDetailClient({ place }: { place: PlaceRecord }) {
       <div className="grid gap-6 md:grid-cols-2">
         {/* Signals */}
         <section className="glass rounded-card p-7">
-          <h2 className="text-[18px] font-bold tracking-tight mb-1">
+          <h2 className="text-subsection mb-2">
             Signals moving this score
           </h2>
           <p className="text-meta text-ink-secondary mb-5">
@@ -136,7 +136,7 @@ export function PlaceDetailClient({ place }: { place: PlaceRecord }) {
 
         {/* Timeline */}
         <section className="glass rounded-card p-7">
-          <h2 className="text-[18px] font-bold tracking-tight mb-1">
+          <h2 className="text-subsection mb-2">
             Incident timeline
           </h2>
           <p className="text-meta text-ink-secondary mb-5">
@@ -151,15 +151,15 @@ export function PlaceDetailClient({ place }: { place: PlaceRecord }) {
       <section className="mt-6 rounded-card bg-accent text-white p-7">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h3 className="text-[18px] font-bold">Had an experience here?</h3>
-            <p className="text-[14px] text-white/75 mt-1 max-w-[60ch]">
+            <h3 className="text-card text-white">Had an experience here?</h3>
+            <p className="text-meta text-white/75 mt-2 max-w-[60ch]">
               Filing a documentation packet through Seagull adds a verified
               first-party signal that updates this score in real time.
             </p>
           </div>
           <Link
             href={`/document?place_id=${encodeURIComponent(place.place_id)}`}
-            className="inline-flex items-center justify-center gap-2 rounded-btn bg-white text-ink-primary px-5 py-3 text-[14px] font-bold hover:bg-surface-inset transition-colors shrink-0"
+            className="inline-flex items-center justify-center gap-2 rounded-btn bg-white text-ink-primary px-5 py-3 text-meta font-bold hover:bg-surface-inset transition-colors shrink-0"
           >
             <FileText className="h-4 w-4" />
             Report an experience
@@ -211,7 +211,7 @@ function ConfidenceBar({
           }}
         />
       </div>
-      <div className="mt-2 flex justify-between text-[11px] text-ink-secondary tabular-nums">
+      <div className="mt-2 flex justify-between text-meta text-ink-secondary tabular-nums">
         <span>{score.confidence_low}</span>
         <span className="font-bold text-ink-primary">{score.point_estimate}</span>
         <span>{score.confidence_high}</span>
@@ -253,7 +253,7 @@ function SignalWaterfall({ score }: { score: ReturnType<typeof scorePlace> }) {
                 {Math.round(c.contribution)}
               </span>
               <div className="flex-1 min-w-0">
-                <div className="text-[14px] text-ink-primary leading-snug">
+                <div className="text-body text-ink-primary leading-snug">
                   {c.label}
                 </div>
                 <div className="mt-1.5 h-1.5 rounded-full bg-surface-inset overflow-hidden">
@@ -316,7 +316,7 @@ function Timeline({
           <div className="flex items-center gap-2 text-meta text-ink-secondary">
             <Calendar className="h-3 w-3" />
             <span className="tabular-nums">{inc.date}</span>
-            <span className="text-ink-primary uppercase tracking-[0.1em] text-[11px] font-bold">
+            <span className="text-ink-primary uppercase tracking-[0.1em] text-meta font-bold">
               {inc.severity}
             </span>
             {inc.isUser && (
@@ -325,7 +325,7 @@ function Timeline({
               </span>
             )}
           </div>
-          <div className="mt-1 text-[14px] text-ink-primary leading-snug">
+          <div className="mt-1 text-body text-ink-primary leading-snug">
             {inc.summary}
           </div>
           <div className="mt-1 text-meta text-ink-secondary">
