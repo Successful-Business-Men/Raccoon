@@ -1,0 +1,13 @@
+{
+  "_meta": "Placeholder per-state insurance notes. Keys are state codes. Replace with vetted text before launch.",
+  "states": {
+    "_DEFAULT": {
+      "employer": "Employer-sponsored ERISA plans are governed by federal rules; coverage of gender-affirming care varies by plan. Request the Summary Plan Description in writing.",
+      "marketplace": "ACA Marketplace plans must comply with Section 1557 nondiscrimination rules. Coverage of specific gender-affirming services varies by plan and metal tier.",
+      "medicaid": "Medicaid coverage of gender-affirming care varies by state. Verify current state policy with the state Medicaid agency.",
+      "medicare": "Medicare covers medically necessary gender-affirming care on a case-by-case basis under national coverage determinations.",
+      "uninsured": "If you are uninsured, check whether your destination state has expanded Medicaid and whether community health centers in the area offer sliding-scale care.",
+      "notes": "Placeholder note — replace with verified per-state guidance."
+    }
+  }
+}

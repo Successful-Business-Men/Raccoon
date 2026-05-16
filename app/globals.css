@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-surface text-ink-primary font-sans;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-ink-primary;
+    letter-spacing: -0.01em;
+  }
+  ::selection {
+    background: rgba(44, 44, 46, 0.12);
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-page px-6;
+  }
+  .card-surface {
+    @apply bg-surface rounded-card shadow-card;
+  }
+  .divider-soft {
+    border-color: rgba(0, 0, 0, 0.06);
+  }
+}
+
+/* react-simple-maps focus outline cleanup */
+.rsm-geography:focus {
+  outline: none;
+}
