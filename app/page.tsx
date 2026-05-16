@@ -146,11 +146,6 @@ function ToolCards() {
               <IconBadge>
                 <t.icon className="h-6 w-6" strokeWidth={1.75} />
               </IconBadge>
-              {t.featured && (
-                <div className="absolute top-5 right-5 text-[10px] uppercase tracking-[0.15em] text-ink-secondary">
-                  New
-                </div>
-              )}
               <h3 className="mt-5 text-[18px] font-bold tracking-tight">
                 {t.title}
               </h3>
