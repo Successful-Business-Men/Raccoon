@@ -150,11 +150,11 @@ function TrustSection() {
             "linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%)",
         }}
       >
-        <div className="flex w-max items-center gap-24 animate-marquee">
+        <div className="flex w-max items-center animate-marquee">
           {track.map((o, i) => (
             <div
               key={`${o.name}-${i}`}
-              className="relative h-16 w-48 shrink-0"
+              className="relative h-16 w-48 shrink-0 mr-24"
             >
               <Image
                 src={o.src}
