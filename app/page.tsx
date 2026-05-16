@@ -5,6 +5,7 @@ import { Container } from "@/components/Container";
 import { IconBadge } from "@/components/IconBadge";
 import { Logo } from "@/components/Logo";
 import { GlassButton, GlassFilter } from "@/components/ui/liquid-glass";
+import { WaveVideo } from "@/components/WaveVideo";
 
 export default function LandingPage() {
   return (
@@ -19,18 +20,7 @@ export default function LandingPage() {
 function Hero() {
   return (
     <section className="relative isolate -mt-16 pt-16 overflow-hidden ocean-hero">
-      <video
-        aria-hidden
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        poster="/wave-poster.jpg"
-        className="absolute inset-0 h-full w-full object-cover pointer-events-none"
-      >
-        <source src="/wave.mp4" type="video/mp4" />
-      </video>
+      <WaveVideo />
       <div
         aria-hidden
         className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
