@@ -1,19 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Loader2, Download, BookmarkPlus, Shield, AlertTriangle, FileText, MapPin } from "lucide-react";
+import {
+  AlertTriangle,
+  BookmarkPlus,
+  Download,
+  FileText,
+  Info,
+  Loader2,
+  MapPin,
+  RotateCcw,
+  Shield,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 import { Container } from "@/components/Container";
 import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
 import { cn } from "@/lib/cn";
 import { STATE_OPTIONS } from "@/data/care_status";
 import { documentsForCareTypes } from "@/data/required_documents";
+import {
+  PHASE_LABELS,
+  PHASE_ORDER,
+  flattenPlan,
+  itemsByPhase,
+  phaseOf,
+  topNowItems,
+  type ChecklistSectionKey,
+  type FlatItem,
+} from "@/lib/continuity/phases";
+import {
+  clearLocal,
+  loadLocal,
+  saveLocal,
+  saveLocalImmediate,
+} from "@/lib/continuity/storage";
 import type {
   CareType,
   ContinuityIntake,
   ContinuityPlan,
   InsuranceType,
+  Phase,
   RiskLevel,
   TelehealthAvailability,
   Timeline,
@@ -52,26 +81,101 @@ const TELEHEALTH: Array<{ id: TelehealthAvailability; label: string }> = [
   { id: "na", label: "Not applicable" },
 ];
 
-const RISK_STYLES: Record<RiskLevel, { dot: string; label: string }> = {
-  low: { dot: "bg-status-protected", label: "Low risk" },
-  moderate: { dot: "bg-status-legal", label: "Moderate risk" },
-  high: { dot: "bg-status-restricted", label: "High risk" },
-  critical: { dot: "bg-status-banned", label: "Critical risk" },
+const RISK_STYLES: Record<
+  RiskLevel,
+  { dot: string; bg: string; ring: string; label: string }
+> = {
+  low: {
+    dot: "bg-status-protected",
+    bg: "bg-status-protected/10",
+    ring: "ring-status-protected/30",
+    label: "Low risk",
+  },
+  moderate: {
+    dot: "bg-status-legal",
+    bg: "bg-status-legal/15",
+    ring: "ring-status-legal/40",
+    label: "Moderate risk",
+  },
+  high: {
+    dot: "bg-status-restricted",
+    bg: "bg-status-restricted/10",
+    ring: "ring-status-restricted/30",
+    label: "High risk",
+  },
+  critical: {
+    dot: "bg-status-banned",
+    bg: "bg-status-banned/10",
+    ring: "ring-status-banned/30",
+    label: "Critical risk",
+  },
+};
+
+const DEFAULT_INTAKE: ContinuityIntake = {
+  current_state: "",
+  destination_state: "",
+  care_types: [],
+  insurance_type: "employer",
+  timeline: "planning",
+  medication_supply_days: undefined,
+  telehealth_available: "unsure",
 };
 
 export function ContinuityClient() {
-  const [intake, setIntake] = useState<ContinuityIntake>({
-    current_state: "",
-    destination_state: "",
-    care_types: [],
-    insurance_type: "employer",
-    timeline: "planning",
-    medication_supply_days: undefined,
-    telehealth_available: "unsure",
-  });
+  const [intake, setIntake] = useState<ContinuityIntake>(DEFAULT_INTAKE);
   const [plan, setPlan] = useState<ContinuityPlan | null>(null);
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+  const [showRestored, setShowRestored] = useState(false);
+  const [panicOpen, setPanicOpen] = useState(false);
+  const [savePrompt, setSavePrompt] = useState(false);
+
+  // Hydrate from localStorage once on mount.
+  useEffect(() => {
+    const saved = loadLocal();
+    if (saved) {
+      setIntake(saved.intake);
+      setPlan(saved.plan);
+      setChecked(saved.checked);
+      if (saved.plan) setShowRestored(true);
+    }
+    setHydrated(true);
+  }, []);
+
+  // Persist on any meaningful change (debounced inside saveLocal).
+  useEffect(() => {
+    if (!hydrated) return;
+    saveLocal({ intake, plan, checked });
+  }, [intake, plan, checked, hydrated]);
+
+  // Esc key opens panic confirm (but not when focus is in a form field).
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "Escape") return;
+      const tag = (e.target as HTMLElement | null)?.tagName?.toLowerCase();
+      const isField =
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select" ||
+        (e.target as HTMLElement | null)?.isContentEditable;
+      if (isField) return;
+      if (loadLocal()) setPanicOpen(true);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  function panicClear() {
+    clearLocal();
+    setIntake(DEFAULT_INTAKE);
+    setPlan(null);
+    setChecked({});
+    setError(null);
+    setShowRestored(false);
+    setPanicOpen(false);
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -86,6 +190,7 @@ export function ContinuityClient() {
     setError(null);
     setSubmitting(true);
     setPlan(null);
+    setChecked({});
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -98,6 +203,7 @@ export function ContinuityClient() {
       }
       const data = (await res.json()) as { plan: ContinuityPlan };
       setPlan(data.plan);
+      setShowRestored(false);
     } catch (e: any) {
       setError(e?.message || "Something went wrong.");
     } finally {
@@ -107,23 +213,48 @@ export function ContinuityClient() {
 
   return (
     <Container size="plan" className="py-12">
-      <header className="mb-10">
+      <header className="mb-8">
         <h1 className="text-section">Plan continuity of care</h1>
         <p className="mt-3 text-ink-secondary leading-relaxed">
           Tell us where you are and what you need. We&apos;ll generate a
-          personalized checklist for records, insurance, medication risk, and
-          legal steps.
+          personalized checklist — records, insurance, medication risk, legal —
+          with the most urgent steps surfaced first.
         </p>
       </header>
 
-      <div className="rounded-card bg-surface-inset p-5 mb-10 flex gap-3 items-start text-meta text-ink-secondary">
+      <div className="rounded-card bg-surface-inset p-5 mb-6 flex gap-3 items-start text-meta text-ink-secondary">
         <Shield className="h-5 w-5 mt-0.5 shrink-0 text-ink-primary" />
         <div>
-          Seagull does <strong className="text-ink-primary">not</strong> recommend
-          specific providers, does not bridge medications, and does not give
-          clinical advice. We help you organize your own plan.
+          <div>
+            Your plan lives in <strong className="text-ink-primary">this browser</strong>.
+            Seagull never sees it unless you choose to sync. Hit{" "}
+            <kbd className="rounded border border-divider bg-surface px-1.5 py-0.5 text-[11px] font-medium">
+              Esc
+            </kbd>{" "}
+            to wipe everything instantly.
+          </div>
+          <div className="mt-1">
+            Seagull does <strong className="text-ink-primary">not</strong>{" "}
+            recommend specific providers, bridge medications, or give clinical
+            advice. We help you organize your own plan.
+          </div>
         </div>
       </div>
+
+      {showRestored && plan && (
+        <div className="rounded-btn bg-status-protected/10 border border-status-protected/30 px-4 py-3 mb-6 flex items-center justify-between gap-3 text-meta">
+          <span>
+            Restored your plan from this browser. Progress and edits saved.
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowRestored(false)}
+            className="text-ink-secondary hover:text-ink-primary underline-offset-4 hover:underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {!plan && (
         <form onSubmit={submit} className="space-y-6">
@@ -191,7 +322,7 @@ export function ContinuityClient() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <FormCard label="Medication supply" hint="In days. Optional.">
+            <FormCard label="Medication supply" hint="In days. Leave blank if you don't know.">
               <input
                 type="number"
                 min={0}
@@ -243,10 +374,838 @@ export function ContinuityClient() {
         </form>
       )}
 
-      {plan && <PlanView plan={plan} intake={intake} onEdit={() => setPlan(null)} />}
+      {plan && (
+        <PlanView
+          plan={plan}
+          intake={intake}
+          checked={checked}
+          onToggle={(k) => setChecked((c) => ({ ...c, [k]: !c[k] }))}
+          onPlanUpdate={(p, i) => {
+            setPlan(p);
+            if (i) setIntake(i);
+            setShowRestored(false);
+          }}
+          onLetterChange={(letter) =>
+            setPlan({
+              ...plan,
+              records_transfer: { ...plan.records_transfer, template_letter: letter },
+            })
+          }
+          onEdit={() => {
+            setPlan(null);
+            setChecked({});
+          }}
+          onOpenSave={() => setSavePrompt(true)}
+          onOpenPanic={() => setPanicOpen(true)}
+        />
+      )}
+
+      {savePrompt && plan && (
+        <SaveDialog
+          plan={plan}
+          intake={intake}
+          onClose={() => setSavePrompt(false)}
+        />
+      )}
+
+      {panicOpen && (
+        <PanicConfirm
+          onCancel={() => setPanicOpen(false)}
+          onConfirm={panicClear}
+        />
+      )}
     </Container>
   );
 }
+
+// ─── Plan view ───────────────────────────────────────────────────────────
+
+function PlanView({
+  plan,
+  intake,
+  checked,
+  onToggle,
+  onPlanUpdate,
+  onLetterChange,
+  onEdit,
+  onOpenSave,
+  onOpenPanic,
+}: {
+  plan: ContinuityPlan;
+  intake: ContinuityIntake;
+  checked: Record<string, boolean>;
+  onToggle: (key: string) => void;
+  onPlanUpdate: (plan: ContinuityPlan, intake?: ContinuityIntake) => void;
+  onLetterChange: (letter: string) => void;
+  onEdit: () => void;
+  onOpenSave: () => void;
+  onOpenPanic: () => void;
+}) {
+  const [downloading, setDownloading] = useState(false);
+  const [phaseFilter, setPhaseFilter] = useState<"all" | Phase>("all");
+
+  const next3 = useMemo(() => topNowItems(plan, 3), [plan]);
+  const byPhase = useMemo(() => itemsByPhase(plan), [plan]);
+  const counts = useMemo(() => {
+    const c: Record<Phase, number> = {
+      now: byPhase.now.length,
+      this_week: byPhase.this_week.length,
+      this_month: byPhase.this_month.length,
+      before_move: byPhase.before_move.length,
+    };
+    return c;
+  }, [byPhase]);
+
+  async function downloadPDF() {
+    setDownloading(true);
+    try {
+      const res = await fetch("/api/continuity/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, intake }),
+      });
+      if (!res.ok) throw new Error("PDF generation failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "seagull-continuity-plan.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Couldn't generate PDF. Please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-wrap gap-3 justify-between items-center">
+        <h2 className="text-section">Your migration plan</h2>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" size="sm" onClick={onEdit}>
+            Edit answers
+          </Button>
+          <Button size="sm" onClick={downloadPDF} disabled={downloading}>
+            {downloading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            Download PDF
+          </Button>
+          <Button size="sm" variant="secondary" onClick={onOpenSave}>
+            <BookmarkPlus className="h-4 w-4" />
+            Sync to cloud
+          </Button>
+          <Button size="sm" variant="ghost" onClick={onOpenPanic}>
+            <Trash2 className="h-4 w-4" />
+            Clear
+          </Button>
+        </div>
+      </div>
+
+      <RiskHero plan={plan} />
+
+      {next3.length > 0 && (
+        <NextThree items={next3} checked={checked} onToggle={onToggle} />
+      )}
+
+      <PhaseTabs
+        value={phaseFilter}
+        onChange={setPhaseFilter}
+        counts={counts}
+      />
+
+      <Sections
+        plan={plan}
+        intake={intake}
+        phaseFilter={phaseFilter}
+        checked={checked}
+        onToggle={onToggle}
+        onLetterChange={onLetterChange}
+      />
+
+      <RefineBox
+        intake={intake}
+        plan={plan}
+        onSuccess={(p, i) => onPlanUpdate(p, i)}
+      />
+    </div>
+  );
+}
+
+// ─── Risk hero with shown math ───────────────────────────────────────────
+
+function RiskHero({ plan }: { plan: ContinuityPlan }) {
+  const [open, setOpen] = useState(false);
+  const risk = plan.medication_gap_risk;
+  const styles = RISK_STYLES[risk.level];
+  const assessment = risk.assessment;
+
+  return (
+    <div
+      className={cn(
+        "rounded-card p-7 ring-1 transition-colors",
+        styles.bg,
+        styles.ring
+      )}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="text-meta text-ink-secondary uppercase tracking-wide">
+            Medication gap risk
+          </div>
+          <div className="mt-2 flex items-center gap-3">
+            <span className={cn("h-3 w-3 rounded-full", styles.dot)} />
+            <span className="text-[28px] font-semibold leading-none">
+              {styles.label}
+            </span>
+          </div>
+          <p className="mt-3 text-[15px] leading-relaxed max-w-xl">
+            {risk.rationale}
+          </p>
+        </div>
+        {assessment && (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            className="inline-flex items-center gap-1.5 text-meta text-ink-secondary hover:text-ink-primary underline-offset-4 hover:underline"
+          >
+            <Info className="h-3.5 w-3.5" />
+            {open ? "Hide the math" : "How was this computed?"}
+          </button>
+        )}
+      </div>
+
+      {assessment && open && (
+        <div className="mt-5 rounded-btn bg-surface p-4 text-meta space-y-3">
+          <div className="text-ink-secondary">
+            Risk is computed from your inputs, <em>not</em> by AI.
+          </div>
+          <div className="font-mono text-[12px] leading-relaxed text-ink-primary">
+            supplyDays:{" "}
+            <span className="font-semibold">
+              {typeof assessment.inputs.supplyDays === "number"
+                ? `${assessment.inputs.supplyDays}d`
+                : "unknown"}
+            </span>
+            {"  ·  "}
+            moveWindow:{" "}
+            <span className="font-semibold">
+              {assessment.inputs.moveWindowDays}d
+            </span>
+            {"  ·  "}
+            telehealth:{" "}
+            <span className="font-semibold">
+              {assessment.inputs.telehealthCounts ? "yes" : "no"}
+            </span>
+            {"  ·  "}
+            medDependent:{" "}
+            <span className="font-semibold">
+              {assessment.inputs.medDependentCare ? "yes" : "no"}
+            </span>
+          </div>
+          <ul className="space-y-1.5 list-disc pl-5 text-ink-primary">
+            {assessment.reasons.map((r, i) => (
+              <li key={i}>{r}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Next 3 Actions hero ─────────────────────────────────────────────────
+
+function NextThree({
+  items,
+  checked,
+  onToggle,
+}: {
+  items: FlatItem[];
+  checked: Record<string, boolean>;
+  onToggle: (k: string) => void;
+}) {
+  return (
+    <div className="rounded-card bg-surface shadow-card p-7 border-l-4 border-accent">
+      <div className="flex items-center gap-2 mb-1">
+        <Sparkles className="h-4 w-4 text-ink-primary" />
+        <h3 className="text-[20px] font-semibold tracking-tight">
+          Next {items.length === 1 ? "action" : `${items.length} actions`}
+        </h3>
+      </div>
+      <p className="text-meta text-ink-secondary mb-5">
+        If you do nothing else today, do these.
+      </p>
+      <ul className="space-y-4">
+        {items.map((it) => (
+          <NextItem
+            key={it.key}
+            item={it}
+            done={!!checked[it.key]}
+            onToggle={() => onToggle(it.key)}
+          />
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function NextItem({
+  item,
+  done,
+  onToggle,
+}: {
+  item: FlatItem;
+  done: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full text-left flex gap-3 items-start group"
+      >
+        <span
+          className={cn(
+            "mt-1 h-5 w-5 shrink-0 rounded border transition-colors flex items-center justify-center",
+            done
+              ? "bg-accent border-accent"
+              : "border-divider group-hover:border-ink-primary"
+          )}
+        >
+          {done && (
+            <svg viewBox="0 0 16 16" className="h-3 w-3 text-white" fill="none">
+              <path
+                d="M3 8.5l3 3 7-7"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+        </span>
+        <span className={cn("flex-1", done && "text-ink-secondary line-through")}>
+          <span className="flex items-center gap-2">
+            <span className="text-[16px] font-semibold">{item.title}</span>
+            <span className="rounded-chip bg-surface-inset px-2 py-0.5 text-[11px] text-ink-secondary uppercase tracking-wide">
+              {item.sectionLabel}
+            </span>
+          </span>
+          <span className="block text-meta text-ink-secondary mt-1">
+            {item.detail}
+          </span>
+        </span>
+      </button>
+    </li>
+  );
+}
+
+// ─── Phase tabs ──────────────────────────────────────────────────────────
+
+function PhaseTabs({
+  value,
+  onChange,
+  counts,
+}: {
+  value: "all" | Phase;
+  onChange: (v: "all" | Phase) => void;
+  counts: Record<Phase, number>;
+}) {
+  const total =
+    counts.now + counts.this_week + counts.this_month + counts.before_move;
+  const tabs: Array<{ id: "all" | Phase; label: string; count: number }> = [
+    { id: "all", label: "All", count: total },
+    ...PHASE_ORDER.map((p) => ({
+      id: p,
+      label: PHASE_LABELS[p],
+      count: counts[p],
+    })),
+  ];
+  return (
+    <div className="flex flex-wrap gap-2">
+      {tabs.map((t) => (
+        <button
+          key={t.id}
+          type="button"
+          onClick={() => onChange(t.id)}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-chip px-3 py-1.5 text-meta transition-colors",
+            value === t.id
+              ? "bg-accent text-white"
+              : "bg-surface-inset text-ink-primary hover:bg-[#F0F0F2]"
+          )}
+        >
+          <span>{t.label}</span>
+          <span
+            className={cn(
+              "rounded-full px-1.5 text-[11px]",
+              value === t.id ? "bg-white/20" : "bg-surface text-ink-secondary"
+            )}
+          >
+            {t.count}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ─── Sections (filterable by phase) ──────────────────────────────────────
+
+function Sections({
+  plan,
+  intake,
+  phaseFilter,
+  checked,
+  onToggle,
+  onLetterChange,
+}: {
+  plan: ContinuityPlan;
+  intake: ContinuityIntake;
+  phaseFilter: "all" | Phase;
+  checked: Record<string, boolean>;
+  onToggle: (key: string) => void;
+  onLetterChange: (letter: string) => void;
+}) {
+  const all = useMemo(() => flattenPlan(plan), [plan]);
+
+  function filterFor(section: ChecklistSectionKey): FlatItem[] {
+    return all
+      .filter((i) => i.section === section)
+      .filter((i) => phaseFilter === "all" || phaseOf(i) === phaseFilter);
+  }
+
+  const sections = [
+    {
+      key: "records_transfer" as const,
+      title: "1. Records transfer",
+      body: (
+        <>
+          <FilteredChecklist
+            items={filterFor("records_transfer")}
+            checked={checked}
+            onToggle={onToggle}
+          />
+          {phaseFilter === "all" && (
+            <div className="mt-6">
+              <div className="text-[15px] font-medium mb-2">Template letter</div>
+              <textarea
+                value={plan.records_transfer.template_letter}
+                onChange={(e) => onLetterChange(e.target.value)}
+                rows={8}
+                className="w-full rounded-btn border border-divider bg-surface p-4 text-[14px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/30 font-mono"
+              />
+            </div>
+          )}
+        </>
+      ),
+    },
+    {
+      key: "insurance_continuity" as const,
+      title: "2. Insurance continuity",
+      body: (
+        <>
+          <FilteredChecklist
+            items={filterFor("insurance_continuity")}
+            checked={checked}
+            onToggle={onToggle}
+          />
+          {phaseFilter === "all" && (
+            <>
+              <p className="mt-4 text-meta text-ink-secondary leading-relaxed">
+                {plan.insurance_continuity.state_notes}
+              </p>
+              {intake.destination_state &&
+                intake.destination_state !== "exploring" && (
+                  <Link
+                    href={`/map?state=${intake.destination_state}`}
+                    className="mt-4 inline-flex items-center gap-2 text-meta text-ink-primary underline-offset-4 hover:underline"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    Check {intake.destination_state}&apos;s current care status
+                  </Link>
+                )}
+            </>
+          )}
+        </>
+      ),
+    },
+    {
+      key: "medication_gap_risk" as const,
+      title: "3. Medication gap items",
+      body: (
+        <FilteredChecklist
+          items={filterFor("medication_gap_risk")}
+          checked={checked}
+          onToggle={onToggle}
+        />
+      ),
+    },
+    {
+      key: "finding_new_care" as const,
+      title: "5. Finding new care",
+      body: (
+        <>
+          {phaseFilter === "all" && (
+            <>
+              <div className="text-[15px] font-medium mb-2">Questions to ask</div>
+              <ul className="list-disc pl-5 space-y-1.5 mb-4 text-ink-primary">
+                {plan.finding_new_care.questions_to_ask.map((q, i) => (
+                  <li key={i}>{q}</li>
+                ))}
+              </ul>
+              <div className="text-[15px] font-medium mb-2">Red flags</div>
+              <ul className="list-disc pl-5 space-y-1.5 mb-4 text-ink-primary">
+                {plan.finding_new_care.red_flags.map((q, i) => (
+                  <li key={i}>{q}</li>
+                ))}
+              </ul>
+            </>
+          )}
+          <FilteredChecklist
+            items={filterFor("finding_new_care")}
+            checked={checked}
+            onToggle={onToggle}
+          />
+        </>
+      ),
+    },
+    {
+      key: "legal_and_id" as const,
+      title: "6. Legal and ID",
+      body: (
+        <FilteredChecklist
+          items={filterFor("legal_and_id")}
+          checked={checked}
+          onToggle={onToggle}
+        />
+      ),
+    },
+  ];
+
+  // Documents section slots between "3. Medication gap items" (sections[2])
+  // and "5. Finding new care". Always renders in the "all" view as reference
+  // material; hidden when filtering by phase (the phase tabs are for
+  // time-sensitive checklist items, not static docs).
+  const docsSlotIndex = sections.findIndex((s) => s.key === "finding_new_care");
+
+  return (
+    <div className="space-y-8">
+      {sections.map((s, i) => {
+        const items = filterFor(s.key);
+        const node =
+          phaseFilter !== "all" && items.length === 0 ? null : (
+            <PlanSection title={s.title}>{s.body}</PlanSection>
+          );
+        const docsHere =
+          i === docsSlotIndex && phaseFilter === "all" ? (
+            <DocumentsSection careTypes={intake.care_types} />
+          ) : null;
+        return (
+          <Fragment key={s.key}>
+            {docsHere}
+            {node}
+          </Fragment>
+        );
+      })}
+
+      {phaseFilter === "all" && (
+        <PlanSection title="7. Community resources">
+          <div className="space-y-4">
+            {plan.community_resources.items.map((r, i) => (
+              <div key={i} className="rounded-btn bg-surface-inset p-4">
+                <div className="font-medium">{r.name}</div>
+                {r.note && (
+                  <div className="text-meta text-ink-secondary mt-1">{r.note}</div>
+                )}
+                <a
+                  href={r.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-meta text-ink-primary underline-offset-4 hover:underline mt-1 inline-block"
+                >
+                  {r.url}
+                </a>
+              </div>
+            ))}
+          </div>
+        </PlanSection>
+      )}
+    </div>
+  );
+}
+
+function FilteredChecklist({
+  items,
+  checked,
+  onToggle,
+}: {
+  items: FlatItem[];
+  checked: Record<string, boolean>;
+  onToggle: (key: string) => void;
+}) {
+  if (items.length === 0) {
+    return (
+      <div className="text-meta text-ink-secondary italic">
+        No items in this phase for this section.
+      </div>
+    );
+  }
+  return (
+    <ul className="space-y-3">
+      {items.map((it) => {
+        const isDone = !!checked[it.key];
+        return (
+          <li key={it.key}>
+            <button
+              type="button"
+              onClick={() => onToggle(it.key)}
+              className="w-full text-left flex gap-3 items-start group"
+            >
+              <span
+                className={cn(
+                  "mt-1 h-5 w-5 shrink-0 rounded border transition-colors flex items-center justify-center",
+                  isDone
+                    ? "bg-accent border-accent"
+                    : "border-divider group-hover:border-ink-primary"
+                )}
+              >
+                {isDone && (
+                  <svg
+                    viewBox="0 0 16 16"
+                    className="h-3 w-3 text-white"
+                    fill="none"
+                  >
+                    <path
+                      d="M3 8.5l3 3 7-7"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </span>
+              <span
+                className={cn(
+                  "flex-1",
+                  isDone && "text-ink-secondary line-through"
+                )}
+              >
+                <span className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[15px] font-medium">{it.title}</span>
+                  <PhaseChip phase={phaseOf(it)} />
+                </span>
+                <span className="block text-meta text-ink-secondary mt-0.5">
+                  {it.detail}
+                </span>
+              </span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function PhaseChip({ phase }: { phase: Phase }) {
+  const tone: Record<Phase, string> = {
+    now: "bg-status-banned/10 text-status-banned",
+    this_week: "bg-status-restricted/10 text-status-restricted",
+    this_month: "bg-status-legal/15 text-ink-primary",
+    before_move: "bg-surface-inset text-ink-secondary",
+  };
+  return (
+    <span
+      className={cn(
+        "rounded-chip px-2 py-0.5 text-[11px] uppercase tracking-wide",
+        tone[phase]
+      )}
+    >
+      {PHASE_LABELS[phase]}
+    </span>
+  );
+}
+
+function PlanSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-card bg-surface shadow-card p-7">
+      <h3 className="text-[20px] font-semibold tracking-tight mb-4">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+// ─── Refinement box ──────────────────────────────────────────────────────
+
+function RefineBox({
+  intake,
+  plan,
+  onSuccess,
+}: {
+  intake: ContinuityIntake;
+  plan: ContinuityPlan;
+  onSuccess: (plan: ContinuityPlan, intake?: ContinuityIntake) => void;
+}) {
+  const [delta, setDelta] = useState("");
+  const [refining, setRefining] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [applied, setApplied] = useState<string[]>([]);
+  const previousPlanRef = useRef<ContinuityPlan | null>(null);
+
+  async function refine() {
+    if (!delta.trim()) return;
+    setError(null);
+    setRefining(true);
+    previousPlanRef.current = plan;
+    try {
+      const res = await fetch("/api/continuity/refine", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ intake, plan, delta }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Refinement failed.");
+      }
+      const data = (await res.json()) as {
+        plan: ContinuityPlan;
+        intake: ContinuityIntake;
+        applied: string[];
+      };
+      setApplied(data.applied || []);
+      onSuccess(data.plan, data.intake);
+      setDelta("");
+    } catch (e: any) {
+      setError(e?.message || "Refinement failed.");
+    } finally {
+      setRefining(false);
+    }
+  }
+
+  function revert() {
+    if (previousPlanRef.current) {
+      onSuccess(previousPlanRef.current);
+      previousPlanRef.current = null;
+      setApplied([]);
+    }
+  }
+
+  return (
+    <div className="rounded-card bg-surface-inset p-6 border border-divider">
+      <div className="flex items-center gap-2 mb-1">
+        <RotateCcw className="h-4 w-4 text-ink-primary" />
+        <h3 className="text-[18px] font-semibold tracking-tight">
+          Update my plan
+        </h3>
+      </div>
+      <p className="text-meta text-ink-secondary mb-4">
+        Situation changed? Type the update — e.g.{" "}
+        <em>&quot;My move is now in 2 weeks not 3 months&quot;</em>,{" "}
+        <em>&quot;I got 90 days of supply&quot;</em>,{" "}
+        <em>&quot;I lost my insurance&quot;</em>.
+      </p>
+      <textarea
+        value={delta}
+        onChange={(e) => setDelta(e.target.value)}
+        rows={3}
+        placeholder="Describe what changed…"
+        className="w-full rounded-btn border border-divider bg-surface p-4 text-[15px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/30"
+      />
+      {applied.length > 0 && (
+        <div className="mt-3 text-meta text-ink-secondary">
+          Applied automatically: {applied.join("; ")}.{" "}
+          {previousPlanRef.current && (
+            <button
+              type="button"
+              onClick={revert}
+              className="text-ink-primary underline-offset-4 hover:underline"
+            >
+              Use previous version
+            </button>
+          )}
+        </div>
+      )}
+      {error && (
+        <div className="mt-3 rounded-btn bg-status-banned/10 px-4 py-2 text-meta text-status-banned">
+          {error}
+        </div>
+      )}
+      <div className="mt-4 flex justify-end">
+        <Button
+          size="sm"
+          onClick={refine}
+          disabled={refining || !delta.trim()}
+        >
+          {refining ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" /> Updating…
+            </>
+          ) : (
+            "Update my plan"
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Panic clear confirm ─────────────────────────────────────────────────
+
+function PanicConfirm({
+  onCancel,
+  onConfirm,
+}: {
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onCancel}
+    >
+      <div
+        className="bg-surface rounded-card shadow-card p-7 max-w-sm w-full"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <Trash2 className="h-5 w-5 text-status-banned" />
+          <h3 className="text-[18px] font-semibold tracking-tight">
+            Clear everything?
+          </h3>
+        </div>
+        <p className="text-meta text-ink-secondary leading-relaxed">
+          Your plan, intake, and progress will be erased from this browser. This
+          can&apos;t be undone — but if you&apos;ve synced to cloud, your saved
+          copy stays safe.
+        </p>
+        <div className="mt-6 flex justify-end gap-2">
+          <Button variant="secondary" size="sm" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button size="sm" onClick={onConfirm}>
+            <Trash2 className="h-4 w-4" />
+            Clear everything
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Form primitives (unchanged from prior version) ──────────────────────
 
 function FormCard({
   label,
@@ -284,7 +1243,9 @@ function StateSelect({
       className="w-full rounded-btn border border-divider bg-surface px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-accent/30"
     >
       <option value="">{placeholder || "Select"}</option>
-      {allowExploring && <option value="exploring">Exploring (no specific state)</option>}
+      {allowExploring && (
+        <option value="exploring">Exploring (no specific state)</option>
+      )}
       {STATE_OPTIONS.map((s) => (
         <option key={s.code} value={s.code}>
           {s.name}
@@ -328,248 +1289,7 @@ function RadioGroup<T extends string>({
   );
 }
 
-function PlanView({
-  plan,
-  intake,
-  onEdit,
-}: {
-  plan: ContinuityPlan;
-  intake: ContinuityIntake;
-  onEdit: () => void;
-}) {
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const [letter, setLetter] = useState(plan.records_transfer.template_letter);
-  const [downloading, setDownloading] = useState(false);
-  const [savePrompt, setSavePrompt] = useState(false);
-
-  function toggle(key: string) {
-    setChecked((c) => ({ ...c, [key]: !c[key] }));
-  }
-
-  async function downloadPDF() {
-    setDownloading(true);
-    try {
-      const planForPDF: ContinuityPlan = {
-        ...plan,
-        records_transfer: { ...plan.records_transfer, template_letter: letter },
-      };
-      const res = await fetch("/api/continuity/pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planForPDF, intake }),
-      });
-      if (!res.ok) throw new Error("PDF generation failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "seagull-continuity-plan.pdf";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Couldn't generate PDF. Please try again.");
-    } finally {
-      setDownloading(false);
-    }
-  }
-
-  return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap gap-3 justify-between items-center">
-        <h2 className="text-section">Your migration plan</h2>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" size="sm" onClick={onEdit}>
-            Edit answers
-          </Button>
-          <Button size="sm" onClick={downloadPDF} disabled={downloading}>
-            {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-            Download PDF
-          </Button>
-          <Button size="sm" variant="secondary" onClick={() => setSavePrompt(true)}>
-            <BookmarkPlus className="h-4 w-4" />
-            Save
-          </Button>
-        </div>
-      </div>
-
-      <PlanSection title="1. Records transfer">
-        <Checklist
-          items={plan.records_transfer.items}
-          prefix="records"
-          checked={checked}
-          onToggle={toggle}
-        />
-        <div className="mt-6">
-          <div className="text-[15px] font-medium mb-2">Template letter</div>
-          <textarea
-            value={letter}
-            onChange={(e) => setLetter(e.target.value)}
-            rows={8}
-            className="w-full rounded-btn border border-divider bg-surface p-4 text-[14px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/30 font-mono"
-          />
-        </div>
-      </PlanSection>
-
-      <PlanSection title="2. Insurance continuity">
-        <Checklist
-          items={plan.insurance_continuity.items}
-          prefix="insurance"
-          checked={checked}
-          onToggle={toggle}
-        />
-        <p className="mt-4 text-meta text-ink-secondary leading-relaxed">
-          {plan.insurance_continuity.state_notes}
-        </p>
-        {intake.destination_state && intake.destination_state !== "exploring" && (
-          <Link
-            href={`/map?state=${intake.destination_state}`}
-            className="mt-4 inline-flex items-center gap-2 text-meta text-ink-primary underline-offset-4 hover:underline"
-          >
-            <MapPin className="h-4 w-4" />
-            Check {intake.destination_state}&apos;s current care status
-          </Link>
-        )}
-      </PlanSection>
-
-      <PlanSection title="3. Medication gap risk">
-        <div className="flex items-center gap-3 mb-3">
-          <span
-            className={cn(
-              "inline-flex items-center gap-2 rounded-chip px-3 py-1.5 text-meta",
-              "bg-surface-inset"
-            )}
-          >
-            <span
-              className={cn(
-                "h-2 w-2 rounded-full",
-                RISK_STYLES[plan.medication_gap_risk.level].dot
-              )}
-            />
-            {RISK_STYLES[plan.medication_gap_risk.level].label}
-          </span>
-        </div>
-        <p className="text-[15px] text-ink-primary leading-relaxed mb-4">
-          {plan.medication_gap_risk.rationale}
-        </p>
-        <Checklist
-          items={plan.medication_gap_risk.items}
-          prefix="meds"
-          checked={checked}
-          onToggle={toggle}
-        />
-      </PlanSection>
-
-      <DocumentsSection careTypes={intake.care_types} />
-
-      <PlanSection title="5. Finding new care">
-        <div className="text-[15px] font-medium mb-2">Questions to ask</div>
-        <ul className="list-disc pl-5 space-y-1.5 mb-4 text-ink-primary">
-          {plan.finding_new_care.questions_to_ask.map((q, i) => (
-            <li key={i}>{q}</li>
-          ))}
-        </ul>
-        <div className="text-[15px] font-medium mb-2">Red flags</div>
-        <ul className="list-disc pl-5 space-y-1.5 mb-4 text-ink-primary">
-          {plan.finding_new_care.red_flags.map((q, i) => (
-            <li key={i}>{q}</li>
-          ))}
-        </ul>
-        <Checklist
-          items={plan.finding_new_care.items}
-          prefix="find"
-          checked={checked}
-          onToggle={toggle}
-        />
-      </PlanSection>
-
-      <PlanSection title="6. Legal and ID">
-        <Checklist
-          items={plan.legal_and_id.items}
-          prefix="legal"
-          checked={checked}
-          onToggle={toggle}
-        />
-      </PlanSection>
-
-      <PlanSection title="7. Community resources">
-        <div className="space-y-4">
-          {plan.community_resources.items.map((r, i) => (
-            <div key={i} className="rounded-btn bg-surface-inset p-4">
-              <div className="font-medium">{r.name}</div>
-              {r.note && <div className="text-meta text-ink-secondary mt-1">{r.note}</div>}
-              <a
-                href={r.url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-meta text-ink-primary underline-offset-4 hover:underline mt-1 inline-block"
-              >
-                {r.url}
-              </a>
-            </div>
-          ))}
-        </div>
-      </PlanSection>
-
-      {savePrompt && <SaveDialog plan={plan} intake={intake} onClose={() => setSavePrompt(false)} />}
-    </div>
-  );
-}
-
-function PlanSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-card bg-surface shadow-card p-7">
-      <h3 className="text-[20px] font-semibold tracking-tight mb-4">{title}</h3>
-      {children}
-    </div>
-  );
-}
-
-function Checklist({
-  items,
-  prefix,
-  checked,
-  onToggle,
-}: {
-  items: Array<{ title: string; detail: string }>;
-  prefix: string;
-  checked: Record<string, boolean>;
-  onToggle: (k: string) => void;
-}) {
-  return (
-    <ul className="space-y-3">
-      {items.map((it, i) => {
-        const key = `${prefix}:${i}`;
-        const isDone = !!checked[key];
-        return (
-          <li key={key}>
-            <button
-              type="button"
-              onClick={() => onToggle(key)}
-              className="w-full text-left flex gap-3 items-start group"
-            >
-              <span
-                className={cn(
-                  "mt-1 h-5 w-5 shrink-0 rounded border transition-colors flex items-center justify-center",
-                  isDone ? "bg-accent border-accent" : "border-divider group-hover:border-ink-primary"
-                )}
-              >
-                {isDone && (
-                  <svg viewBox="0 0 16 16" className="h-3 w-3 text-white" fill="none">
-                    <path d="M3 8.5l3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
-              </span>
-              <span className={cn("flex-1", isDone && "text-ink-secondary line-through")}>
-                <span className="block text-[15px] font-medium">{it.title}</span>
-                <span className="block text-meta text-ink-secondary mt-0.5">{it.detail}</span>
-              </span>
-            </button>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
+// ─── Documents to bring ──────────────────────────────────────────────────
 
 function DocumentsSection({ careTypes }: { careTypes: CareType[] }) {
   const groups = documentsForCareTypes(careTypes);
@@ -628,6 +1348,8 @@ function DocumentsSection({ careTypes }: { careTypes: CareType[] }) {
   );
 }
 
+// ─── Save / cloud sync dialog ────────────────────────────────────────────
+
 function SaveDialog({
   plan,
   intake,
@@ -652,7 +1374,7 @@ function SaveDialog({
           "Sign-in isn't configured yet. You can still download the PDF."
         );
       }
-      // Stash the plan locally so the post-magic-link page can pick it up.
+      saveLocalImmediate({ intake, plan, checked: {} });
       window.localStorage.setItem(
         "seagull_pending_plan",
         JSON.stringify({ plan, intake })
@@ -673,12 +1395,21 @@ function SaveDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-      <div className="bg-surface rounded-card shadow-card p-8 max-w-md w-full">
-        <h3 className="text-[20px] font-semibold tracking-tight">Save your plan</h3>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-surface rounded-card shadow-card p-8 max-w-md w-full"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-[20px] font-semibold tracking-tight">
+          Sync to cloud
+        </h3>
         <p className="text-meta text-ink-secondary mt-2">
-          We&apos;ll email a magic link. Your plan is stored encrypted at rest and only
-          accessible to you.
+          Encrypted backup so you can pick up this plan on another device.
+          We&apos;ll email a magic link. Your local copy stays even if you
+          don&apos;t sync.
         </p>
         {sent ? (
           <p className="mt-6 text-[15px]">
@@ -693,7 +1424,9 @@ function SaveDialog({
               placeholder="you@example.com"
               className="mt-4 w-full rounded-btn border border-divider bg-surface px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-accent/30"
             />
-            {error && <div className="mt-3 text-meta text-status-banned">{error}</div>}
+            {error && (
+              <div className="mt-3 text-meta text-status-banned">{error}</div>
+            )}
           </>
         )}
         <div className="mt-6 flex justify-end gap-2">
@@ -701,7 +1434,11 @@ function SaveDialog({
             Close
           </Button>
           {!sent && (
-            <Button size="sm" onClick={send} disabled={sending || !email.includes("@")}>
+            <Button
+              size="sm"
+              onClick={send}
+              disabled={sending || !email.includes("@")}
+            >
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Send link
             </Button>

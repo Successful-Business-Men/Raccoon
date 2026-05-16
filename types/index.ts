@@ -121,10 +121,23 @@ export interface ContinuityIntake {
 
 export type RiskLevel = "low" | "moderate" | "high" | "critical";
 
+export type Phase = "now" | "this_week" | "this_month" | "before_move";
+
 export interface ChecklistItem {
   title: string;
   detail: string;
+  phase?: Phase;
   done?: boolean;
+}
+
+export interface RiskAssessment {
+  reasons: string[];
+  inputs: {
+    supplyDays: number | "unknown";
+    moveWindowDays: number;
+    telehealthCounts: boolean;
+    medDependentCare: boolean;
+  };
 }
 
 export interface ContinuityPlan {
@@ -140,6 +153,7 @@ export interface ContinuityPlan {
     level: RiskLevel;
     rationale: string;
     items: ChecklistItem[];
+    assessment?: RiskAssessment;
   };
   finding_new_care: {
     questions_to_ask: string[];
