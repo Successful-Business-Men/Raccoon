@@ -40,10 +40,9 @@ function Hero() {
             A toolkit for trans Americans navigating discrimination
             and shifting laws.
           </h1>
-          <p className="mt-6 text-lede text-sea-ink text-balance max-w-[640px] mx-auto">
-            Document an incident for a lawyer or filing agency, score a
-            business before you walk in, see where your state stands on
-            gender-affirming care, and plan a move without losing access.
+          <p className="mt-6 text-lede text-sea-ink text-balance max-w-[560px] mx-auto">
+            Document discrimination, score businesses, plan a move,
+            check your state.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
@@ -71,25 +70,25 @@ function ToolCards() {
       href: "/places",
       icon: ShieldCheck,
       title: "Safety Score",
-      desc: "Look up a physical business and see a transparent score from state law, corporate policy, and first-party reports.",
+      desc: "A transparent score from state law, corporate policy, and first-party reports.",
     },
     {
       href: "/document",
       icon: FileText,
       title: "Document an incident",
-      desc: "Capture a structured record of housing, employment, healthcare, or public accommodation discrimination.",
+      desc: "Record housing, employment, healthcare, or public-accommodation discrimination.",
     },
     {
       href: "/map",
       icon: MapIcon,
       title: "Check your state",
-      desc: "See the current legal landscape for gender-affirming care, ID changes, and shield laws.",
+      desc: "Current law on gender-affirming care, ID changes, and shield laws.",
     },
     {
       href: "/continuity",
       icon: Route,
       title: "Plan continuity of care",
-      desc: "Organize records, insurance, and timing for a move — without losing access to your care.",
+      desc: "Records, insurance, and timing — so a move doesn't break your care.",
     },
   ];
   return (
