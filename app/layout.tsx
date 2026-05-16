@@ -18,15 +18,15 @@ const fredoka = Fredoka({
 });
 
 export const metadata: Metadata = {
-  title: "Seagull — Resourceful tools for hostile terrain",
+  title: "Seagull — A toolkit for trans Americans",
   description:
-    "Three tools to help you document discrimination, understand your state's laws, and plan for care continuity. Free, private, built with the trans community in mind.",
+    "Document an incident for a lawyer or filing agency, score a business before you walk in, see where your state stands on gender-affirming care, and plan a move without losing access. Free, private, built by and for the trans community.",
   metadataBase: new URL("https://seagull.app"),
   icons: { icon: "/seagull.png" },
   openGraph: {
-    title: "Seagull — Resourceful tools for hostile terrain",
+    title: "Seagull — A toolkit for trans Americans",
     description:
-      "Document discrimination, understand state laws, and plan care continuity.",
+      "Document discrimination, score a business before you walk in, track state laws on gender-affirming care, and plan a move without losing access.",
     type: "website",
   },
 };
