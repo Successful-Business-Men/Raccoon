@@ -33,6 +33,8 @@ export interface StateCareData {
 
 // ─── Documentation Agent ──────────────────────────────────────────────────
 export type IncidentType =
+  | "violence"
+  | "education"
   | "housing"
   | "employment"
   | "healthcare"

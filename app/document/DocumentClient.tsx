@@ -21,6 +21,14 @@ const OPENER: ChatMsg = {
 };
 
 const CATEGORY_CHIPS: Array<{ label: string; value: string }> = [
+  {
+    label: "Violence or threat to safety",
+    value: "I'd like to document a violent incident or threat to my safety.",
+  },
+  {
+    label: "Education (Title IX)",
+    value: "I'd like to document an incident at a school or university.",
+  },
   { label: "Housing", value: "I'd like to document a housing incident." },
   { label: "Employment", value: "I'd like to document an employment incident." },
   { label: "Healthcare", value: "I'd like to document a healthcare incident." },
@@ -443,6 +451,8 @@ function prettyIncidentType(t: IncidentPacket["incident_type"]): string | null {
   if (!t) return null;
   return (
     {
+      violence: "Violence or threat to safety",
+      education: "Education (Title IX)",
       housing: "Housing",
       employment: "Employment",
       healthcare: "Healthcare",
