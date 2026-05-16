@@ -3,7 +3,6 @@ import Link from "next/link";
 import { FileText, Map as MapIcon, Route, ArrowRight, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/Container";
 import { IconBadge } from "@/components/IconBadge";
-import { Logo } from "@/components/Logo";
 import { GlassButton, GlassFilter } from "@/components/ui/liquid-glass";
 import { WaveBackground } from "@/components/WaveBackground";
 
@@ -32,12 +31,10 @@ function Hero() {
       <GlassFilter />
 
       <Container>
-        <div className="relative mx-auto max-w-[820px] text-center pt-20 pb-section">
-          <div className="mb-8 flex justify-center">
-            <Logo
-              size={120}
-              className="drop-shadow-[0_8px_24px_rgba(15,42,61,0.25)]"
-            />
+        <div className="relative mx-auto max-w-[860px] text-center pt-28 pb-section">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-chip glass-inset px-4 py-1.5 text-meta text-sea-ink/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-sea-deep" />
+            Free, private, no signup — built with the trans community
           </div>
           <h1 className="text-hero text-balance text-sea-ink">
             A toolkit for trans Americans navigating discrimination
@@ -47,23 +44,20 @@ function Hero() {
             Document an incident for a lawyer or filing agency, score a
             business before you walk in, see where your state stands on
             gender-affirming care, and plan a move without losing access.
-            Free, private, built by and for the trans community.
           </p>
 
-          <div className="mt-12 flex flex-col items-center justify-center gap-6">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <GlassButton href="/places" ariaLabel="Check a Safety Score">
               <span className="inline-flex items-center gap-2 text-body font-medium text-sea-ink">
                 Check a Safety Score
                 <ArrowRight className="h-4 w-4" strokeWidth={2} />
               </span>
             </GlassButton>
-
-            <Link
-              href="/document"
-              className="text-meta text-sea-ink underline underline-offset-4 decoration-sea-ink/40 hover:decoration-sea-ink transition-colors"
-            >
-              Or document an incident →
-            </Link>
+            <GlassButton href="/document" ariaLabel="Document an incident">
+              <span className="inline-flex items-center gap-2 text-body font-medium text-sea-ink">
+                Document an incident
+              </span>
+            </GlassButton>
           </div>
         </div>
       </Container>
