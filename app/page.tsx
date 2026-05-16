@@ -5,7 +5,7 @@ import { Container } from "@/components/Container";
 import { IconBadge } from "@/components/IconBadge";
 import { Logo } from "@/components/Logo";
 import { GlassButton, GlassFilter } from "@/components/ui/liquid-glass";
-import { WaveVideo } from "@/components/WaveVideo";
+import { WaveBackground } from "@/components/WaveBackground";
 
 export default function LandingPage() {
   return (
@@ -20,7 +20,7 @@ export default function LandingPage() {
 function Hero() {
   return (
     <section className="relative isolate -mt-16 pt-16 overflow-hidden ocean-hero">
-      <WaveVideo />
+      <WaveBackground />
       <div
         aria-hidden
         className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
