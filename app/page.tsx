@@ -130,7 +130,7 @@ function TrustSection() {
     { name: "KFF", src: "/logos/kff.png", scale: 1 },
     { name: "Trans Legal Defense and Education Fund", src: "/logos/tldef.png", scale: 1 },
   ];
-  const track = [...orgs, ...orgs];
+  const track = [...orgs, ...orgs, ...orgs, ...orgs];
   return (
     <section className="pb-section">
       <Container>
