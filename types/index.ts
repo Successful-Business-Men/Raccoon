@@ -196,6 +196,8 @@ export interface PlaceRecord {
   address: string;
   city: string;
   state_code: string;
+  lat?: number;
+  lng?: number;
   chain?: string;
   cei_score?: number; // 0–100 from HRC CEI
   cei_year?: number;

@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "note": "Demo seed for /places. Chain names and CEI scores are real public data from HRC's Corporate Equality Index 2024. Individual incident entries marked source 'demo' are illustrative — replace with verified events before launch.",
+    "note": "Demo seed for /places. Chain names and CEI scores are real public data from HRC's Corporate Equality Index 2024. Individual incident entries marked source 'demo' are illustrative — replace with verified events before launch. Coordinates are city-center approximations.",
     "cei_url_base": "https://www.hrc.org/resources/corporate-equality-index"
   },
   "places": [
@@ -11,6 +11,8 @@
       "address": "300 Post St",
       "city": "San Francisco",
       "state_code": "CA",
+      "lat": 37.7884,
+      "lng": -122.4076,
       "chain": "Apple",
       "cei_score": 100,
       "cei_year": 2024,
@@ -23,6 +25,8 @@
       "address": "300 W 2nd St",
       "city": "Austin",
       "state_code": "TX",
+      "lat": 30.2649,
+      "lng": -97.7470,
       "chain": "Starbucks",
       "cei_score": 100,
       "cei_year": 2024,
@@ -35,6 +39,8 @@
       "address": "1045 SW 8th St",
       "city": "Miami",
       "state_code": "FL",
+      "lat": 25.7651,
+      "lng": -80.2104,
       "chain": "Target",
       "cei_score": 100,
       "cei_year": 2024,
@@ -47,6 +53,8 @@
       "address": "725 Ponce de Leon Ave NE",
       "city": "Atlanta",
       "state_code": "GA",
+      "lat": 33.7724,
+      "lng": -84.3650,
       "chain": "Chick-fil-A",
       "cei_score": 0,
       "cei_year": 2024,
@@ -68,6 +76,8 @@
       "address": "9617 N Metro Pkwy",
       "city": "Phoenix",
       "state_code": "AZ",
+      "lat": 33.5717,
+      "lng": -112.1147,
       "chain": "Hobby Lobby",
       "cei_score": 0,
       "cei_year": 2024,
@@ -79,7 +89,9 @@
       "category": "Healthcare",
       "address": "412 Dr DB Todd Jr Blvd",
       "city": "Nashville",
-      "state_code": "TN"
+      "state_code": "TN",
+      "lat": 36.1700,
+      "lng": -86.8004
     },
     {
       "place_id": "plc_vumc_nashville",
@@ -88,6 +100,8 @@
       "address": "1211 Medical Center Dr",
       "city": "Nashville",
       "state_code": "TN",
+      "lat": 36.1408,
+      "lng": -86.8038,
       "seed_incidents": [
         {
           "date": "2023-06-21",
@@ -106,6 +120,8 @@
       "address": "238 Bedford Ave",
       "city": "Brooklyn",
       "state_code": "NY",
+      "lat": 40.7137,
+      "lng": -73.9617,
       "chain": "Whole Foods",
       "cei_score": 100,
       "cei_year": 2024,
@@ -118,6 +134,8 @@
       "address": "1003 Westheimer Rd",
       "city": "Houston",
       "state_code": "TX",
+      "lat": 29.7430,
+      "lng": -95.3920,
       "chain": "CVS",
       "cei_score": 100,
       "cei_year": 2024,
@@ -130,6 +148,8 @@
       "address": "1554 N Highland Ave NE",
       "city": "Atlanta",
       "state_code": "GA",
+      "lat": 33.7831,
+      "lng": -84.3530,
       "chain": "Walgreens",
       "cei_score": 100,
       "cei_year": 2024,
@@ -142,6 +162,8 @@
       "address": "4401 4th Ave S",
       "city": "Seattle",
       "state_code": "WA",
+      "lat": 47.5712,
+      "lng": -122.3243,
       "chain": "Costco",
       "cei_score": 100,
       "cei_year": 2024,
@@ -154,6 +176,8 @@
       "address": "200 Union Ave",
       "city": "Memphis",
       "state_code": "TN",
+      "lat": 35.1421,
+      "lng": -90.0517,
       "chain": "McDonald's",
       "cei_score": 85,
       "cei_year": 2024,
@@ -166,6 +190,8 @@
       "address": "6000 Charlotte Pike",
       "city": "Nashville",
       "state_code": "TN",
+      "lat": 36.1493,
+      "lng": -86.8909,
       "chain": "Cracker Barrel",
       "cei_score": 100,
       "cei_year": 2024,
@@ -187,6 +213,8 @@
       "address": "1450 Larimer St",
       "city": "Denver",
       "state_code": "CO",
+      "lat": 39.7497,
+      "lng": -104.9978,
       "chain": "Best Buy",
       "cei_score": 100,
       "cei_year": 2024,
@@ -198,7 +226,9 @@
       "category": "Restaurant",
       "address": "1234 E Colfax Ave",
       "city": "Denver",
-      "state_code": "CO"
+      "state_code": "CO",
+      "lat": 39.7402,
+      "lng": -104.9694
     },
     {
       "place_id": "plc_indie_bar_brooklyn",
@@ -206,7 +236,9 @@
       "category": "Bar/Nightlife",
       "address": "554 Driggs Ave",
       "city": "Brooklyn",
-      "state_code": "NY"
+      "state_code": "NY",
+      "lat": 40.7170,
+      "lng": -73.9569
     },
     {
       "place_id": "plc_indie_grill_phx",
@@ -215,6 +247,8 @@
       "address": "5500 N 7th St",
       "city": "Phoenix",
       "state_code": "AZ",
+      "lat": 33.5210,
+      "lng": -112.0651,
       "seed_incidents": [
         {
           "date": "2024-11-03",
@@ -231,7 +265,9 @@
       "category": "Healthcare",
       "address": "1405 Clifton Rd NE",
       "city": "Atlanta",
-      "state_code": "GA"
+      "state_code": "GA",
+      "lat": 33.7943,
+      "lng": -84.3216
     },
     {
       "place_id": "plc_urgent_sf_castro",
@@ -239,7 +275,9 @@
       "category": "Healthcare",
       "address": "533 Castro St",
       "city": "San Francisco",
-      "state_code": "CA"
+      "state_code": "CA",
+      "lat": 37.7619,
+      "lng": -122.4351
     },
     {
       "place_id": "plc_wholefoods_atx_lamar",
@@ -248,10 +286,137 @@
       "address": "525 N Lamar Blvd",
       "city": "Austin",
       "state_code": "TX",
+      "lat": 30.2705,
+      "lng": -97.7530,
       "chain": "Whole Foods",
       "cei_score": 100,
       "cei_year": 2024,
       "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_marriott_atl_buckhead",
+      "name": "Marriott Buckhead",
+      "category": "Hotel/Lodging",
+      "address": "3405 Lenox Rd NE",
+      "city": "Atlanta",
+      "state_code": "GA",
+      "lat": 33.8470,
+      "lng": -84.3625,
+      "chain": "Marriott",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_hyatt_nashville_downtown",
+      "name": "Hyatt Place — Downtown Nashville",
+      "category": "Hotel/Lodging",
+      "address": "301 3rd Ave S",
+      "city": "Nashville",
+      "state_code": "TN",
+      "lat": 36.1591,
+      "lng": -86.7773,
+      "chain": "Hyatt",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_walmart_dallas_n",
+      "name": "Walmart — North Dallas",
+      "category": "Retail",
+      "address": "15220 Montfort Dr",
+      "city": "Dallas",
+      "state_code": "TX",
+      "lat": 32.9529,
+      "lng": -96.8157,
+      "chain": "Walmart",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_planet_fitness_orlando",
+      "name": "Planet Fitness — Orlando",
+      "category": "Service",
+      "address": "5915 S Orange Ave",
+      "city": "Orlando",
+      "state_code": "FL",
+      "lat": 28.4660,
+      "lng": -81.3849,
+      "chain": "Planet Fitness",
+      "cei_score": 85,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_uchicago_med",
+      "name": "UChicago Medicine — Hyde Park",
+      "category": "Healthcare",
+      "address": "5841 S Maryland Ave",
+      "city": "Chicago",
+      "state_code": "IL",
+      "lat": 41.7886,
+      "lng": -87.6047
+    },
+    {
+      "place_id": "plc_iherb_indie_slc",
+      "name": "Wasatch Wellness Pharmacy",
+      "category": "Pharmacy",
+      "address": "230 S 500 E",
+      "city": "Salt Lake City",
+      "state_code": "UT",
+      "lat": 40.7596,
+      "lng": -111.8729
+    },
+    {
+      "place_id": "plc_indie_yoga_phx",
+      "name": "Desert Yoga Studio",
+      "category": "Service",
+      "address": "1820 E Camelback Rd",
+      "city": "Phoenix",
+      "state_code": "AZ",
+      "lat": 33.5097,
+      "lng": -112.0429
+    },
+    {
+      "place_id": "plc_lyft_office_sf",
+      "name": "Lyft HQ Café — Public Floor",
+      "category": "Restaurant",
+      "address": "185 Berry St",
+      "city": "San Francisco",
+      "state_code": "CA",
+      "lat": 37.7755,
+      "lng": -122.3940
+    },
+    {
+      "place_id": "plc_choa_minor_clinic",
+      "name": "Memphis Pediatric Clinic",
+      "category": "Healthcare",
+      "address": "3838 Park Ave",
+      "city": "Memphis",
+      "state_code": "TN",
+      "lat": 35.1100,
+      "lng": -89.9520,
+      "seed_incidents": [
+        {
+          "date": "2024-04-09",
+          "severity": "high",
+          "type": "healthcare",
+          "source": "user_report",
+          "summary": "Parent reported refusal to continue puberty blocker prescription citing state law (demo data)."
+        }
+      ]
+    },
+    {
+      "place_id": "plc_indie_indie_bar_atx",
+      "name": "Cheer Up Charlie's",
+      "category": "Bar/Nightlife",
+      "address": "900 Red River St",
+      "city": "Austin",
+      "state_code": "TX",
+      "lat": 30.2685,
+      "lng": -97.7373
     }
   ]
 }

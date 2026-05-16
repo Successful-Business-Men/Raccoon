@@ -2,11 +2,25 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, ChevronDown, AlertTriangle, FileText, ExternalLink } from "lucide-react";
+import {
+  Search,
+  ChevronDown,
+  AlertTriangle,
+  FileText,
+  ExternalLink,
+  ArrowUpDown,
+  ArrowRight,
+} from "lucide-react";
 import { Container } from "@/components/Container";
 import { Pill } from "@/components/Pill";
+import { ScoreRing } from "@/components/ScoreRing";
 import { cn } from "@/lib/cn";
-import type { PlaceRecord, SafetyScore, SafetyTier, SeedIncident } from "@/types";
+import type {
+  PlaceRecord,
+  SafetyScore,
+  SafetyTier,
+  SeedIncident,
+} from "@/types";
 import { scorePlace, TIER_DESCRIPTION, TIER_LABEL } from "@/lib/score";
 import { getAllUserIncidents } from "@/lib/placeIncidents";
 
@@ -21,18 +35,39 @@ const CATEGORIES = [
   "Service",
 ] as const;
 
+const TIER_FILTERS: Array<{ id: "all" | SafetyTier; label: string }> = [
+  { id: "all", label: "All tiers" },
+  { id: "green", label: "Affirming" },
+  { id: "yellow", label: "Limited data" },
+  { id: "red", label: "Concerns" },
+];
+
+type SortKey = "score_asc" | "score_desc" | "name" | "incidents";
+const SORTS: Array<{ id: SortKey; label: string }> = [
+  { id: "score_asc", label: "Lowest score first" },
+  { id: "score_desc", label: "Highest score first" },
+  { id: "incidents", label: "Most reports first" },
+  { id: "name", label: "Name (A–Z)" },
+];
+
 export function PlacesClient({ places }: { places: PlaceRecord[] }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("All");
+  const [tier, setTier] = useState<"all" | SafetyTier>("all");
+  const [sort, setSort] = useState<SortKey>("score_asc");
   const [userIncidents, setUserIncidents] = useState<Record<string, SeedIncident[]>>({});
 
   useEffect(() => {
     setUserIncidents(getAllUserIncidents());
-    function onStorage() {
+    function onFocus() {
       setUserIncidents(getAllUserIncidents());
     }
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("storage", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("storage", onFocus);
+    };
   }, []);
 
   const scored = useMemo(() => {
@@ -44,8 +79,9 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return scored.filter(({ place }) => {
+    let list = scored.filter(({ place, score }) => {
       if (category !== "All" && place.category !== category) return false;
+      if (tier !== "all" && score.tier !== tier) return false;
       if (!q) return true;
       return (
         place.name.toLowerCase().includes(q) ||
@@ -54,7 +90,26 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
         (place.chain || "").toLowerCase().includes(q)
       );
     });
-  }, [scored, query, category]);
+    list.sort((a, b) => {
+      switch (sort) {
+        case "score_asc":
+          return a.score.point_estimate - b.score.point_estimate;
+        case "score_desc":
+          return b.score.point_estimate - a.score.point_estimate;
+        case "incidents":
+          return b.score.incident_count - a.score.incident_count;
+        case "name":
+          return a.place.name.localeCompare(b.place.name);
+      }
+    });
+    return list;
+  }, [scored, query, category, tier, sort]);
+
+  const tierCounts = useMemo(() => {
+    const counts: Record<SafetyTier, number> = { green: 0, yellow: 0, red: 0 };
+    for (const { score } of scored) counts[score.tier]++;
+    return counts;
+  }, [scored]);
 
   return (
     <Container className="py-12">
@@ -65,31 +120,59 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
           posture, corporate non-discrimination policy, and first-party incident
           reports filed through Seagull. Each score shows its receipts.
         </p>
+        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-meta text-ink-secondary">
+          <TierTally tier="green" label="Affirming" count={tierCounts.green} />
+          <TierTally tier="yellow" label="Limited data" count={tierCounts.yellow} />
+          <TierTally tier="red" label="Active concerns" count={tierCounts.red} />
+        </div>
       </header>
 
-      <div className="rounded-card bg-surface shadow-card p-5 mb-8">
-        <div className="flex flex-col md:flex-row md:items-center gap-4">
+      {/* Search + sort */}
+      <div className="rounded-card bg-surface shadow-card p-5 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center gap-3">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-secondary" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name, chain, city, or state code"
+              placeholder="Search by name, chain, city, or state"
               className="w-full pl-11 pr-4 py-3 rounded-btn border border-divider bg-surface focus:outline-none focus:ring-2 focus:ring-accent/30 text-[15px]"
             />
           </div>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((c) => (
-              <Pill key={c} selected={category === c} onClick={() => setCategory(c)}>
-                {c}
-              </Pill>
-            ))}
+          <div className="relative">
+            <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-secondary pointer-events-none" />
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+              className="pl-10 pr-8 py-3 rounded-btn border border-divider bg-surface text-[14px] focus:outline-none focus:ring-2 focus:ring-accent/30 appearance-none"
+            >
+              {SORTS.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
+
+        <div className="mt-4 flex flex-wrap gap-2 items-center">
+          <span className="text-meta text-ink-secondary mr-1">Tier</span>
+          {TIER_FILTERS.map((t) => (
+            <Pill key={t.id} selected={tier === t.id} onClick={() => setTier(t.id)}>
+              {t.label}
+            </Pill>
+          ))}
+          <span className="mx-2 h-4 w-px bg-divider" aria-hidden />
+          <span className="text-meta text-ink-secondary mr-1">Category</span>
+          {CATEGORIES.map((c) => (
+            <Pill key={c} selected={category === c} onClick={() => setCategory(c)}>
+              {c}
+            </Pill>
+          ))}
+        </div>
+
         <div className="mt-4 text-meta text-ink-secondary">
-          {filtered.length} {filtered.length === 1 ? "place" : "places"} ·
-          state baseline + HRC CEI + first-party incidents (incl. anything you file
-          via Document)
+          Showing {filtered.length} of {scored.length} places
         </div>
       </div>
 
@@ -99,7 +182,7 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
         ))}
         {filtered.length === 0 && (
           <div className="md:col-span-2 rounded-card bg-surface-inset p-8 text-center text-ink-secondary">
-            No places match. Try a different search.
+            No places match. Try a different filter.
           </div>
         )}
       </div>
@@ -109,21 +192,47 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
   );
 }
 
-const TIER_COLOR: Record<SafetyTier, { dot: string; ring: string; text: string }> = {
-  green: { dot: "bg-status-protected", ring: "ring-status-protected/30", text: "text-status-protected" },
-  yellow: { dot: "bg-status-restricted", ring: "ring-status-restricted/30", text: "text-status-restricted" },
-  red: { dot: "bg-status-banned", ring: "ring-status-banned/30", text: "text-status-banned" },
+function TierTally({
+  tier,
+  label,
+  count,
+}: {
+  tier: SafetyTier;
+  label: string;
+  count: number;
+}) {
+  const dot = tier === "green" ? "bg-status-protected" : tier === "yellow" ? "bg-status-restricted" : "bg-status-banned";
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span className={cn("h-2 w-2 rounded-full", dot)} />
+      <span className="text-ink-primary font-bold">{count}</span> {label}
+    </span>
+  );
+}
+
+const TIER_TEXT_COLOR: Record<SafetyTier, string> = {
+  green: "text-status-protected",
+  yellow: "text-status-restricted",
+  red: "text-status-banned",
+};
+
+const TIER_DOT: Record<SafetyTier, string> = {
+  green: "bg-status-protected",
+  yellow: "bg-status-restricted",
+  red: "bg-status-banned",
 };
 
 function PlaceCard({ place, score }: { place: PlaceRecord; score: SafetyScore }) {
   const [open, setOpen] = useState(false);
-  const color = TIER_COLOR[score.tier];
 
   return (
-    <div className="rounded-card bg-surface shadow-card overflow-hidden">
-      <div className="p-6">
+    <div className="rounded-card bg-surface shadow-card overflow-hidden hover:shadow-cardHover transition-shadow">
+      <Link
+        href={`/places/${place.place_id}`}
+        className="block p-6 hover:bg-surface-inset/40 transition-colors"
+      >
         <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
               {place.category} · {place.city}, {place.state_code}
             </div>
@@ -133,45 +242,55 @@ function PlaceCard({ place, score }: { place: PlaceRecord; score: SafetyScore })
             <div className="mt-1 text-meta text-ink-secondary truncate">
               {place.address}
             </div>
+
+            <div className="mt-4 flex items-center gap-2 text-meta">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-chip bg-surface-inset px-3 py-1",
+                  TIER_TEXT_COLOR[score.tier]
+                )}
+              >
+                <span className={cn("h-2 w-2 rounded-full", TIER_DOT[score.tier])} />
+                {TIER_LABEL[score.tier]}
+              </span>
+              <span className="text-ink-secondary">
+                {score.incident_count}{" "}
+                {score.incident_count === 1 ? "report" : "reports"}
+              </span>
+            </div>
+
+            <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
+              {TIER_DESCRIPTION[score.tier]}
+            </p>
           </div>
-          <ScoreDial score={score} color={color} />
+          <ScoreRing score={score} size={80} />
         </div>
+      </Link>
 
-        <div className="mt-4 flex items-center gap-2 text-meta">
-          <span
-            className={cn(
-              "inline-flex items-center gap-2 rounded-chip bg-surface-inset px-3 py-1",
-              color.text
-            )}
-          >
-            <span className={cn("h-2 w-2 rounded-full", color.dot)} />
-            {TIER_LABEL[score.tier]}
-          </span>
-          <span className="text-ink-secondary">
-            {score.incident_count} {score.incident_count === 1 ? "report" : "reports"}
-          </span>
-        </div>
-
-        <p className="mt-3 text-meta text-ink-secondary">
-          {TIER_DESCRIPTION[score.tier]}
-        </p>
-
-        <div className="mt-5 flex flex-wrap gap-2">
-          <button
-            onClick={() => setOpen((o) => !o)}
-            className="inline-flex items-center gap-1.5 text-meta text-ink-primary hover:underline underline-offset-4"
-          >
-            Why this score?
-            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
-          </button>
-          <Link
-            href={`/document?place_id=${encodeURIComponent(place.place_id)}`}
-            className="ml-auto inline-flex items-center gap-1.5 text-meta text-ink-primary hover:underline underline-offset-4"
-          >
-            <FileText className="h-3.5 w-3.5" />
-            Report an experience here
-          </Link>
-        </div>
+      <div className="border-t divider-soft px-6 py-3 flex flex-wrap gap-x-5 gap-y-2 items-center text-meta">
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="inline-flex items-center gap-1.5 text-ink-primary hover:underline underline-offset-4"
+        >
+          Why this score?
+          <ChevronDown
+            className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")}
+          />
+        </button>
+        <Link
+          href={`/document?place_id=${encodeURIComponent(place.place_id)}`}
+          className="inline-flex items-center gap-1.5 text-ink-primary hover:underline underline-offset-4"
+        >
+          <FileText className="h-3.5 w-3.5" />
+          Report an experience
+        </Link>
+        <Link
+          href={`/places/${place.place_id}`}
+          className="ml-auto inline-flex items-center gap-1 text-ink-primary hover:underline underline-offset-4"
+        >
+          Details
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
       </div>
 
       {open && (
@@ -179,74 +298,52 @@ function PlaceCard({ place, score }: { place: PlaceRecord; score: SafetyScore })
           <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary mb-3">
             Signals moving this score
           </div>
-          <ul className="space-y-3">
-            {score.components.map((c, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span
-                  className={cn(
-                    "mt-1 inline-block min-w-[44px] text-right text-meta font-bold",
-                    c.contribution > 0 ? "text-status-protected" : c.contribution < 0 ? "text-status-banned" : "text-ink-secondary"
-                  )}
-                >
-                  {c.contribution > 0 ? "+" : ""}
-                  {Math.round(c.contribution)}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[14px] text-ink-primary leading-snug">
-                    {c.label}
-                  </div>
-                  <div className="text-meta text-ink-secondary mt-0.5">
-                    {c.source_url ? (
-                      <a
-                        href={c.source_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 underline-offset-4 hover:underline"
-                      >
-                        {c.source}
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    ) : (
-                      c.source
-                    )}
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-5 pt-4 border-t divider-soft text-meta text-ink-secondary leading-relaxed">
-            Score is a posterior estimate, not a verdict. The credible interval
-            ({score.confidence_low}–{score.confidence_high}) reflects how much
-            data we have. Always verify before acting.
-          </div>
+          <ComponentList score={score} />
         </div>
       )}
     </div>
   );
 }
 
-function ScoreDial({
-  score,
-  color,
-}: {
-  score: SafetyScore;
-  color: { dot: string; ring: string; text: string };
-}) {
+export function ComponentList({ score }: { score: SafetyScore }) {
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center rounded-icon bg-surface-inset ring-1",
-        color.ring
-      )}
-      style={{ minWidth: 76, padding: "10px 14px" }}
-    >
-      <div className={cn("text-[28px] leading-none font-bold", color.text)}>
-        {score.point_estimate}
-      </div>
-      <div className="mt-1 text-[10px] uppercase tracking-[0.12em] text-ink-secondary">
-        ±{Math.round((score.confidence_high - score.confidence_low) / 2)}
-      </div>
-    </div>
+    <ul className="space-y-3">
+      {score.components.map((c, i) => (
+        <li key={i} className="flex items-start gap-3">
+          <span
+            className={cn(
+              "mt-0.5 inline-block min-w-[44px] text-right text-meta font-bold tabular-nums",
+              c.contribution > 0
+                ? "text-status-protected"
+                : c.contribution < 0
+                  ? "text-status-banned"
+                  : "text-ink-secondary"
+            )}
+          >
+            {c.contribution > 0 ? "+" : ""}
+            {Math.round(c.contribution)}
+          </span>
+          <div className="flex-1 min-w-0">
+            <div className="text-[14px] text-ink-primary leading-snug">{c.label}</div>
+            <div className="text-meta text-ink-secondary mt-0.5">
+              {c.source_url ? (
+                <a
+                  href={c.source_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 underline-offset-4 hover:underline"
+                >
+                  {c.source}
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              ) : (
+                c.source
+              )}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 
