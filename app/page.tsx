@@ -128,11 +128,14 @@ function ToolCards() {
 }
 
 function TrustSection() {
+  // MAP's source PNG embeds a "movement advancement project" subtitle row, so
+  // the main wordmark only fills ~60% of its bounding box. A small scale nudge
+  // brings its visual height in line with the other marks.
   const orgs = [
-    { name: "Movement Advancement Project", src: "/logos/map.png" },
-    { name: "Lambda Legal", src: "/logos/lambda-legal.png" },
-    { name: "KFF", src: "/logos/kff.png" },
-    { name: "Trans Legal Defense and Education Fund", src: "/logos/tldef.png" },
+    { name: "Movement Advancement Project", src: "/logos/map.png", scale: 1.2 },
+    { name: "Lambda Legal", src: "/logos/lambda-legal.png", scale: 1 },
+    { name: "KFF", src: "/logos/kff.png", scale: 1 },
+    { name: "Trans Legal Defense and Education Fund", src: "/logos/tldef.png", scale: 1 },
   ];
   const track = [...orgs, ...orgs];
   return (
@@ -155,14 +158,19 @@ function TrustSection() {
               {track.map((o, i) => (
                 <div
                   key={`${o.name}-${i}`}
-                  className="relative h-14 w-44 shrink-0 grayscale opacity-70 hover:opacity-100 hover:grayscale-0 transition"
+                  className="relative h-16 w-48 shrink-0"
                 >
                   <Image
                     src={o.src}
                     alt={o.name}
                     fill
-                    sizes="176px"
+                    sizes="192px"
                     className="object-contain"
+                    style={
+                      o.scale !== 1
+                        ? { transform: `scale(${o.scale})` }
+                        : undefined
+                    }
                   />
                 </div>
               ))}
