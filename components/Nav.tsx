@@ -7,6 +7,7 @@ import { Logo } from "./Logo";
 import { cn } from "@/lib/cn";
 
 const TOOL_LINKS = [
+  { href: "/places", label: "Safety Score" },
   { href: "/document", label: "Document" },
   { href: "/map", label: "Care Map" },
   { href: "/continuity", label: "Continuity" },

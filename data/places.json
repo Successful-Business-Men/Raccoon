@@ -1,0 +1,257 @@
+{
+  "_meta": {
+    "note": "Demo seed for /places. Chain names and CEI scores are real public data from HRC's Corporate Equality Index 2024. Individual incident entries marked source 'demo' are illustrative — replace with verified events before launch.",
+    "cei_url_base": "https://www.hrc.org/resources/corporate-equality-index"
+  },
+  "places": [
+    {
+      "place_id": "plc_apple_sf_union",
+      "name": "Apple Union Square",
+      "category": "Retail",
+      "address": "300 Post St",
+      "city": "San Francisco",
+      "state_code": "CA",
+      "chain": "Apple",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_starbucks_atx_2nd",
+      "name": "Starbucks — 2nd Street",
+      "category": "Restaurant",
+      "address": "300 W 2nd St",
+      "city": "Austin",
+      "state_code": "TX",
+      "chain": "Starbucks",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_target_miami_brickell",
+      "name": "Target Brickell",
+      "category": "Retail",
+      "address": "1045 SW 8th St",
+      "city": "Miami",
+      "state_code": "FL",
+      "chain": "Target",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_chickfila_atl_midtown",
+      "name": "Chick-fil-A Midtown",
+      "category": "Restaurant",
+      "address": "725 Ponce de Leon Ave NE",
+      "city": "Atlanta",
+      "state_code": "GA",
+      "chain": "Chick-fil-A",
+      "cei_score": 0,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index",
+      "seed_incidents": [
+        {
+          "date": "2024-08-12",
+          "severity": "medium",
+          "type": "public_accommodation",
+          "source": "user_report",
+          "summary": "Customer reported being refused use of restroom matching gender identity (demo data)."
+        }
+      ]
+    },
+    {
+      "place_id": "plc_hobbylobby_phx_metro",
+      "name": "Hobby Lobby Metro Center",
+      "category": "Retail",
+      "address": "9617 N Metro Pkwy",
+      "city": "Phoenix",
+      "state_code": "AZ",
+      "chain": "Hobby Lobby",
+      "cei_score": 0,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_pp_nashville",
+      "name": "Planned Parenthood — Nashville",
+      "category": "Healthcare",
+      "address": "412 Dr DB Todd Jr Blvd",
+      "city": "Nashville",
+      "state_code": "TN"
+    },
+    {
+      "place_id": "plc_vumc_nashville",
+      "name": "Vanderbilt University Medical Center",
+      "category": "Healthcare",
+      "address": "1211 Medical Center Dr",
+      "city": "Nashville",
+      "state_code": "TN",
+      "seed_incidents": [
+        {
+          "date": "2023-06-21",
+          "severity": "high",
+          "type": "healthcare",
+          "source": "news",
+          "source_url": "https://www.hrc.org/news/vanderbilt-records-release",
+          "summary": "Medical records of transgender patients released to TN AG under subpoena, drawing widespread concern (demo summary)."
+        }
+      ]
+    },
+    {
+      "place_id": "plc_wholefoods_bk_williamsburg",
+      "name": "Whole Foods — Williamsburg",
+      "category": "Retail",
+      "address": "238 Bedford Ave",
+      "city": "Brooklyn",
+      "state_code": "NY",
+      "chain": "Whole Foods",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_cvs_houston_montrose",
+      "name": "CVS Pharmacy — Montrose",
+      "category": "Pharmacy",
+      "address": "1003 Westheimer Rd",
+      "city": "Houston",
+      "state_code": "TX",
+      "chain": "CVS",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_walgreens_atl_va",
+      "name": "Walgreens — Virginia-Highland",
+      "category": "Pharmacy",
+      "address": "1554 N Highland Ave NE",
+      "city": "Atlanta",
+      "state_code": "GA",
+      "chain": "Walgreens",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_costco_seattle",
+      "name": "Costco — Seattle",
+      "category": "Retail",
+      "address": "4401 4th Ave S",
+      "city": "Seattle",
+      "state_code": "WA",
+      "chain": "Costco",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_mcd_memphis_downtown",
+      "name": "McDonald's — Downtown Memphis",
+      "category": "Restaurant",
+      "address": "200 Union Ave",
+      "city": "Memphis",
+      "state_code": "TN",
+      "chain": "McDonald's",
+      "cei_score": 85,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_cracker_nashville",
+      "name": "Cracker Barrel — Nashville West",
+      "category": "Restaurant",
+      "address": "6000 Charlotte Pike",
+      "city": "Nashville",
+      "state_code": "TN",
+      "chain": "Cracker Barrel",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index",
+      "seed_incidents": [
+        {
+          "date": "2022-02-10",
+          "severity": "low",
+          "type": "public_accommodation",
+          "source": "litigation",
+          "summary": "Historic settlement related to prior service-discrimination claims; modern policy now nondiscriminatory (demo summary)."
+        }
+      ]
+    },
+    {
+      "place_id": "plc_bestbuy_denver_lodo",
+      "name": "Best Buy — Denver LoDo",
+      "category": "Retail",
+      "address": "1450 Larimer St",
+      "city": "Denver",
+      "state_code": "CO",
+      "chain": "Best Buy",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    },
+    {
+      "place_id": "plc_indie_cafe_denver",
+      "name": "Capitol Hill Coffee Co.",
+      "category": "Restaurant",
+      "address": "1234 E Colfax Ave",
+      "city": "Denver",
+      "state_code": "CO"
+    },
+    {
+      "place_id": "plc_indie_bar_brooklyn",
+      "name": "The Eagle's Nest",
+      "category": "Bar/Nightlife",
+      "address": "554 Driggs Ave",
+      "city": "Brooklyn",
+      "state_code": "NY"
+    },
+    {
+      "place_id": "plc_indie_grill_phx",
+      "name": "Saguaro Family Grill",
+      "category": "Restaurant",
+      "address": "5500 N 7th St",
+      "city": "Phoenix",
+      "state_code": "AZ",
+      "seed_incidents": [
+        {
+          "date": "2024-11-03",
+          "severity": "medium",
+          "type": "public_accommodation",
+          "source": "user_report",
+          "summary": "Reported deadnaming on receipt despite correction request (demo data)."
+        }
+      ]
+    },
+    {
+      "place_id": "plc_choa_atlanta",
+      "name": "Children's Healthcare of Atlanta — Egleston",
+      "category": "Healthcare",
+      "address": "1405 Clifton Rd NE",
+      "city": "Atlanta",
+      "state_code": "GA"
+    },
+    {
+      "place_id": "plc_urgent_sf_castro",
+      "name": "Castro Urgent Care",
+      "category": "Healthcare",
+      "address": "533 Castro St",
+      "city": "San Francisco",
+      "state_code": "CA"
+    },
+    {
+      "place_id": "plc_wholefoods_atx_lamar",
+      "name": "Whole Foods — Lamar",
+      "category": "Retail",
+      "address": "525 N Lamar Blvd",
+      "city": "Austin",
+      "state_code": "TX",
+      "chain": "Whole Foods",
+      "cei_score": 100,
+      "cei_year": 2024,
+      "cei_url": "https://www.hrc.org/resources/corporate-equality-index"
+    }
+  ]
+}

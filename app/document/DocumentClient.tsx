@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUp, Download, Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { ArrowUp, Download, Loader2, MapPin } from "lucide-react";
 import { Container } from "@/components/Container";
 import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
 import { cn } from "@/lib/cn";
-import type { IncidentPacket, ProtectionRecord } from "@/types";
+import type { IncidentPacket, ProtectionRecord, SeedIncident } from "@/types";
+import { getPlace } from "@/lib/score";
+import { appendIncident } from "@/lib/placeIncidents";
 
 type ChatMsg = { role: "user" | "assistant"; content: string };
 
@@ -28,12 +32,49 @@ const CATEGORY_CHIPS: Array<{ label: string; value: string }> = [
 ];
 
 export function DocumentClient() {
-  const [messages, setMessages] = useState<ChatMsg[]>([OPENER]);
-  const [packet, setPacket] = useState<IncidentPacket>({});
+  const params = useSearchParams();
+  const placeId = params.get("place_id") || undefined;
+  const place = useMemo(() => (placeId ? getPlace(placeId) : undefined), [placeId]);
+
+  const [messages, setMessages] = useState<ChatMsg[]>(() =>
+    place
+      ? [
+          {
+            role: "assistant",
+            content: `Documenting an incident at ${place.name} (${place.city}, ${place.state_code}). What kind of incident are you documenting? You can type freely, or pick a category.`,
+          },
+        ]
+      : [OPENER]
+  );
+  const [packet, setPacket] = useState<IncidentPacket>(() =>
+    place
+      ? {
+          incident_location_city: place.city,
+          incident_location_state: place.state_code,
+        }
+      : {}
+  );
   const [busy, setBusy] = useState(false);
   const [input, setInput] = useState("");
   const [streamingText, setStreamingText] = useState("");
+  const [savedToPlace, setSavedToPlace] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
+
+  // When the packet hits "ready" and we have a place_id, write the
+  // incident to the local Safety Score feed so the score updates live.
+  useEffect(() => {
+    if (!place || savedToPlace) return;
+    if (!isPacketReady(packet)) return;
+    const incident: SeedIncident = {
+      date: packet.incident_date || new Date().toISOString().slice(0, 10),
+      severity: "medium",
+      type: packet.incident_type || "other",
+      source: "user_report",
+      summary: (packet.summary || packet.what_happened || "User-reported incident").slice(0, 240),
+    };
+    appendIncident(place.place_id, incident);
+    setSavedToPlace(true);
+  }, [packet, place, savedToPlace]);
 
   // Auto-scroll
   useEffect(() => {
@@ -129,6 +170,29 @@ export function DocumentClient() {
               I&apos;ll ask a few questions and build a structured packet you can
               hand to a lawyer or filing agency.
             </p>
+            {place && (
+              <div className="mt-5 rounded-card bg-surface-inset p-4 flex items-start gap-3">
+                <MapPin className="h-4 w-4 mt-1 shrink-0 text-ink-primary" />
+                <div className="flex-1 text-meta">
+                  <div className="text-ink-primary font-bold">
+                    Filing at {place.name}
+                  </div>
+                  <div className="text-ink-secondary">
+                    {place.address} · {place.city}, {place.state_code} ·{" "}
+                    {savedToPlace ? (
+                      <Link
+                        href={`/places`}
+                        className="text-status-protected underline-offset-4 hover:underline"
+                      >
+                        Added to Safety Score ↗
+                      </Link>
+                    ) : (
+                      "will feed the Safety Score once the packet is filled"
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </header>
 
           <div

@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { FileText, Map as MapIcon, Route, ArrowRight } from "lucide-react";
+import { FileText, Map as MapIcon, Route, ArrowRight, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/Container";
 import { Button } from "@/components/Button";
 import { IconBadge } from "@/components/IconBadge";
 import { Logo } from "@/components/Logo";
+import { cn } from "@/lib/cn";
 
 export default function LandingPage() {
   return (
@@ -33,13 +34,13 @@ function Hero() {
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <Button asChild>
-              <Link href="/document">
-                Start documenting
+              <Link href="/places">
+                Check a Safety Score
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <Button asChild variant="secondary">
-              <Link href="/map">See the care map</Link>
+              <Link href="/document">Document an incident</Link>
             </Button>
           </div>
         </div>
@@ -50,6 +51,13 @@ function Hero() {
 
 function ToolCards() {
   const tools = [
+    {
+      href: "/places",
+      icon: ShieldCheck,
+      title: "Safety Score",
+      desc: "Look up a physical business and see a transparent score from state law, corporate policy, and first-party reports.",
+      featured: true,
+    },
     {
       href: "/document",
       icon: FileText,
@@ -72,21 +80,29 @@ function ToolCards() {
   return (
     <section className="pb-section">
       <Container>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {tools.map((t) => (
             <Link
               key={t.href}
               href={t.href}
-              className="group relative bg-surface rounded-card shadow-card p-8 hover:shadow-cardHover hover:-translate-y-0.5 transition-all duration-200 ease-out"
+              className={cn(
+                "group relative bg-surface rounded-card shadow-card p-7 hover:shadow-cardHover hover:-translate-y-0.5 transition-all duration-200 ease-out",
+                t.featured && "ring-1 ring-accent/20"
+              )}
             >
               <IconBadge>
-                <t.icon className="h-7 w-7" strokeWidth={1.75} />
+                <t.icon className="h-6 w-6" strokeWidth={1.75} />
               </IconBadge>
-              <h3 className="mt-6 text-[22px] font-semibold tracking-tight">
+              {t.featured && (
+                <div className="absolute top-5 right-5 text-[10px] uppercase tracking-[0.15em] text-ink-secondary">
+                  New
+                </div>
+              )}
+              <h3 className="mt-5 text-[18px] font-bold tracking-tight">
                 {t.title}
               </h3>
-              <p className="mt-2 text-ink-secondary leading-relaxed">{t.desc}</p>
-              <div className="mt-8 inline-flex items-center gap-1.5 text-meta font-medium text-ink-primary">
+              <p className="mt-2 text-meta text-ink-secondary leading-relaxed">{t.desc}</p>
+              <div className="mt-6 inline-flex items-center gap-1.5 text-meta text-ink-primary">
                 Open
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
               </div>

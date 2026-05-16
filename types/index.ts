@@ -166,3 +166,59 @@ export interface InsuranceFile {
     }
   >;
 }
+
+// ─── Safety Score (route 4) ───────────────────────────────────────────────
+export type PlaceCategory =
+  | "Restaurant"
+  | "Retail"
+  | "Healthcare"
+  | "Pharmacy"
+  | "Bar/Nightlife"
+  | "Hotel/Lodging"
+  | "Service"
+  | "Other";
+
+export type IncidentSeverity = "low" | "medium" | "high";
+
+export interface SeedIncident {
+  date: string; // ISO
+  severity: IncidentSeverity;
+  type: IncidentType;
+  source: "user_report" | "news" | "litigation";
+  source_url?: string;
+  summary: string; // brief, neutral, factual
+}
+
+export interface PlaceRecord {
+  place_id: string;
+  name: string;
+  category: PlaceCategory;
+  address: string;
+  city: string;
+  state_code: string;
+  chain?: string;
+  cei_score?: number; // 0–100 from HRC CEI
+  cei_year?: number;
+  cei_url?: string;
+  seed_incidents?: SeedIncident[];
+}
+
+export type SafetyTier = "green" | "yellow" | "red";
+
+export interface ScoreComponent {
+  label: string;
+  contribution: number; // signed, +/- effect on the score
+  source: string;
+  source_url?: string;
+  observed_at?: string;
+}
+
+export interface SafetyScore {
+  point_estimate: number; // 0–100
+  confidence_low: number;
+  confidence_high: number;
+  confidence: number; // 0–100, how much data we have
+  tier: SafetyTier;
+  components: ScoreComponent[];
+  incident_count: number;
+}
