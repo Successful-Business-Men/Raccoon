@@ -224,47 +224,58 @@ const TIER_DOT: Record<SafetyTier, string> = {
 
 function PlaceCard({ place, score }: { place: PlaceRecord; score: SafetyScore }) {
   const [open, setOpen] = useState(false);
+  const tierAccent: Record<SafetyTier, string> = {
+    green: "before:bg-status-protected",
+    yellow: "before:bg-status-restricted",
+    red: "before:bg-status-banned",
+  };
 
   return (
-    <div className="rounded-card bg-surface shadow-card overflow-hidden hover:shadow-cardHover transition-shadow">
+    <div
+      className={cn(
+        "relative rounded-card bg-surface shadow-card overflow-hidden hover:shadow-cardHover transition-shadow",
+        "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1",
+        tierAccent[score.tier]
+      )}
+    >
       <Link
         href={`/places/${place.place_id}`}
         className="block p-6 hover:bg-surface-inset/40 transition-colors"
       >
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center justify-between gap-5">
           <div className="min-w-0 flex-1">
             <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
               {place.category} · {place.city}, {place.state_code}
             </div>
-            <h3 className="mt-1 text-[18px] font-bold tracking-tight truncate">
+            <h3 className="mt-1.5 text-[20px] font-bold tracking-tight truncate">
               {place.name}
             </h3>
             <div className="mt-1 text-meta text-ink-secondary truncate">
               {place.address}
             </div>
 
-            <div className="mt-4 flex items-center gap-2 text-meta">
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-meta">
               <span
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-chip bg-surface-inset px-3 py-1",
+                  "inline-flex items-center gap-2 rounded-chip bg-surface-inset px-3 py-1 font-medium",
                   TIER_TEXT_COLOR[score.tier]
                 )}
               >
                 <span className={cn("h-2 w-2 rounded-full", TIER_DOT[score.tier])} />
                 {TIER_LABEL[score.tier]}
               </span>
-              <span className="text-ink-secondary">
+              <span className="text-ink-secondary tabular-nums">
                 {score.incident_count}{" "}
                 {score.incident_count === 1 ? "report" : "reports"}
               </span>
             </div>
-
-            <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
-              {TIER_DESCRIPTION[score.tier]}
-            </p>
           </div>
-          <ScoreRing score={score} size={80} />
+          <ScoreRing score={score} size={128} className="shrink-0" />
         </div>
+
+        <p className="mt-4 text-meta text-ink-secondary leading-relaxed">
+          {TIER_DESCRIPTION[score.tier]}
+        </p>
       </Link>
 
       <div className="border-t divider-soft px-6 py-3 flex flex-wrap gap-x-5 gap-y-2 items-center text-meta">

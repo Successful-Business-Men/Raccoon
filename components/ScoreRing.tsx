@@ -15,8 +15,8 @@ const TIER_TEXT: Record<SafetyTier, string> = {
 
 export function ScoreRing({
   score,
-  size = 76,
-  stroke = 6,
+  size = 128,
+  stroke,
   className,
 }: {
   score: SafetyScore;
@@ -24,10 +24,9 @@ export function ScoreRing({
   stroke?: number;
   className?: string;
 }) {
-  const r = (size - stroke) / 2;
+  const strokeWidth = stroke ?? Math.max(6, Math.round(size * 0.085));
+  const r = (size - strokeWidth) / 2;
   const c = 2 * Math.PI * r;
-  // Always show the credible interval: a low-confidence range track
-  // behind the point estimate arc. So users see both number and margin.
   const fillFraction = score.point_estimate / 100;
   const lowFraction = score.confidence_low / 100;
   const highFraction = score.confidence_high / 100;
@@ -35,6 +34,12 @@ export function ScoreRing({
   const intervalDash = `${c * (highFraction - lowFraction)} ${c}`;
   const intervalOffset = -c * lowFraction;
   const color = TIER_STROKE[score.tier];
+
+  const numberSize = Math.round(size * 0.42);
+  const marginSize = Math.max(10, Math.round(size * 0.11));
+  const halfInterval = Math.round(
+    (score.confidence_high - score.confidence_low) / 2
+  );
 
   return (
     <div
@@ -50,7 +55,7 @@ export function ScoreRing({
           r={r}
           fill="none"
           stroke="#F0F0F2"
-          strokeWidth={stroke}
+          strokeWidth={strokeWidth}
         />
         {/* Credible interval band (translucent) */}
         <circle
@@ -60,7 +65,7 @@ export function ScoreRing({
           fill="none"
           stroke={color}
           strokeOpacity={0.18}
-          strokeWidth={stroke}
+          strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={intervalDash}
           strokeDashoffset={intervalOffset}
@@ -72,17 +77,26 @@ export function ScoreRing({
           r={r}
           fill="none"
           stroke={color}
-          strokeWidth={stroke}
+          strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={fillDash}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <div className={cn("text-[20px] font-bold leading-none", TIER_TEXT[score.tier])}>
+        <div
+          className={cn(
+            "font-black leading-none tabular-nums tracking-tight",
+            TIER_TEXT[score.tier]
+          )}
+          style={{ fontSize: numberSize }}
+        >
           {score.point_estimate}
         </div>
-        <div className="mt-0.5 text-[9px] uppercase tracking-[0.12em] text-ink-secondary leading-none">
-          ±{Math.round((score.confidence_high - score.confidence_low) / 2)}
+        <div
+          className="mt-1 uppercase tracking-[0.14em] text-ink-secondary leading-none font-medium tabular-nums"
+          style={{ fontSize: marginSize }}
+        >
+          ±{halfInterval}
         </div>
       </div>
     </div>
