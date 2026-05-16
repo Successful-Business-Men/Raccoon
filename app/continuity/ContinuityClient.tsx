@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Download, BookmarkPlus, Shield } from "lucide-react";
+import Link from "next/link";
+import { Loader2, Download, BookmarkPlus, Shield, AlertTriangle, FileText, MapPin } from "lucide-react";
 import { Container } from "@/components/Container";
 import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
 import { cn } from "@/lib/cn";
 import { STATE_OPTIONS } from "@/data/care_status";
+import { documentsForCareTypes } from "@/data/required_documents";
 import type {
   CareType,
   ContinuityIntake,
@@ -418,6 +420,15 @@ function PlanView({
         <p className="mt-4 text-meta text-ink-secondary leading-relaxed">
           {plan.insurance_continuity.state_notes}
         </p>
+        {intake.destination_state && intake.destination_state !== "exploring" && (
+          <Link
+            href={`/map?state=${intake.destination_state}`}
+            className="mt-4 inline-flex items-center gap-2 text-meta text-ink-primary underline-offset-4 hover:underline"
+          >
+            <MapPin className="h-4 w-4" />
+            Check {intake.destination_state}&apos;s current care status
+          </Link>
+        )}
       </PlanSection>
 
       <PlanSection title="3. Medication gap risk">
@@ -448,7 +459,9 @@ function PlanView({
         />
       </PlanSection>
 
-      <PlanSection title="4. Finding new care">
+      <DocumentsSection careTypes={intake.care_types} />
+
+      <PlanSection title="5. Finding new care">
         <div className="text-[15px] font-medium mb-2">Questions to ask</div>
         <ul className="list-disc pl-5 space-y-1.5 mb-4 text-ink-primary">
           {plan.finding_new_care.questions_to_ask.map((q, i) => (
@@ -469,7 +482,7 @@ function PlanView({
         />
       </PlanSection>
 
-      <PlanSection title="5. Legal and ID">
+      <PlanSection title="6. Legal and ID">
         <Checklist
           items={plan.legal_and_id.items}
           prefix="legal"
@@ -478,7 +491,7 @@ function PlanView({
         />
       </PlanSection>
 
-      <PlanSection title="6. Community resources">
+      <PlanSection title="7. Community resources">
         <div className="space-y-4">
           {plan.community_resources.items.map((r, i) => (
             <div key={i} className="rounded-btn bg-surface-inset p-4">
@@ -555,6 +568,63 @@ function Checklist({
         );
       })}
     </ul>
+  );
+}
+
+function DocumentsSection({ careTypes }: { careTypes: CareType[] }) {
+  const groups = documentsForCareTypes(careTypes);
+  if (groups.length === 0) return null;
+  return (
+    <PlanSection title="4. Documents to bring">
+      <p className="text-meta text-ink-secondary leading-relaxed mb-5">
+        Exactly what to walk into the pharmacy or your new clinic with. Static
+        reference — verify locally before relying on it.
+      </p>
+      <div className="space-y-6">
+        {groups.map((g) => (
+          <div key={g.care_type}>
+            <div className="text-[15px] font-semibold tracking-tight">
+              {g.label}
+            </div>
+            {g.intro && (
+              <p className="text-meta text-ink-secondary mt-1 leading-relaxed">
+                {g.intro}
+              </p>
+            )}
+            <ul className="mt-3 space-y-3">
+              {g.documents.map((d, i) => (
+                <li key={i} className="flex gap-3 items-start">
+                  <span
+                    className={cn(
+                      "mt-0.5 h-5 w-5 shrink-0 rounded flex items-center justify-center",
+                      d.flag === "critical"
+                        ? "bg-status-banned/15 text-status-banned"
+                        : d.flag === "controlled_substance"
+                        ? "bg-status-restricted/15 text-status-restricted"
+                        : "bg-surface-inset text-ink-secondary"
+                    )}
+                  >
+                    {d.flag ? (
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                    ) : (
+                      <FileText className="h-3.5 w-3.5" />
+                    )}
+                  </span>
+                  <span className="flex-1">
+                    <span className="block text-[15px] font-medium">
+                      {d.title}
+                    </span>
+                    <span className="block text-meta text-ink-secondary mt-0.5 leading-relaxed">
+                      {d.detail}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </PlanSection>
   );
 }
 
