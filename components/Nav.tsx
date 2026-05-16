@@ -36,12 +36,6 @@ export function Nav() {
               </NavLink>
             ))}
           </div>
-
-          <div className="flex items-center">
-            <NavLink href="/about" active={pathname === "/about"}>
-              About
-            </NavLink>
-          </div>
         </nav>
       </Container>
     </header>
