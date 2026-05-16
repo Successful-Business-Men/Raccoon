@@ -23,10 +23,10 @@ function Hero() {
       <WaveBackground />
       <div
         aria-hidden
-        className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+        className="absolute inset-x-0 bottom-0 h-64 pointer-events-none"
         style={{
           background:
-            "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.92) 100%)",
+            "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 45%, rgba(255,255,255,0.95) 100%)",
         }}
       />
       <GlassFilter />
@@ -43,7 +43,7 @@ function Hero() {
             A toolkit for trans Americans navigating discrimination
             and shifting laws.
           </h1>
-          <p className="mt-6 text-lede text-sea-ink/75 text-balance max-w-[640px] mx-auto">
+          <p className="mt-6 text-lede text-sea-ink text-balance max-w-[640px] mx-auto">
             Document an incident for a lawyer or filing agency, score a
             business before you walk in, see where your state stands on
             gender-affirming care, and plan a move without losing access.
@@ -60,7 +60,7 @@ function Hero() {
 
             <Link
               href="/document"
-              className="text-meta text-sea-ink/70 hover:text-sea-ink underline-offset-4 hover:underline transition-colors"
+              className="text-meta text-sea-ink underline underline-offset-4 decoration-sea-ink/40 hover:decoration-sea-ink transition-colors"
             >
               Or document an incident →
             </Link>

@@ -128,28 +128,28 @@
 }
 
 .wave-layer-1 {
-  height: 80%;
+  height: 50%;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 100' preserveAspectRatio='none'><path d='M0,15 Q200,5 400,15 T800,15 T1200,15 T1600,15 L1600,100 L0,100 Z' fill='%237dd3fc'/></svg>");
   animation: wave-scroll 90s linear infinite;
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
 .wave-layer-2 {
-  height: 68%;
+  height: 42%;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 100' preserveAspectRatio='none'><path d='M0,18 Q200,7 400,18 T800,18 T1200,18 T1600,18 L1600,100 L0,100 Z' fill='%2338bdf8'/></svg>");
   animation: wave-scroll 70s linear infinite reverse;
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 .wave-layer-3 {
-  height: 56%;
+  height: 34%;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 100' preserveAspectRatio='none'><path d='M0,22 Q200,9 400,22 T800,22 T1200,22 T1600,22 L1600,100 L0,100 Z' fill='%230ea5e9'/></svg>");
   animation: wave-scroll 50s linear infinite;
-  opacity: 0.95;
+  opacity: 0.9;
 }
 
 .wave-layer-4 {
-  height: 44%;
+  height: 26%;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 100' preserveAspectRatio='none'><path d='M0,25 Q200,12 400,25 T800,25 T1200,25 T1600,25 L1600,100 L0,100 Z' fill='%230284c7'/></svg>");
   animation: wave-scroll 38s linear infinite reverse;
 }
