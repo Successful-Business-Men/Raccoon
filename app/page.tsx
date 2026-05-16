@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { FileText, Map as MapIcon, Route, ArrowRight, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/Container";
@@ -168,24 +169,44 @@ function ToolCards() {
 
 function TrustSection() {
   const orgs = [
-    "Movement Advancement Project",
-    "Lambda Legal",
-    "KFF",
-    "Trans Legal Defense and Education Fund",
+    { name: "Movement Advancement Project", src: "/logos/map.png" },
+    { name: "Lambda Legal", src: "/logos/lambda-legal.png" },
+    { name: "KFF", src: "/logos/kff.png" },
+    { name: "Trans Legal Defense and Education Fund", src: "/logos/tldef.png" },
   ];
+  const track = [...orgs, ...orgs];
   return (
     <section className="pb-section">
       <Container>
-        <div className="bg-surface-inset rounded-card p-10 text-center">
+        <div className="bg-surface-inset rounded-card py-10 text-center">
           <div className="text-meta uppercase tracking-[0.18em] text-ink-secondary">
             Built with data from
           </div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-[15px] text-ink-primary">
-            {orgs.map((o) => (
-              <span key={o} className="font-medium">
-                {o}
-              </span>
-            ))}
+          <div
+            className="mt-8 overflow-hidden"
+            style={{
+              maskImage:
+                "linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%)",
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%)",
+            }}
+          >
+            <div className="flex w-max items-center gap-16 animate-marquee">
+              {track.map((o, i) => (
+                <div
+                  key={`${o.name}-${i}`}
+                  className="relative h-14 w-44 shrink-0 grayscale opacity-70 hover:opacity-100 hover:grayscale-0 transition"
+                >
+                  <Image
+                    src={o.src}
+                    alt={o.name}
+                    fill
+                    sizes="176px"
+                    className="object-contain"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </Container>

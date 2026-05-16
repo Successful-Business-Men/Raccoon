@@ -69,6 +69,15 @@ const config: Config = {
         section: "96px",
         subsection: "48px",
       },
+      keyframes: {
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+      },
+      animation: {
+        marquee: "marquee 32s linear infinite",
+      },
     },
   },
   plugins: [require("@tailwindcss/typography")],

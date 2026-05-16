@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Courier_Prime, Caveat_Brush } from "next/font/google";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
 import "./globals.css";
 
 // Body font. Courier Prime ships weights 400 and 700 only.
@@ -42,7 +41,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen flex flex-col">
         <Nav />
         <main className="flex-1">{children}</main>
-        <Footer />
       </body>
     </html>
   );
