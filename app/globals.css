@@ -40,15 +40,6 @@
 }
 
 /* Liquid-glass ocean hero ----------------------------------------------- */
-@keyframes moveBackground {
-  from {
-    background-position: 0% 0%;
-  }
-  to {
-    background-position: 0% -1000%;
-  }
-}
-
 .ocean-hero {
   background: linear-gradient(
     180deg,
@@ -58,11 +49,4 @@
     #7dd3fc 70%,
     #38bdf8 100%
   );
-}
-
-.ocean-waves {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' width='1200' height='200'><path d='M0 100 C 150 60 300 140 600 100 C 900 60 1050 140 1200 100 L 1200 200 L 0 200 Z' fill='%23ffffff' fill-opacity='0.18'/><path d='M0 130 C 200 100 400 160 600 130 C 800 100 1000 160 1200 130 L 1200 200 L 0 200 Z' fill='%23ffffff' fill-opacity='0.12'/></svg>");
-  background-repeat: repeat;
-  background-size: 1200px 200px;
-  animation: moveBackground 80s linear infinite;
 }

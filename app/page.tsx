@@ -19,10 +19,18 @@ export default function LandingPage() {
 function Hero() {
   return (
     <section className="relative isolate -mt-16 pt-16 overflow-hidden ocean-hero">
-      <div
+      <video
         aria-hidden
-        className="absolute inset-0 ocean-waves pointer-events-none"
-      />
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        poster="/wave-poster.jpg"
+        className="absolute inset-0 h-full w-full object-cover pointer-events-none"
+      >
+        <source src="/wave.mp4" type="video/mp4" />
+      </video>
       <div
         aria-hidden
         className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
