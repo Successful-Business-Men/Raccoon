@@ -7,12 +7,14 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
   }
   body {
     @apply text-ink-primary font-sans;
     background-color: #FFFFFF;
     font-size: 17px;
     line-height: 1.5;
+    overscroll-behavior-y: none;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply text-ink-primary;
