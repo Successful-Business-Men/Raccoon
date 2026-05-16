@@ -48,7 +48,6 @@ export function MapClient() {
   const lastUpdate = useMemo(() => getLastDataUpdate(), []);
 
   return (
-    <div className="scene scene-care-map">
     <Container className="py-10 relative">
       <header className="mb-6">
         <h1 className="text-section">Care Map</h1>
@@ -199,6 +198,5 @@ export function MapClient() {
         />
       )}
     </Container>
-    </div>
   );
 }
