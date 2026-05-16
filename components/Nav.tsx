@@ -7,16 +7,16 @@ import { Logo } from "./Logo";
 import { cn } from "@/lib/cn";
 
 const TOOL_LINKS = [
-  { href: "/places", label: "Safety Score" },
   { href: "/document", label: "Document" },
   { href: "/map", label: "Care Map" },
+  { href: "/places", label: "Safety Score" },
   { href: "/continuity", label: "Continuity" },
 ];
 
 export function Nav() {
   const pathname = usePathname();
   return (
-    <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-divider/40">
+    <header className="sticky top-0 z-40 glass-nav">
       <Container>
         <nav className="flex h-16 items-center justify-between gap-6">
           <Link

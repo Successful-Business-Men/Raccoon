@@ -630,7 +630,7 @@ function NextThree({
   onToggle: (k: string) => void;
 }) {
   return (
-    <div className="rounded-card bg-surface shadow-card p-7 border-l-4 border-accent">
+    <div className="glass rounded-card p-7 border-l-4 border-accent">
       <div className="flex items-center gap-2 mb-1">
         <Sparkles className="h-4 w-4 text-ink-primary" />
         <h3 className="text-[20px] font-semibold tracking-tight">
@@ -1041,7 +1041,7 @@ function PlanSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-card bg-surface shadow-card p-7">
+    <div className="glass rounded-card p-7">
       <h3 className="text-[20px] font-semibold tracking-tight mb-4">{title}</h3>
       {children}
     </div>
@@ -1177,7 +1177,7 @@ function PanicConfirm({
       onClick={onCancel}
     >
       <div
-        className="bg-surface rounded-card shadow-card p-7 max-w-sm w-full"
+        className="glass rounded-card p-7 max-w-sm w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2 mb-2">
@@ -1217,7 +1217,7 @@ function FormCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-card bg-surface shadow-card p-7">
+    <div className="glass rounded-card p-7">
       <div className="text-[16px] font-medium">{label}</div>
       {hint && <div className="text-meta text-ink-secondary mt-1">{hint}</div>}
       <div className="mt-4">{children}</div>
@@ -1400,7 +1400,7 @@ function SaveDialog({
       onClick={onClose}
     >
       <div
-        className="bg-surface rounded-card shadow-card p-8 max-w-md w-full"
+        className="glass rounded-card p-8 max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-[20px] font-semibold tracking-tight">

@@ -14,7 +14,7 @@ export function Card({
   return (
     <As
       className={cn(
-        "bg-surface rounded-card shadow-card p-8",
+        "glass rounded-card p-8",
         hover && "hover:shadow-cardHover transition-shadow duration-200",
         className
       )}

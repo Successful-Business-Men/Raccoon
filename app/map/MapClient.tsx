@@ -48,17 +48,18 @@ export function MapClient() {
   const lastUpdate = useMemo(() => getLastDataUpdate(), []);
 
   return (
-    <Container className="py-10">
+    <div className="scene scene-care-map">
+    <Container className="py-10 relative">
       <header className="mb-6">
         <h1 className="text-section">Care Map</h1>
-        <p className="mt-2 text-ink-secondary max-w-prose">
+        <p className="mt-2 text-ink-primary/80 max-w-prose">
           Current legal landscape for gender-affirming care, ID changes, and
           shield laws — by state. Hover for a quick read, click a state for the
           full breakdown.
         </p>
       </header>
 
-      <div className="rounded-card bg-surface-inset p-4 mb-8 flex items-start gap-3 text-meta text-ink-secondary leading-relaxed">
+      <div className="glass rounded-card p-4 mb-8 flex items-start gap-3 text-meta text-ink-secondary leading-relaxed">
         <span className="mt-0.5 inline-block h-2 w-2 rounded-full bg-status-restricted shrink-0" />
         <div>
           <strong className="text-ink-primary">Best-effort snapshot.</strong>{" "}
@@ -78,7 +79,7 @@ export function MapClient() {
       </div>
 
       {/* Filter bar */}
-      <div className="rounded-card bg-surface shadow-card p-6 mb-8">
+      <div className="glass rounded-card p-6 mb-8">
         <div className="flex flex-wrap items-start gap-6 lg:items-center lg:justify-between">
           <div className="flex flex-col gap-3 flex-1 min-w-0">
             <div>
@@ -121,7 +122,7 @@ export function MapClient() {
       </div>
 
       {/* Map */}
-      <div className="rounded-card bg-surface shadow-card p-4 md:p-8 mb-8">
+      <div className="glass rounded-card p-4 md:p-8 mb-8">
         <USMap
           procedure={procedure}
           onSelect={(code) => setActiveState(code)}
@@ -130,7 +131,7 @@ export function MapClient() {
 
       {/* Legend + methodology */}
       <section className="grid gap-6 lg:grid-cols-2 mb-8">
-        <div className="rounded-card bg-surface shadow-card p-7">
+        <div className="glass rounded-card p-7">
           <h2 className="text-[20px] font-semibold tracking-tight mb-4">
             Color legend
           </h2>
@@ -146,7 +147,7 @@ export function MapClient() {
           </ul>
         </div>
 
-        <div className="rounded-card bg-surface shadow-card p-7">
+        <div className="glass rounded-card p-7">
           <button
             onClick={() => setMethodologyOpen((o) => !o)}
             className="flex items-center justify-between w-full text-left"
@@ -198,5 +199,6 @@ export function MapClient() {
         />
       )}
     </Container>
+    </div>
   );
 }

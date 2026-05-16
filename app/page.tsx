@@ -114,7 +114,7 @@ function ToolCards() {
             <Link
               key={t.href}
               href={t.href}
-              className="group relative flex h-full flex-col bg-surface rounded-card shadow-card p-7 hover:shadow-cardHover hover:-translate-y-0.5 transition-all duration-200 ease-out"
+              className="group relative flex h-full flex-col glass rounded-card p-7 hover:shadow-cardHover hover:-translate-y-0.5 transition-all duration-200 ease-out"
             >
               <IconBadge>
                 <t.icon className="h-6 w-6" strokeWidth={1.75} />

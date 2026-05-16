@@ -32,8 +32,8 @@ export function StateDrawer({
         onClick={onClose}
         aria-hidden
       />
-      <aside className="w-full max-w-[480px] bg-surface h-full overflow-y-auto shadow-card animate-[slidein_0.18s_ease-out]">
-        <div className="sticky top-0 bg-surface/95 backdrop-blur-md px-7 py-5 flex items-center justify-between border-b divider-soft">
+      <aside className="w-full max-w-[480px] glass-strong h-full overflow-y-auto animate-[slidein_0.18s_ease-out]">
+        <div className="sticky top-0 glass-nav px-7 py-5 flex items-center justify-between">
           <h2 className="text-[22px] font-semibold tracking-tight">
             {state.state_name}
             <span className="ml-2 text-ink-secondary text-meta font-normal">

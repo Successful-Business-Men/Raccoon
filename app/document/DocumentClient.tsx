@@ -261,8 +261,8 @@ function Bubble({
         className={cn(
           "max-w-[85%] rounded-card px-5 py-3.5 text-[15px] leading-relaxed whitespace-pre-wrap",
           isUser
-            ? "bg-surface-inset text-ink-primary"
-            : "bg-surface text-ink-primary shadow-card"
+            ? "glass-inset text-ink-primary"
+            : "glass text-ink-primary"
         )}
       >
         {text}
@@ -284,7 +284,7 @@ function ChatInput({
   disabled: boolean;
 }) {
   return (
-    <div className="rounded-card bg-surface shadow-card p-3 flex items-end gap-2 border border-divider/30">
+    <div className="glass rounded-card p-3 flex items-end gap-2 border border-divider/30">
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -339,7 +339,7 @@ function PacketPreview({ packet, ready }: { packet: IncidentPacket; ready: boole
   }
 
   return (
-    <div className="bg-surface rounded-card shadow-card p-7">
+    <div className="glass rounded-card p-7">
       <div className="flex items-center justify-between">
         <h2 className="text-[20px] font-semibold tracking-tight">Your packet</h2>
         {ready && (

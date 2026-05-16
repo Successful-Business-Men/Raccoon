@@ -128,7 +128,7 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
       </header>
 
       {/* Search + sort */}
-      <div className="rounded-card bg-surface shadow-card p-5 mb-6">
+      <div className="glass rounded-card p-5 mb-6">
         <div className="flex flex-col md:flex-row md:items-center gap-3">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-secondary" />
@@ -233,7 +233,7 @@ function PlaceCard({ place, score }: { place: PlaceRecord; score: SafetyScore })
   return (
     <div
       className={cn(
-        "relative rounded-card bg-surface shadow-card overflow-hidden hover:shadow-cardHover transition-shadow",
+        "relative glass rounded-card overflow-hidden hover:shadow-cardHover transition-shadow",
         "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1",
         tierAccent[score.tier]
       )}

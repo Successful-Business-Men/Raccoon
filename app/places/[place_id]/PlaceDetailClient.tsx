@@ -75,7 +75,7 @@ export function PlaceDetailClient({ place }: { place: PlaceRecord }) {
       </Link>
 
       {/* Hero */}
-      <div className="rounded-card bg-surface shadow-card p-8 mb-6">
+      <div className="glass rounded-card p-8 mb-6">
         <div className="flex flex-col md:flex-row md:items-start gap-8">
           <div className="flex-1 min-w-0">
             <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
@@ -123,7 +123,7 @@ export function PlaceDetailClient({ place }: { place: PlaceRecord }) {
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Signals */}
-        <section className="rounded-card bg-surface shadow-card p-7">
+        <section className="glass rounded-card p-7">
           <h2 className="text-[18px] font-bold tracking-tight mb-1">
             Signals moving this score
           </h2>
@@ -135,7 +135,7 @@ export function PlaceDetailClient({ place }: { place: PlaceRecord }) {
         </section>
 
         {/* Timeline */}
-        <section className="rounded-card bg-surface shadow-card p-7">
+        <section className="glass rounded-card p-7">
           <h2 className="text-[18px] font-bold tracking-tight mb-1">
             Incident timeline
           </h2>
