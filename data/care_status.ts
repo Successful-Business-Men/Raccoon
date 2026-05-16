@@ -85,38 +85,92 @@ export const PROCEDURE_LABELS: Record<ProcedureKey, string> = {
   shield_law: "Shield laws",
 };
 
-const STATUSES: CareStatus[] = [
-  "PROTECTED",
-  "LEGAL",
-  "RESTRICTED",
-  "BANNED",
-  "IN_LITIGATION",
-];
-
 const PLACEHOLDER_DATE = "2025-10-15";
-const PLACEHOLDER_NOTE = "Placeholder data — replace with verified source.";
+const PLACEHOLDER_NOTE =
+  "Best-effort snapshot based on widely-reported 2024–2025 state policy. Verify the current statute and any active litigation before acting.";
 
-function hash(s: string): number {
-  let h = 5381;
-  for (let i = 0; i < s.length; i++) {
-    h = ((h << 5) + h + s.charCodeAt(i)) | 0;
-  }
-  return Math.abs(h);
-}
+// DECISION: bucketing each state into one of four policy profiles based on
+// publicly-reported patterns (HRC, ACLU, MAP, KFF) circa 2024–2025. This is
+// *not* an adjudication of current law in any state — laws move week to
+// week — but it's calibrated enough that the map doesn't show California
+// as banned or Tennessee as protected. Replace per-state, per-procedure
+// once verified sourced data is paste-ready.
+type Bucket = "AFFIRMING" | "NEUTRAL" | "RESTRICTIVE" | "HOSTILE";
 
-function statusFor(code: string, procedure: ProcedureKey): CareStatus {
-  return STATUSES[hash(code + ":" + procedure) % STATUSES.length];
-}
+const STATE_BUCKET: Record<string, Bucket> = {
+  // AFFIRMING — shield laws and/or no active restrictions on adult care
+  CA: "AFFIRMING", NY: "AFFIRMING", MA: "AFFIRMING", CT: "AFFIRMING",
+  NJ: "AFFIRMING", MD: "AFFIRMING", WA: "AFFIRMING", OR: "AFFIRMING",
+  IL: "AFFIRMING", CO: "AFFIRMING", NM: "AFFIRMING", MN: "AFFIRMING",
+  VT: "AFFIRMING", RI: "AFFIRMING", DE: "AFFIRMING", HI: "AFFIRMING",
+  NV: "AFFIRMING", DC: "AFFIRMING", ME: "AFFIRMING", NH: "AFFIRMING",
+  // NEUTRAL — no major affirmative or restrictive action
+  PA: "NEUTRAL", MI: "NEUTRAL", VA: "NEUTRAL", AZ: "NEUTRAL",
+  WI: "NEUTRAL", AK: "NEUTRAL",
+  // RESTRICTIVE — limits, especially for minors; status often contested
+  KS: "RESTRICTIVE", IN: "RESTRICTIVE", IA: "RESTRICTIVE", MT: "RESTRICTIVE",
+  ND: "RESTRICTIVE", UT: "RESTRICTIVE", KY: "RESTRICTIVE", WV: "RESTRICTIVE",
+  OH: "RESTRICTIVE", NE: "RESTRICTIVE", NC: "RESTRICTIVE", SD: "RESTRICTIVE",
+  // HOSTILE — enacted minor-care bans and broader restrictions
+  TX: "HOSTILE", FL: "HOSTILE", AL: "HOSTILE", AR: "HOSTILE",
+  LA: "HOSTILE", OK: "HOSTILE", SC: "HOSTILE", TN: "HOSTILE",
+  MS: "HOSTILE", GA: "HOSTILE", ID: "HOSTILE", WY: "HOSTILE",
+  MO: "HOSTILE",
+};
+
+const BUCKET_PROFILE: Record<Bucket, Record<ProcedureKey, CareStatus>> = {
+  AFFIRMING: {
+    hrt_adult: "PROTECTED",
+    hrt_minor: "PROTECTED",
+    puberty_blockers: "PROTECTED",
+    surgery_adult: "PROTECTED",
+    surgery_minor: "LEGAL",
+    id_marker_change: "PROTECTED",
+    shield_law: "PROTECTED",
+  },
+  NEUTRAL: {
+    hrt_adult: "LEGAL",
+    hrt_minor: "LEGAL",
+    puberty_blockers: "LEGAL",
+    surgery_adult: "LEGAL",
+    surgery_minor: "RESTRICTED",
+    id_marker_change: "LEGAL",
+    shield_law: "LEGAL",
+  },
+  RESTRICTIVE: {
+    hrt_adult: "LEGAL",
+    hrt_minor: "RESTRICTED",
+    puberty_blockers: "RESTRICTED",
+    surgery_adult: "LEGAL",
+    surgery_minor: "BANNED",
+    id_marker_change: "RESTRICTED",
+    shield_law: "IN_LITIGATION",
+  },
+  HOSTILE: {
+    hrt_adult: "RESTRICTED",
+    hrt_minor: "BANNED",
+    puberty_blockers: "BANNED",
+    surgery_adult: "RESTRICTED",
+    surgery_minor: "BANNED",
+    id_marker_change: "RESTRICTED",
+    shield_law: "BANNED",
+  },
+};
 
 function placeholderProcedures(
   code: string
 ): Record<ProcedureKey, ProcedureStatus> {
+  const bucket = STATE_BUCKET[code] ?? "NEUTRAL";
+  const profile = BUCKET_PROFILE[bucket];
   const out = {} as Record<ProcedureKey, ProcedureStatus>;
   for (const p of PROCEDURE_KEYS) {
     out[p] = {
-      status: statusFor(code, p),
+      status: profile[p],
       last_updated: PLACEHOLDER_DATE,
-      sources: ["https://example.org/placeholder-source"],
+      sources: [
+        "https://www.lgbtmap.org/equality-maps",
+        "https://www.lambdalegal.org",
+      ],
       notes: PLACEHOLDER_NOTE,
     };
   }

@@ -49,7 +49,7 @@ export function MapClient() {
 
   return (
     <Container className="py-10">
-      <header className="mb-8">
+      <header className="mb-6">
         <h1 className="text-section">Care Map</h1>
         <p className="mt-2 text-ink-secondary max-w-prose">
           Current legal landscape for gender-affirming care, ID changes, and
@@ -57,6 +57,25 @@ export function MapClient() {
           full breakdown.
         </p>
       </header>
+
+      <div className="rounded-card bg-surface-inset p-4 mb-8 flex items-start gap-3 text-meta text-ink-secondary leading-relaxed">
+        <span className="mt-0.5 inline-block h-2 w-2 rounded-full bg-status-restricted shrink-0" />
+        <div>
+          <strong className="text-ink-primary">Best-effort snapshot.</strong>{" "}
+          State buckets are calibrated from publicly-reported 2024–2025
+          patterns (HRC, MAP, Lambda Legal, KFF) — not a real-time legal
+          adjudication. The law in some states changes weekly. Always{" "}
+          <a
+            href="https://www.lambdalegal.org/help"
+            target="_blank"
+            rel="noreferrer"
+            className="text-ink-primary underline-offset-4 hover:underline"
+          >
+            verify with Lambda Legal&apos;s Help Desk
+          </a>{" "}
+          before acting.
+        </div>
+      </div>
 
       {/* Filter bar */}
       <div className="rounded-card bg-surface shadow-card p-6 mb-8">

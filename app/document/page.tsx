@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { DocumentClient } from "./DocumentClient";
 
 export const metadata = {
@@ -5,5 +6,9 @@ export const metadata = {
 };
 
 export default function DocumentPage() {
-  return <DocumentClient />;
+  return (
+    <Suspense fallback={null}>
+      <DocumentClient />
+    </Suspense>
+  );
 }
