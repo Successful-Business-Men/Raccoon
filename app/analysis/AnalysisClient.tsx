@@ -1,0 +1,488 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  FileText,
+  HelpCircle,
+  Image as ImageIcon,
+  Loader2,
+  Sparkles,
+  X,
+} from "lucide-react";
+import { Container } from "@/components/Container";
+import { PageHero } from "@/components/PageHero";
+import { Button } from "@/components/Button";
+import { cn } from "@/lib/cn";
+import { emptyProfile, loadProfile, type Profile } from "@/lib/profile";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface TermDef {
+  word: string;
+  explanation: string;
+}
+
+interface TimelineItem {
+  heading: string;
+  plain: string;
+  terms: TermDef[];
+}
+
+interface Comparison {
+  recommendation: string;
+  alignment: "aligned" | "concern" | "neutral";
+  headline: string;
+  detail: string;
+}
+
+interface AnalysisResult {
+  visit_date: string;
+  provider: string;
+  timeline: TimelineItem[];
+  comparisons: Comparison[];
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+
+export function AnalysisClient() {
+  const [profile, setProfile] = useState<Profile>(emptyProfile());
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setProfile(loadProfile());
+    setLoaded(true);
+  }, []);
+
+  const hasProfile =
+    profile.medications.length > 0 ||
+    profile.surgeries.length > 0 ||
+    profile.recent_labs.length > 0 ||
+    profile.hormone_regimen_summary.length > 0;
+
+  return (
+    <div className="page-ocean">
+      <PageHero
+        title={<>What Your Doctor Said,<br />In Plain English</>}
+        description="Upload your after-visit notes or summary. We'll break down the key points in simple language and compare the doctor's recommendations against your own health data."
+      />
+
+      <Container className="pb-16">
+        {loaded && !hasProfile && (
+          <div className="mb-6 glass rounded-card p-6 flex items-start gap-3">
+            <AlertCircle className="h-6 w-6 shrink-0 text-status-restricted mt-0.5" />
+            <div className="text-meta text-ink-secondary leading-relaxed">
+              <span className="text-ink-primary font-bold">
+                No profile data yet.
+              </span>{" "}
+              The summary section will still work. For the comparison section to reference your
+              specific labs and medications, add them on the{" "}
+              <a href="/places" className="underline underline-offset-4">
+                Profile page
+              </a>{" "}
+              first.
+            </div>
+          </div>
+        )}
+
+        <UploadAndAnalyze profile={profile} />
+      </Container>
+    </div>
+  );
+}
+
+// ── Upload + analysis orchestrator ────────────────────────────────────────────
+
+function UploadAndAnalyze({ profile }: { profile: Profile }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  function pickFile(f: File | null) {
+    setError(null);
+    setResult(null);
+    setFile(f);
+  }
+
+  async function analyze() {
+    if (!file || busy) return;
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("profile", JSON.stringify(profile));
+      const res = await fetch("/api/analysis/parse", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok || data?.error) {
+        setError(data?.error || "Couldn't analyze that document.");
+      } else {
+        setResult(data as AnalysisResult);
+      }
+    } catch (e: any) {
+      setError(e?.message || "Network error.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-8">
+      {/* Upload card */}
+      <div className="glass rounded-card p-7">
+        <h2 className="text-subsection">Upload Your Visit Notes</h2>
+        <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
+          Drop the after-visit summary your doctor gave you — PDF, photo, or
+          screenshot. We'll read the whole thing so you don't have to decode it.
+        </p>
+
+        {/* Drop zone */}
+        <div
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragging(false);
+            const f = e.dataTransfer.files?.[0];
+            if (f) pickFile(f);
+          }}
+          onClick={() => inputRef.current?.click()}
+          className={cn(
+            "mt-5 rounded-card border-2 border-dashed transition-colors cursor-pointer px-6 py-10 text-center",
+            dragging
+              ? "border-brand bg-brand/5"
+              : "border-divider hover:border-brand/50 bg-surface-inset/30"
+          )}
+        >
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+            className="hidden"
+            onChange={(e) => pickFile(e.target.files?.[0] || null)}
+          />
+          {!file ? (
+            <>
+              <div className="flex items-center justify-center gap-3 text-ink-secondary">
+                <FileText className="h-6 w-6" />
+                <ImageIcon className="h-6 w-6" />
+              </div>
+              <div className="mt-3 text-body text-ink-primary font-medium">
+                Drop your after-visit summary here
+              </div>
+              <div className="mt-1 text-meta text-ink-secondary">
+                or click to choose · PDF or photo · max 8 MB
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center gap-3">
+              <FileText className="h-5 w-5 text-ink-primary" />
+              <span className="text-body text-ink-primary font-medium truncate max-w-[280px]">
+                {file.name}
+              </span>
+              <button
+                onClick={(e) => { e.stopPropagation(); pickFile(null); }}
+                className="text-ink-secondary hover:text-status-banned p-1"
+                aria-label="Remove file"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <span className="text-meta text-ink-secondary">
+            Sent once for analysis, then discarded. Nothing is stored.
+          </span>
+          <Button onClick={analyze} disabled={!file || busy}>
+            {busy ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Analyzing…
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" /> Analyze visit
+              </>
+            )}
+          </Button>
+        </div>
+
+        {error && (
+          <div className="mt-5 rounded-card bg-status-banned/10 px-4 py-3 text-meta text-status-banned">
+            {error}
+          </div>
+        )}
+      </div>
+
+      {/* Results */}
+      {result && <AnalysisResults result={result} />}
+    </div>
+  );
+}
+
+// ── Results layout ─────────────────────────────────────────────────────────────
+
+function AnalysisResults({ result }: { result: AnalysisResult }) {
+  return (
+    <div className="flex flex-col gap-8">
+      {/* Meta */}
+      {(result.visit_date || result.provider) && (
+        <div className="flex flex-wrap gap-x-6 gap-y-1 text-meta text-ink-secondary">
+          {result.visit_date && (
+            <span>
+              <span className="text-ink-primary font-bold">Visit date:</span>{" "}
+              {result.visit_date}
+            </span>
+          )}
+          {result.provider && (
+            <span>
+              <span className="text-ink-primary font-bold">Provider:</span>{" "}
+              {result.provider}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Section 1 */}
+      <section>
+        <div className="flex items-center gap-3 mb-5">
+          <div className="h-8 w-1 rounded-full bg-brand" />
+          <h2 className="text-card text-ink-primary">
+            What the doctor's notes say
+          </h2>
+        </div>
+        <p className="mb-5 text-meta text-ink-secondary -mt-2">
+          Your visit notes, broken into plain language. Hover over any{" "}
+          <span className="underline decoration-dotted underline-offset-4 text-brand font-medium cursor-help">
+            highlighted word
+          </span>{" "}
+          for a quick explanation.
+        </p>
+
+        {result.timeline.length === 0 ? (
+          <div className="glass rounded-card px-5 py-4 text-meta text-ink-secondary">
+            No sections could be extracted from this document.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {result.timeline.map((item, i) => (
+              <TimelineCard key={i} index={i} item={item} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Section 2 */}
+      {result.comparisons.length > 0 && (
+        <section>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-8 w-1 rounded-full bg-sea-deep" />
+            <h2 className="text-card text-ink-primary">
+              How this applies to you
+            </h2>
+          </div>
+          <p className="mb-5 text-meta text-ink-secondary -mt-2">
+            Each recommendation from the doctor, checked against what we know
+            about your medications, labs, and history.
+          </p>
+
+          <div className="flex flex-col gap-4">
+            {result.comparisons.map((c, i) => (
+              <ComparisonCard key={i} comparison={c} />
+            ))}
+          </div>
+
+          <div className="mt-6 rounded-card bg-surface-inset px-5 py-4 flex items-start gap-3">
+            <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-ink-secondary" />
+            <p className="text-meta text-ink-secondary leading-relaxed">
+              This is context, not medical advice. Your clinician has the full
+              picture. For anything urgent, call your provider or{" "}
+              <span className="text-ink-primary font-bold">
+                Trans Lifeline 877-565-8860
+              </span>
+              .
+            </p>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+// ── Timeline card ─────────────────────────────────────────────────────────────
+
+function TimelineCard({ index, item }: { index: number; item: TimelineItem }) {
+  return (
+    <div className="glass rounded-card p-6 flex gap-5">
+      {/* Step number */}
+      <div className="flex-shrink-0 flex items-start pt-0.5">
+        <div className="h-7 w-7 rounded-full bg-brand/15 text-brand text-meta font-bold flex items-center justify-center">
+          {index + 1}
+        </div>
+      </div>
+
+      <div className="min-w-0">
+        <h3 className="text-body text-ink-primary font-bold">{item.heading}</h3>
+        <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
+          <AnnotatedText text={item.plain} terms={item.terms} />
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── Comparison card ───────────────────────────────────────────────────────────
+
+const ALIGNMENT_META = {
+  aligned: {
+    icon: CheckCircle2,
+    color: "text-status-protected",
+    border: "border-l-status-protected",
+    bg: "bg-status-protected/8",
+    badge: "bg-status-protected/15 text-status-protected",
+    label: "Consistent with your data",
+  },
+  concern: {
+    icon: AlertTriangle,
+    color: "text-status-restricted",
+    border: "border-l-status-restricted",
+    bg: "bg-status-restricted/8",
+    badge: "bg-status-restricted/15 text-status-restricted",
+    label: "Worth understanding",
+  },
+  neutral: {
+    icon: HelpCircle,
+    color: "text-ink-secondary",
+    border: "border-l-divider",
+    bg: "",
+    badge: "bg-surface-inset text-ink-secondary",
+    label: "No data to compare",
+  },
+};
+
+function ComparisonCard({ comparison }: { comparison: Comparison }) {
+  const meta = ALIGNMENT_META[comparison.alignment] ?? ALIGNMENT_META.neutral;
+  const Icon = meta.icon;
+  const [expanded, setExpanded] = useState(true);
+
+  return (
+    <div
+      className={cn(
+        "rounded-card border border-divider border-l-4 p-5",
+        meta.border,
+        meta.bg
+      )}
+    >
+      {/* Header row */}
+      <div className="flex items-start gap-3">
+        <Icon className={cn("h-5 w-5 mt-0.5 shrink-0", meta.color)} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <p className="text-body text-ink-primary font-bold leading-snug">
+              {comparison.headline}
+            </p>
+            <span
+              className={cn(
+                "text-meta px-2 py-0.5 rounded-chip font-bold uppercase tracking-[0.08em] shrink-0",
+                meta.badge
+              )}
+            >
+              {meta.label}
+            </span>
+          </div>
+          <p className="mt-1 text-meta text-ink-secondary italic">
+            Doctor said: {comparison.recommendation}
+          </p>
+        </div>
+      </div>
+
+      {/* Detail */}
+      {expanded && (
+        <p className="mt-3 ml-8 text-meta text-ink-primary leading-relaxed">
+          {comparison.detail}
+        </p>
+      )}
+
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="mt-2 ml-8 text-meta text-ink-secondary hover:text-ink-primary underline-offset-4 hover:underline transition-colors"
+      >
+        {expanded ? "Show less" : "Show more"}
+      </button>
+    </div>
+  );
+}
+
+// ── Inline term tooltip ───────────────────────────────────────────────────────
+
+function InlineTerm({ word, explanation }: { word: string; explanation: string }) {
+  const [show, setShow] = useState(false);
+
+  return (
+    <span className="relative inline-block">
+      <span
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onFocus={() => setShow(true)}
+        onBlur={() => setShow(false)}
+        tabIndex={0}
+        className="underline decoration-dotted underline-offset-4 cursor-help text-brand font-medium focus:outline-none"
+      >
+        {word}
+      </span>
+      {show && (
+        <span
+          role="tooltip"
+          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2.5 w-60 rounded-card bg-ink-primary text-white text-meta leading-relaxed px-4 py-3 shadow-cardHover pointer-events-none"
+        >
+          {explanation}
+          {/* Arrow */}
+          <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-ink-primary rotate-45" />
+        </span>
+      )}
+    </span>
+  );
+}
+
+// Splits plain text and injects <InlineTerm> components for matched words.
+function AnnotatedText({
+  text,
+  terms,
+}: {
+  text: string;
+  terms: TermDef[];
+}) {
+  if (!terms.length) return <>{text}</>;
+
+  const filtered = terms.filter((t) => t.word && t.explanation);
+  if (!filtered.length) return <>{text}</>;
+
+  const escaped = filtered.map((t) =>
+    t.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  );
+  const pattern = new RegExp(`(${escaped.join("|")})`, "gi");
+  const parts = text.split(pattern);
+
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (!part) return null;
+        const term = filtered.find(
+          (t) => t.word.toLowerCase() === part.toLowerCase()
+        );
+        return term ? (
+          <InlineTerm key={i} word={part} explanation={term.explanation} />
+        ) : (
+          <span key={i}>{part}</span>
+        );
+      })}
+    </>
+  );
+}
