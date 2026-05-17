@@ -50,16 +50,16 @@ export function MapClient() {
     <div className="page-ocean">
       <PageHero
         eyebrow="Care Map"
-        title="Where Your State Stands On Gender Affirming Care."
-        description="The current legal landscape for HRT, surgery, ID changes, and shield laws across all 50 states. Hover for a quick read, click a state for the full breakdown."
+        title="Where Your State Stands On Gender-Affirming Care."
+        description="The legal landscape for HRT, surgery, ID changes, and shield laws across all 50 states. Hover for a quick read, click a state for the full breakdown."
       />
       <Container className="pb-16 relative">
       <div className="glass rounded-card p-4 mb-8 flex items-start gap-3 text-meta text-ink-secondary leading-relaxed">
         <span className="mt-0.5 inline-block h-2 w-2 rounded-full bg-status-restricted shrink-0" />
         <div>
-          <strong className="text-ink-primary">Best effort snapshot.</strong>{" "}
-          State buckets reflect patterns publicly reported by HRC, MAP, Lambda
-          Legal, and KFF over 2024 and 2025. This is not a realtime legal
+          <strong className="text-ink-primary">Best-effort snapshot.</strong>{" "}
+          State buckets reflect patterns reported by HRC, MAP, Lambda Legal,
+          and KFF across 2024 and 2025. This isn't real-time legal
           adjudication, and the law in some states changes weekly. Always{" "}
           <a
             href="https://www.lambdalegal.org/help"
@@ -150,8 +150,8 @@ export function MapClient() {
             <p>
               Care Map combines weekly snapshots from the Movement Advancement
               Project, Lambda Legal&apos;s case tracker, KFF, and direct reads
-              of state legislation. We rerun scrapers weekly and stamp each
-              cell with its most recent update.
+              of state legislation. Scrapers run weekly; each cell is stamped
+              with its most recent update.
             </p>
             <p className="text-ink-secondary">
               The law in some states changes faster than we can rescrape.{" "}

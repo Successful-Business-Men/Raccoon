@@ -121,7 +121,7 @@ export function PlacesClient() {
       <PageHero
         eyebrow="Your Profile"
         title="Type It Once. Use It Everywhere."
-        description="The Previsit Card and Lab Check both read from this. Lives in your browser. Never sent to a server unless you opt in below."
+        description="The Previsit Card and Lab Check both read from here. Everything stays in your browser unless you opt in below."
       >
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-meta text-sea-ink/75">
           <span className="inline-flex items-center gap-2">
@@ -141,7 +141,7 @@ export function PlacesClient() {
 
             <Section
               title="Medications"
-              subtitle="One line each. Don't worry about formatting — write it like you'd tell a friend."
+              subtitle="One line each. Write it like you'd tell a friend — formatting doesn't matter."
               action={
                 <Button size="sm" variant="secondary" onClick={addMed}>
                   <Plus className="h-4 w-4" /> Add
@@ -150,7 +150,7 @@ export function PlacesClient() {
             >
               {profile.medications.length === 0 ? (
                 <EmptyHint>
-                  No medications yet. Use "Smart fill" above, or click "Add".
+                  Nothing here yet. Try "Smart Fill" above, or click "Add".
                 </EmptyHint>
               ) : (
                 <div className="space-y-2">
@@ -171,7 +171,7 @@ export function PlacesClient() {
 
             <Section
               title="Surgical History"
-              subtitle="Past gender affirming procedures, or anything else relevant."
+              subtitle="Past gender-affirming procedures, or anything else relevant."
               action={
                 <Button size="sm" variant="secondary" onClick={addSurgery}>
                   <Plus className="h-4 w-4" /> Add
@@ -227,7 +227,7 @@ export function PlacesClient() {
               open={aboutOpen}
               onToggle={() => setAboutOpen((v) => !v)}
               label="About You (Optional)"
-              hint="Only used to personalize the visit card."
+              hint="Only used to personalize the Previsit Card."
             >
               <div className="grid sm:grid-cols-2 gap-4">
                 <TextField
@@ -278,8 +278,8 @@ export function PlacesClient() {
             <div className="glass rounded-card p-7">
               <h2 className="text-subsection">Your Data, Your Machine</h2>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
-                Everything you type is saved only in this browser. The smart fill
-                feature sends just the text you paste to Claude and nothing else.
+                Everything you type stays in this browser. Smart Fill sends
+                only the text you paste — nothing else — to Claude.
               </p>
               <div className="mt-5">
                 <Button
@@ -299,10 +299,10 @@ export function PlacesClient() {
             <div className="glass rounded-card p-7">
               <h2 className="text-subsection">Help The Next Person</h2>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
-                Medical books mostly have ranges for "men" and "women" — not
-                "person on estradiol for 4 years." Opt in and your numbers (no
-                name, no face) join a reference set the Lab Check uses to tell
-                people what normal actually looks like.
+                Medical books have ranges for "men" and "women" — not
+                "person on estradiol for 4 years." Opt in and your numbers
+                (no name, no face) join the reference set Lab Check uses to
+                show people what normal actually looks like.
               </p>
               <label className="mt-5 flex items-start gap-3 cursor-pointer">
                 <input
@@ -379,8 +379,8 @@ function SmartFill({
         <h2 className="text-subsection">Smart Fill</h2>
       </div>
       <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
-        Describe your regimen and history in a sentence or two. We'll fill in
-        the structured fields below so you don't have to.
+        Describe your regimen in a sentence or two. We'll fill the structured
+        fields below so you don't have to.
       </p>
       <textarea
         value={text}
@@ -391,7 +391,7 @@ function SmartFill({
       />
       <div className="mt-4 flex items-center justify-between gap-3">
         <span className="text-meta text-ink-secondary">
-          Adds to your profile — doesn't replace anything you already typed.
+          Adds to your profile — won't overwrite what's already there.
         </span>
         <Button onClick={run} disabled={!text.trim() || busy}>
           {busy ? (
@@ -590,7 +590,7 @@ function DrugSafety({ medications }: { medications: Medication[] }) {
             <h2 className="text-subsection">Drug Safety Check</h2>
           </div>
           <p className="mt-1 text-meta text-ink-secondary">
-            Live lookup against the FDA's drug recall & adverse event databases.
+            Live check against FDA drug recall and adverse event databases.
           </p>
         </div>
         <Button size="sm" variant="secondary" onClick={run} disabled={busy}>

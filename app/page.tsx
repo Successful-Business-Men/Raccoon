@@ -35,9 +35,9 @@ function Hero() {
             A Translator Between You And Your Doctor.
           </h1>
           <p className="mt-6 text-lede text-sea-ink text-balance max-w-[560px] mx-auto">
-            Type your meds and surgeries once. Hand over a card that
-            explains everything in 30 seconds. Find out if a weird
-            blood test is actually a problem — backed by live data from
+            Type your meds once. Hand the doctor a card that explains
+            everything in 30 seconds. Tell whether a weird lab number is
+            normal for your hormones — backed by live data from
             <span className="font-bold"> RxNorm</span>,
             <span className="font-bold"> openFDA</span>, and
             <span className="font-bold"> PubMed</span>.
@@ -46,10 +46,10 @@ function Hero() {
           <div className="mt-10 flex items-center justify-center">
             <GlassButton
               href="#tools"
-              ariaLabel="Explore the toolkit — jump to all four tools"
+              ariaLabel="See the tools — jump to all four"
             >
               <span className="inline-flex items-center gap-2 text-body font-medium text-sea-ink">
-                Explore the toolkit
+                See the tools
                 <ArrowDown className="h-4 w-4" strokeWidth={2} />
               </span>
             </GlassButton>
@@ -66,7 +66,7 @@ function ToolCards() {
       href: "/places",
       icon: User,
       title: "Your Profile",
-      desc: "Meds, surgeries, last labs. Stored in your browser. Type it once, use it everywhere.",
+      desc: "Meds, surgeries, last labs. Stays in your browser. Type it once, use it everywhere.",
     },
     {
       href: "/document",
@@ -78,13 +78,13 @@ function ToolCards() {
       href: "/continuity",
       icon: FlaskConical,
       title: "Lab Check",
-      desc: "A weird number? Type it in. Find out if it's normal for someone on your hormones — or worth asking about.",
+      desc: "Type in a weird number. Find out if it's normal for someone on your hormones — or worth asking about.",
     },
     {
       href: "/map",
       icon: MapIcon,
       title: "Care Map",
-      desc: "Current law on gender affirming care, ID changes, and shield laws in your state.",
+      desc: "See where your state stands on gender-affirming care, ID changes, and shield laws.",
     },
   ];
   return (
@@ -148,25 +148,25 @@ function TrustSection() {
     {
       name: "RxNorm",
       org: "U.S. National Library of Medicine",
-      role: "Standardized drug names + autocomplete",
+      role: "Real drug names, with autocomplete as you type.",
       url: "https://rxnav.nlm.nih.gov/",
     },
     {
       name: "openFDA",
       org: "U.S. Food & Drug Administration",
-      role: "Live drug recalls & adverse event reports",
+      role: "Live drug recalls and adverse event reports.",
       url: "https://open.fda.gov/apis/drug/",
     },
     {
-      name: "PubMed Eutils",
+      name: "PubMed",
       org: "National Center for Biotechnology Information",
-      role: "Trans HRT research citations on demand",
+      role: "Trans HRT research citations, on demand.",
       url: "https://eutils.ncbi.nlm.nih.gov/",
     },
     {
       name: "Claude",
       org: "Anthropic",
-      role: "Vision based lab report parsing & interpretation",
+      role: "Reads photos and PDFs of lab reports.",
       url: "https://www.anthropic.com/",
     },
   ];

@@ -81,7 +81,7 @@ export function ContinuityClient() {
       <PageHero
         eyebrow="Lab Check"
         title="A Weird Number Isn't Always A Problem."
-        description="Upload your full blood report, or type a single value. Either way you get a plain language read against your hormones. Not medical advice — just translation."
+        description="Upload a blood report or type a single value. Either way, you get a plain-language read that accounts for your hormones. Not medical advice — just translation."
       />
 
       <Container className="pb-16">
@@ -94,9 +94,9 @@ export function ContinuityClient() {
                   <span className="text-ink-primary font-bold">
                     Heads up — we don't know your regimen yet.
                   </span>{" "}
-                  We'll still answer, but it'll be generic. Add your hormones
-                  on the <Link href="/places" className="underline">profile page</Link>{" "}
-                  (smart fill takes one sentence) for a tailored read.
+                  We can still answer, but the read will be generic. Add your
+                  hormones on the <Link href="/places" className="underline">profile page</Link>{" "}
+                  — Smart Fill takes one sentence — for a tailored result.
                 </div>
               </div>
             )}
@@ -114,14 +114,13 @@ export function ContinuityClient() {
               </div>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
                 Medical textbooks have ranges for "men" and "women" — not
-                "person on estradiol for 4 years." Doctors are guessing at
-                your normal because nobody collected the data.
+                "person on estradiol for four years." Doctors guess at
+                your normal because no one collected the data.
               </p>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
-                Every person who opts in on their profile drops one anonymous
-                puzzle piece into the box. The interpretations here get
-                sharper as that pile grows. The book that should exist —
-                you're helping build it.
+                Every person who opts in adds one anonymous data point to the
+                pile. The reads here get sharper as the pile grows. The book
+                that should exist — you're helping build it.
               </p>
               <div className="mt-5">
                 <Link href="/places">
@@ -178,12 +177,12 @@ export function ContinuityClient() {
                 <AlertTriangle className="h-5 w-5 mt-0.5 shrink-0 text-ink-primary" />
                 <div className="text-meta text-ink-secondary leading-relaxed">
                   <div className="text-ink-primary text-meta font-bold mb-1">
-                    This is not medical advice.
+                    Not medical advice.
                   </div>
-                  Seagull translates "is this number weird?" into context.
-                  Diagnosis and treatment decisions belong with your
-                  clinician. For an emergency, call 911 or{" "}
-                  <span className="text-ink-primary font-bold">Trans Lifeline 877-565-8860</span>.
+                  Seagull turns "is this number weird?" into context.
+                  Diagnosis and treatment belong with your clinician. For an
+                  emergency, call 911 or{" "}
+                  <span className="text-ink-primary font-bold">Trans Lifeline at 877-565-8860</span>.
                 </div>
               </div>
             </div>
@@ -238,8 +237,8 @@ function UploadReport({ profile }: { profile: Profile }) {
         <h2 className="text-subsection">Upload Your Blood Report</h2>
       </div>
       <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
-        Drop a PDF or a phone photo. We'll read every value and tell you which
-        ones look expected for your regimen — and which to bring up.
+        Drop a PDF or a phone photo. We'll read every value and flag which
+        look normal for your regimen — and which are worth bringing up.
       </p>
 
       <div
@@ -305,7 +304,7 @@ function UploadReport({ profile }: { profile: Profile }) {
 
       <div className="mt-4 flex items-center justify-between gap-3">
         <span className="text-meta text-ink-secondary">
-          The file is sent once for parsing, then discarded.
+          Sent once for parsing, then discarded.
         </span>
         <Button onClick={submit} disabled={!file || busy}>
           {busy ? (
@@ -608,7 +607,7 @@ function SingleValueCheck({ profile }: { profile: Profile }) {
     <div className="glass rounded-card p-7">
       <h2 className="text-subsection">Or Check A Single Value</h2>
       <p className="mt-1 text-meta text-ink-secondary">
-        Faster if you just want to look up one number.
+        Faster if you only need to check one number.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">

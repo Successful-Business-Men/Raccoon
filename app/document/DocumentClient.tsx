@@ -49,7 +49,7 @@ export function DocumentClient() {
       <PageHero
         eyebrow="Previsit Card"
         title="Hand It To The Front Desk. The Doctor Reads It In 30 Seconds."
-        description="Two boxes. Box 1: the thing that hurts. Box 2: I take hormones — and this is not why. Print it, screenshot it, or just show your phone."
+        description="Two boxes. Box 1: the thing that hurts. Box 2: I take hormones — and that is not why I'm here. Print it, screenshot it, or show it on your phone."
       />
 
       <Container className="pb-16">
@@ -59,9 +59,8 @@ export function DocumentClient() {
             <div>
               <h2 className="text-subsection">Set Up Your Profile First</h2>
               <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
-                The "this is not why I'm here" box pulls from your medications
-                and surgical history. Add at least one medication or a regimen
-                summary, then come back.
+                Box 2 pulls from your medications and surgical history. Add at
+                least one — or a regimen summary — then come back.
               </p>
               <div className="mt-4">
                 <Link href="/places">
@@ -77,7 +76,7 @@ export function DocumentClient() {
               <div className="glass rounded-card p-7">
                 <h2 className="text-subsection">Today's Reason</h2>
                 <p className="mt-1 text-meta text-ink-secondary">
-                  In your own words. Plain language is best.
+                  In your own words — plain language is best.
                 </p>
                 <textarea
                   value={reason}
@@ -98,8 +97,8 @@ export function DocumentClient() {
               <div className="glass rounded-card p-7">
                 <h2 className="text-subsection">Anything Else?</h2>
                 <p className="mt-1 text-meta text-ink-secondary">
-                  Allergies, recent injuries, anything you want the doctor to
-                  see at a glance. Optional.
+                  Allergies, recent injuries — anything the doctor should see
+                  at a glance. Optional.
                 </p>
                 <textarea
                   value={extraContext}
@@ -209,7 +208,7 @@ const PrintableCard = forwardRef<
         {/* Box 2 */}
         <div className="mt-4 rounded-card border-2 border-ink-secondary/40 p-5 bg-surface-inset/40">
           <div className="text-meta uppercase tracking-[0.12em] text-ink-primary font-bold">
-            Box 2 — I Am On Hormones. This Is NOT Why I Am Here Today.
+            Box 2 — I Take Hormones. This Is Not Why I'm Here Today.
           </div>
           <div className="mt-3 space-y-2 text-meta text-ink-primary leading-relaxed">
             {regimen && <p>{regimen}</p>}
@@ -257,8 +256,7 @@ const PrintableCard = forwardRef<
         )}
 
       <div className="mt-5 pt-4 border-t divider-soft text-meta text-ink-secondary leading-relaxed">
-        This card was made by the patient using Seagull. It is a
-        self report, not a medical record.
+        Made by the patient with Seagull — a self-report, not a medical record.
       </div>
     </div>
   );
