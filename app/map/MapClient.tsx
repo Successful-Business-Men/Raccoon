@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Pill, StatusPill } from "@/components/Pill";
@@ -13,14 +13,13 @@ import {
 import type { CareStatus, ProcedureKey } from "@/types";
 import { USMap } from "./USMap";
 import { StateDrawer } from "./StateDrawer";
-import { ChevronDown } from "lucide-react";
 
 const INSURANCE_FILTERS = [
   { id: "employer", label: "Employer" },
   { id: "marketplace", label: "Marketplace" },
   { id: "medicaid", label: "Medicaid" },
   { id: "medicare", label: "Medicare" },
-  { id: "self_pay", label: "Self pay" },
+  { id: "self_pay", label: "Self Pay" },
 ];
 
 const STATUS_LEGEND: Array<{ status: CareStatus; description: string }> = [
@@ -31,7 +30,7 @@ const STATUS_LEGEND: Array<{ status: CareStatus; description: string }> = [
   { status: "LEGAL", description: "No active restriction; standard access." },
   {
     status: "RESTRICTED",
-    description: "Limits in place — age, parental consent, or coverage carve-outs.",
+    description: "Age limits, parental consent, or coverage carve-outs.",
   },
   { status: "BANNED", description: "Statutory or regulatory ban currently in force." },
   {
@@ -44,7 +43,6 @@ export function MapClient() {
   const [procedure, setProcedure] = useState<ProcedureKey>("hrt_adult");
   const [insurance, setInsurance] = useState<string>("employer");
   const [activeState, setActiveState] = useState<string | null>(null);
-  const [methodologyOpen, setMethodologyOpen] = useState(false);
 
   const lastUpdate = useMemo(() => getLastDataUpdate(), []);
 
@@ -52,17 +50,17 @@ export function MapClient() {
     <div className="page-ocean">
       <PageHero
         eyebrow="Care Map"
-        title="Where your state stands on gender-affirming care."
-        description="The current legal landscape for HRT, surgery, ID changes, and shield laws — by state. Hover for a quick read, click a state for the full breakdown."
+        title="Where Your State Stands On Gender-Affirming Care."
+        description="The current legal landscape for HRT, surgery, ID changes, and shield laws across all 50 states. Hover for a quick read, click a state for the full breakdown."
       />
       <Container className="pb-16 relative">
       <div className="glass rounded-card p-4 mb-8 flex items-start gap-3 text-meta text-ink-secondary leading-relaxed">
         <span className="mt-0.5 inline-block h-2 w-2 rounded-full bg-status-restricted shrink-0" />
         <div>
           <strong className="text-ink-primary">Best-effort snapshot.</strong>{" "}
-          State buckets are calibrated from publicly-reported 2024–2025
-          patterns (HRC, MAP, Lambda Legal, KFF) — not a real-time legal
-          adjudication. The law in some states changes weekly. Always{" "}
+          State buckets reflect patterns publicly reported by HRC, MAP, Lambda
+          Legal, and KFF over 2024 and 2025. This is not a real-time legal
+          adjudication, and the law in some states changes weekly. Always{" "}
           <a
             href="https://www.lambdalegal.org/help"
             target="_blank"
@@ -130,62 +128,52 @@ export function MapClient() {
       <section className="grid gap-6 lg:grid-cols-2 mb-8">
         <div className="glass rounded-card p-7">
           <h2 className="text-subsection mb-4">
-            Color legend
+            Color Legend
           </h2>
-          <ul className="space-y-3">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-3">
             {STATUS_LEGEND.map((l) => (
-              <li key={l.status} className="flex items-start gap-3">
+              <Fragment key={l.status}>
                 <StatusPill status={l.status} />
-                <span className="text-meta text-ink-secondary flex-1">
+                <span className="text-meta text-ink-secondary">
                   {l.description}
                 </span>
-              </li>
+              </Fragment>
             ))}
-          </ul>
+          </div>
         </div>
 
         <div className="glass rounded-card p-7">
-          <button
-            onClick={() => setMethodologyOpen((o) => !o)}
-            className="flex items-center justify-between w-full text-left"
-          >
-            <h2 className="text-subsection">
-              How we source this data
-            </h2>
-            <ChevronDown
-              className={`h-5 w-5 transition-transform ${methodologyOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-          {methodologyOpen && (
-            <div className="mt-4 text-body text-ink-primary leading-relaxed space-y-3">
-              <p>
-                Care Map combines weekly snapshots from the Movement Advancement
-                Project, Lambda Legal&apos;s case tracker, KFF, and direct reads
-                of state legislation. We re-run scrapers weekly and stamp each
-                cell with its most recent update.
-              </p>
-              <p className="text-ink-secondary">
-                The law in some states changes faster than we can re-scrape.{" "}
-                <a
-                  className="text-ink-primary underline-offset-4 hover:underline"
-                  href="https://www.lambdalegal.org/help"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Verify with Lambda Legal&apos;s Help Desk
-                </a>{" "}
-                before acting on anything you see here.
-              </p>
-              <p>
-                <a
-                  href="mailto:hello@seagull.app?subject=Care%20Map%20error"
-                  className="text-ink-primary underline-offset-4 hover:underline"
-                >
-                  Report an error
-                </a>
-              </p>
-            </div>
-          )}
+          <h2 className="text-subsection mb-4">
+            How We Source This Data
+          </h2>
+          <div className="text-body text-ink-primary leading-relaxed space-y-3">
+            <p>
+              Care Map combines weekly snapshots from the Movement Advancement
+              Project, Lambda Legal&apos;s case tracker, KFF, and direct reads
+              of state legislation. We re-run scrapers weekly and stamp each
+              cell with its most recent update.
+            </p>
+            <p className="text-ink-secondary">
+              The law in some states changes faster than we can re-scrape.{" "}
+              <a
+                className="text-ink-primary underline-offset-4 hover:underline"
+                href="https://www.lambdalegal.org/help"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Verify with Lambda Legal&apos;s Help Desk
+              </a>{" "}
+              before acting on anything you see here.
+            </p>
+            <p>
+              <a
+                href="mailto:hello@seagull.app?subject=Care%20Map%20error"
+                className="text-ink-primary underline-offset-4 hover:underline"
+              >
+                Report An Error
+              </a>
+            </p>
+          </div>
         </div>
       </section>
 
