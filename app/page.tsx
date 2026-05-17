@@ -32,7 +32,7 @@ function Hero() {
       <Container>
         <div className="relative mx-auto max-w-[860px] text-center pt-28 pb-section">
           <h1 className="text-hero text-balance text-sea-ink">
-            A translator between you and your doctor.
+            A Translator Between You And Your Doctor.
           </h1>
           <p className="mt-6 text-lede text-sea-ink text-balance max-w-[560px] mx-auto">
             Type your meds and surgeries once. Hand over a card that
