@@ -491,7 +491,7 @@ function AnnotatedText({
     const escaped = filtered.map((t) =>
       t.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
     );
-    const pattern = new RegExp(`(${escaped.join("|")})`, "gi");
+    const pattern = new RegExp(`\\b(${escaped.join("|")})\\b`, "gi");
     const parts = raw.split(pattern);
 
     const inner = parts
