@@ -81,7 +81,7 @@ export function ContinuityClient() {
       <PageHero
         eyebrow="Lab Check"
         title="A Weird Number Isn't Always A Problem."
-        description="Upload a blood report or type a single value. We tell you whether the number is from your hormones, or from something separate worth bringing up. Not medical advice — just translation."
+        description="Upload a blood report or type a single value. We tell you whether the number is from your hormones, or from something separate worth bringing up. Not medical advice, just translation."
       />
 
       <Container className="pb-16">
@@ -92,11 +92,11 @@ export function ContinuityClient() {
                 <AlertCircle className="h-5 w-5 mt-0.5 shrink-0 text-status-restricted" />
                 <div className="text-meta text-ink-secondary leading-relaxed">
                   <span className="text-ink-primary font-bold">
-                    Heads up — we don't know your regimen yet.
+                    Heads up. We don't know your regimen yet.
                   </span>{" "}
                   We can still answer, but the read will be generic. Add your
                   hormones on the <Link href="/places" className="underline">profile page</Link>{" "}
-                  — Smart Fill takes one sentence — for a tailored result.
+                  (Smart Fill takes one sentence) for a tailored result.
                 </div>
               </div>
             )}
@@ -113,14 +113,14 @@ export function ContinuityClient() {
                 <h2 className="text-subsection">The Missing Book</h2>
               </div>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
-                Medical textbooks have ranges for "men" and "women" — not
+                Medical textbooks have ranges for "men" and "women," not
                 "person on estradiol for four years." Doctors guess at
                 your normal because no one collected the data.
               </p>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
                 Every person who opts in adds one anonymous data point to the
                 pile. The reads here get sharper as the pile grows. The book
-                that should exist — you're helping build it.
+                that should exist. You're helping build it.
               </p>
               <div className="mt-5">
                 <Link href="/places">
@@ -144,7 +144,7 @@ export function ContinuityClient() {
                     rel="noreferrer"
                     className="hover:underline underline-offset-4"
                   >
-                    PubMed Eutilities — research citations
+                    PubMed Eutilities, research citations
                   </a>
                 </li>
                 <li className="inline-flex items-center gap-2">
@@ -155,7 +155,7 @@ export function ContinuityClient() {
                     rel="noreferrer"
                     className="hover:underline underline-offset-4"
                   >
-                    openFDA — drug recalls & adverse events
+                    openFDA, drug recalls and adverse events
                   </a>
                 </li>
                 <li className="inline-flex items-center gap-2">
@@ -166,7 +166,7 @@ export function ContinuityClient() {
                     rel="noreferrer"
                     className="hover:underline underline-offset-4"
                   >
-                    NLM RxNorm — medication normalization
+                    NLM RxNorm, medication normalization
                   </a>
                 </li>
               </ul>
@@ -238,7 +238,7 @@ function UploadReport({ profile }: { profile: Profile }) {
       </div>
       <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
         Drop a PDF or a phone photo. We'll read every value and flag which
-        look normal for your regimen — and which are worth bringing up.
+        look normal for your regimen, and which are worth bringing up.
       </p>
 
       <div
@@ -356,7 +356,7 @@ function ReportResults({
           )}
         </div>
         <p className="mt-2 text-body text-ink-primary leading-relaxed">
-          {report.summary || "—"}
+          {report.summary || "…"}
         </p>
       </div>
 
@@ -387,13 +387,13 @@ const VERDICT_META: Record<
     dot: "bg-status-protected",
   },
   borderline_ask_doctor: {
-    label: "Borderline — worth a quick ask",
+    label: "Borderline, worth a quick ask",
     icon: HelpCircle,
     color: "text-status-restricted",
     dot: "bg-status-restricted",
   },
   outside_hrt_explanation: {
-    label: "Likely not from HRT — bring to your clinician",
+    label: "Likely not from HRT, bring to your clinician",
     icon: AlertTriangle,
     color: "text-status-banned",
     dot: "bg-status-banned",

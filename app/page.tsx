@@ -32,11 +32,11 @@ function Hero() {
       <Container>
         <div className="relative mx-auto max-w-[860px] text-center pt-28 pb-section">
           <h1 className="text-hero text-balance text-sea-ink">
-            A Translator Between You And Your Doctor.
+            A Translator Between You And Your Doctor
           </h1>
           <p className="mt-6 text-lede text-sea-ink text-balance max-w-[560px] mx-auto">
             Type your meds once. Hand the doctor a card that keeps today&apos;s
-            complaint separate from your hormone context — in 30 seconds.
+            complaint separate from your hormone context, in 30 seconds.
             Tell whether a weird lab number is from HRT, or from something
             else worth asking about. Backed by live data from
             <span className="font-bold"> RxNorm</span>,
@@ -47,7 +47,7 @@ function Hero() {
           <div className="mt-10 flex items-center justify-center">
             <GlassButton
               href="#tools"
-              ariaLabel="See the tools — jump to all four"
+              ariaLabel="See the tools. Jump to all four."
             >
               <span className="inline-flex items-center gap-2 text-body font-medium text-sea-ink">
                 See the tools
@@ -73,19 +73,19 @@ function ToolCards() {
       href: "/document",
       icon: FileText,
       title: "Previsit Card",
-      desc: "Two boxes for the doctor — today's complaint, and hormone context — so the right thing gets looked at.",
+      desc: "Two boxes for the doctor. Today's complaint, and hormone context, so the right thing gets looked at.",
     },
     {
       href: "/continuity",
       icon: FlaskConical,
       title: "Lab Check",
-      desc: "Type in a weird number. Find out if it's from your hormones — or something separate worth asking about.",
+      desc: "Type in a weird number. Find out if it's from your hormones, or from something separate worth asking about.",
     },
     {
       href: "/map",
       icon: MapIcon,
       title: "Care Map",
-      desc: "See where your state stands on gender-affirming care, ID changes, and shield laws.",
+      desc: "See where your state stands on gender affirming care, ID changes, and shield laws.",
     },
   ];
   return (
@@ -184,7 +184,7 @@ function TrustSection() {
                 target="_blank"
                 rel="noreferrer"
                 title={s.org}
-                aria-label={`${s.name} — ${s.org}. Opens in a new tab.`}
+                aria-label={`${s.name}, ${s.org}. Opens in a new tab.`}
                 className="group inline-flex items-center gap-2 rounded-chip glass px-3.5 py-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cardHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sea-deep focus-visible:ring-offset-2"
               >
                 <span className="text-[10px] uppercase tracking-[0.12em] font-bold text-sea-deep">

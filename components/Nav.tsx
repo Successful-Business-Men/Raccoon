@@ -21,7 +21,7 @@ export function Nav() {
         <nav className="flex h-20 items-center justify-between gap-6">
           <Link
             href="/"
-            aria-label="Seagull — Home"
+            aria-label="Seagull, home"
             className="flex items-center text-sea-ink"
           >
             <Logo size={72} />

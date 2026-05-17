@@ -49,7 +49,7 @@ export function DocumentClient() {
       <PageHero
         eyebrow="Previsit Card"
         title="Hand It To The Front Desk. The Doctor Reads It In 30 Seconds."
-        description="Two boxes. Box 1: the thing that hurts. Box 2: I take hormones — and that is not why I'm here. Print it, screenshot it, or show it on your phone."
+        description="Two boxes. Box 1: the thing that hurts. Box 2: I take hormones, and that is not why I'm here. Print it, screenshot it, or show it on your phone."
       />
 
       <Container className="pb-16">
@@ -60,7 +60,7 @@ export function DocumentClient() {
               <h2 className="text-subsection">Set Up Your Profile First</h2>
               <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
                 Box 2 pulls from your medications and surgical history. Add at
-                least one — or a regimen summary — then come back.
+                least one, or a regimen summary, then come back.
               </p>
               <div className="mt-4">
                 <Link href="/places">
@@ -76,7 +76,7 @@ export function DocumentClient() {
               <div className="glass rounded-card p-7">
                 <h2 className="text-subsection">Today's Reason</h2>
                 <p className="mt-1 text-meta text-ink-secondary">
-                  In your own words — plain language is best.
+                  In your own words. Plain language is best.
                 </p>
                 <textarea
                   value={reason}
@@ -97,7 +97,7 @@ export function DocumentClient() {
               <div className="glass rounded-card p-7">
                 <h2 className="text-subsection">Anything Else?</h2>
                 <p className="mt-1 text-meta text-ink-secondary">
-                  Allergies, recent injuries — anything the doctor should see
+                  Allergies, recent injuries, anything the doctor should see
                   at a glance. Optional.
                 </p>
                 <textarea
@@ -206,17 +206,17 @@ const PrintableCard = forwardRef<
         {/* Box 1 */}
         <div className="mt-4 rounded-card border-2 border-accent/70 p-5">
           <div className="text-meta uppercase tracking-[0.12em] text-accent font-bold">
-            Box 1 — Today I Am Here Because
+            Box 1 · Today I Am Here Because
           </div>
           <p className="mt-2 text-body text-ink-primary whitespace-pre-wrap leading-relaxed">
-            {reason || "—"}
+            {reason || "…"}
           </p>
         </div>
 
         {/* Box 2 */}
         <div className="mt-4 rounded-card border-2 border-ink-secondary/40 p-5 bg-surface-inset/40">
           <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary font-bold">
-            Box 2 — Hormone Context (Not Today&apos;s Reason)
+            Box 2 · Hormone Context (Not Today&apos;s Reason)
           </div>
           <div className="mt-3 space-y-2 text-meta text-ink-primary leading-relaxed">
             {regimen && <p>{regimen}</p>}
@@ -227,7 +227,7 @@ const PrintableCard = forwardRef<
                 </div>
                 <ul className="mt-1 list-disc pl-5 space-y-0.5">
                   {meds.map((m) => (
-                    <li key={m.id}>{m.description || "—"}</li>
+                    <li key={m.id}>{m.description || "…"}</li>
                   ))}
                 </ul>
               </div>
@@ -240,7 +240,7 @@ const PrintableCard = forwardRef<
                 <ul className="mt-1 list-disc pl-5 space-y-0.5">
                   {surgeries.map((s) => (
                     <li key={s.id}>
-                      {s.description || "—"}
+                      {s.description || "…"}
                       {s.date && (
                         <span className="text-ink-secondary"> · {s.date}</span>
                       )}
@@ -264,7 +264,7 @@ const PrintableCard = forwardRef<
         )}
 
       <div className="mt-5 pt-4 border-t divider-soft text-meta text-ink-secondary leading-relaxed">
-        Made by the patient with Seagull — a self-report, not a medical record.
+        Made by the patient with Seagull. A self report, not a medical record.
       </div>
     </div>
   );

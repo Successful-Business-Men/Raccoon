@@ -140,7 +140,7 @@ export function PlacesClient() {
 
             <Section
               title="Medications"
-              subtitle="One line each. Write it like you'd tell a friend — formatting doesn't matter."
+              subtitle="One line each. Write it like you'd tell a friend. Formatting doesn't matter."
               action={
                 <Button size="sm" variant="secondary" onClick={addMed}>
                   <Plus className="h-4 w-4" /> Add
@@ -170,7 +170,7 @@ export function PlacesClient() {
 
             <Section
               title="Surgical History"
-              subtitle="Past gender-affirming procedures, or anything else relevant."
+              subtitle="Past gender affirming procedures, or anything else relevant."
               action={
                 <Button size="sm" variant="secondary" onClick={addSurgery}>
                   <Plus className="h-4 w-4" /> Add
@@ -278,7 +278,7 @@ export function PlacesClient() {
               <h2 className="text-subsection">Your Data, Your Machine</h2>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
                 Everything you type stays in this browser. Smart Fill sends
-                only the text you paste — nothing else — to Claude.
+                only the text you paste, nothing else, to Claude.
               </p>
               <div className="mt-5">
                 <Button
@@ -298,7 +298,7 @@ export function PlacesClient() {
             <div className="glass rounded-card p-7">
               <h2 className="text-subsection">Help The Next Person</h2>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
-                Medical books have ranges for "men" and "women" — not
+                Medical books have ranges for "men" and "women," not
                 "person on estradiol for 4 years." Opt in and your numbers
                 (no name, no face) join the reference set Lab Check uses to
                 show people what normal actually looks like.
@@ -390,7 +390,7 @@ function SmartFill({
       />
       <div className="mt-4 flex items-center justify-between gap-3">
         <span className="text-meta text-ink-secondary">
-          Adds to your profile — won't overwrite what's already there.
+          Adds to your profile. Won't overwrite what's already there.
         </span>
         <Button onClick={run} disabled={!text.trim() || busy}>
           {busy ? (
