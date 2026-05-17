@@ -13,16 +13,16 @@ export function PageHero({
   children?: ReactNode;
 }) {
   return (
-    <Container className="relative pt-12 pb-10">
+    <Container className="relative pt-20 pb-14">
       <div className="max-w-[760px]">
         {eyebrow && (
-          <div className="text-meta uppercase tracking-[0.18em] text-sea-ink/65 mb-3">
+          <div className="text-meta uppercase tracking-[0.18em] text-sea-ink/70 mb-4 font-medium">
             {eyebrow}
           </div>
         )}
         <h1 className="text-section text-balance text-sea-ink">{title}</h1>
         {description && (
-          <p className="mt-4 text-lede text-sea-ink/80 text-balance">
+          <p className="mt-5 text-lede text-sea-ink/80 text-balance">
             {description}
           </p>
         )}

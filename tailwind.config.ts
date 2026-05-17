@@ -37,11 +37,22 @@ const config: Config = {
       fontFamily: {
         sans: [
           "var(--font-body)",
-          "ui-monospace",
-          "SFMono-Regular",
-          "monospace",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif",
         ],
-        display: ["var(--font-display)", "cursive"],
+        display: [
+          "var(--font-display)",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "sans-serif",
+        ],
       },
       fontSize: {
         hero: ["64px", { lineHeight: "1.08", fontWeight: "700", letterSpacing: "-0.02em" }],

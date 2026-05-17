@@ -7,8 +7,8 @@ import { Logo } from "./Logo";
 import { cn } from "@/lib/cn";
 
 const TOOL_LINKS = [
-  { href: "/places", label: "Profile" },
-  { href: "/document", label: "Visit Card" },
+  { href: "/places", label: "Your Profile" },
+  { href: "/document", label: "Previsit Card" },
   { href: "/continuity", label: "Lab Check" },
   { href: "/map", label: "Care Map" },
 ];
@@ -18,13 +18,14 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 glass-nav">
       <Container>
-        <nav className="flex h-20 items-center justify-between gap-6">
+        <nav className="flex h-16 items-center justify-between gap-6">
           <Link
             href="/"
-            className="flex items-center gap-1 text-black"
+            aria-label="Seagull — Home"
+            className="flex items-center gap-2.5 text-sea-ink"
           >
-            <Logo size={64} />
-            <span className="font-display text-[22px] leading-none">
+            <Logo size={36} />
+            <span className="font-display font-medium text-[22px] leading-none tracking-tight">
               Seagull
             </span>
           </Link>
@@ -54,9 +55,12 @@ function NavLink({
   return (
     <Link
       href={href}
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "px-3 py-2 text-meta rounded-btn transition-colors text-black",
-        active ? "bg-surface-inset" : "hover:bg-surface-inset"
+        "px-3 py-2 text-meta font-medium rounded-btn transition-colors",
+        active
+          ? "bg-white/80 text-sea-ink shadow-[inset_0_0_0_1px_rgba(15,42,61,0.08)]"
+          : "text-sea-ink/75 hover:text-sea-ink hover:bg-white/55"
       )}
     >
       {children}

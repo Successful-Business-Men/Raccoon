@@ -174,18 +174,18 @@ function TrustSection() {
     <section className="pb-section">
       <Container>
         <div className="text-center">
-          <div className="text-meta uppercase tracking-[0.18em] text-ink-secondary">
+          <div className="text-meta uppercase tracking-[0.18em] font-medium text-ink-secondary">
             Live Data From
           </div>
         </div>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {sources.map((s) => (
             <a
               key={s.name}
               href={s.url}
               target="_blank"
               rel="noreferrer"
-              className="glass rounded-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cardHover"
+              className="group glass rounded-card p-7 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cardHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sea-deep focus-visible:ring-offset-2"
             >
               <div className="text-card text-sea-ink">{s.name}</div>
               <div className="mt-1 text-meta text-ink-secondary">{s.org}</div>
