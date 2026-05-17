@@ -44,7 +44,11 @@ interface Brief {
 
 export function DocumentClient() {
   const [profile, setProfile] = useState<Profile>(emptyProfile());
-  const [reason, setReason] = useState("");
+  const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
+  const [customReason, setCustomReason] = useState("");
+  const reason = [...selectedReasons, customReason.trim()]
+    .filter(Boolean)
+    .join(" ");
   const [extraContext, setExtraContext] = useState("");
   const [goals, setGoals] = useState<string[]>(["", "", ""]);
   const [mode, setMode] = useState<Mode>("full");
@@ -170,26 +174,36 @@ export function DocumentClient() {
               <div className="glass rounded-card p-7">
                 <h2 className="text-subsection">Today's Reason</h2>
                 <p className="mt-1 text-meta text-ink-secondary">
-                  In your own words. Plain language is best.
+                  Tap any that apply, add your own words below, or both.
                 </p>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  {QUICK_REASONS.map((r) => {
+                    const isSelected = selectedReasons.includes(r);
+                    return (
+                      <Pill
+                        key={r}
+                        selected={isSelected}
+                        onClick={() =>
+                          setSelectedReasons((prev) =>
+                            isSelected
+                              ? prev.filter((x) => x !== r)
+                              : [...prev, r]
+                          )
+                        }
+                        className="w-full justify-center text-center"
+                      >
+                        {r}
+                      </Pill>
+                    );
+                  })}
+                </div>
                 <textarea
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
+                  value={customReason}
+                  onChange={(e) => setCustomReason(e.target.value)}
                   rows={4}
-                  placeholder="My arm has been hurting for three days after I fell off my bike."
+                  placeholder="In your own words. e.g. My arm has been hurting for three days after I fell off my bike."
                   className="mt-4 w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
                 />
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  {QUICK_REASONS.map((r) => (
-                    <Pill
-                      key={r}
-                      onClick={() => setReason(r)}
-                      className="w-full justify-center text-center"
-                    >
-                      {r}
-                    </Pill>
-                  ))}
-                </div>
               </div>
 
               <div className="glass rounded-card p-7">
