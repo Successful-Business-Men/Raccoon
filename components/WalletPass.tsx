@@ -3,7 +3,31 @@
 import { forwardRef, useEffect, useState } from "react";
 import QRCode from "qrcode";
 import type { Profile } from "@/lib/profile";
-import { compactSummary } from "@/lib/cardInsights";
+
+function encodePayload(profile: Profile, reason: string, goals: string[]): string {
+  // Strip fields the wallet pass doesn't show — keeps the QR scannable.
+  const slim = {
+    profile: {
+      display_name: profile.display_name,
+      pronouns: profile.pronouns,
+      age: profile.age,
+      sex_assigned_at_birth: profile.sex_assigned_at_birth,
+      allergies: profile.allergies,
+      anatomical_inventory: profile.anatomical_inventory,
+      hormone_regimen_summary: profile.hormone_regimen_summary,
+    },
+    reason,
+    goals: goals.filter((g) => g.trim()),
+  };
+  const json = JSON.stringify(slim);
+  // URL-safe base64
+  if (typeof window === "undefined") return "";
+  const b64 = btoa(unescape(encodeURIComponent(json)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+  return b64;
+}
 
 interface WalletPassProps {
   profile: Profile;
@@ -21,16 +45,19 @@ export const WalletPass = forwardRef<HTMLDivElement, WalletPassProps>(
     const filledGoals = goals.map((g) => g.trim()).filter(Boolean);
 
     useEffect(() => {
-      const payload = compactSummary(profile, reason);
-      QRCode.toDataURL(payload, {
+      const encoded = encodePayload(profile, reason, goals);
+      if (!encoded) return;
+      const origin = window.location.origin;
+      const url = `${origin}/p#d=${encoded}`;
+      QRCode.toDataURL(url, {
         margin: 0,
-        width: 220,
+        width: 240,
         color: { dark: "#0F2A3F", light: "#FFFFFF" },
         errorCorrectionLevel: "M",
       })
         .then(setQr)
         .catch(() => setQr(""));
-    }, [profile, reason]);
+    }, [profile, reason, goals]);
 
     const demoBits = [
       profile.age && `${profile.age}y`,
@@ -227,10 +254,12 @@ export const WalletPass = forwardRef<HTMLDivElement, WalletPassProps>(
               />
             ) : null}
           </div>
-          <div style={{ fontSize: 10, opacity: 0.75, lineHeight: 1.35 }}>
-            Scan to read a one-line summary.
+          <div style={{ fontSize: 10, opacity: 0.85, lineHeight: 1.35 }}>
+            <span style={{ fontWeight: 700 }}>Scan with phone camera</span>
             <br />
-            Self-report, not a medical record.
+            Opens the pass on your iPhone.
+            <br />
+            Tap to add to Apple Wallet.
           </div>
         </div>
       </div>
