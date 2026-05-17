@@ -18,14 +18,14 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 glass-nav">
       <Container>
-        <nav className="flex h-16 items-center justify-between gap-6">
+        <nav className="flex h-20 items-center justify-between gap-6">
           <Link
             href="/"
             aria-label="Seagull — Home"
-            className="flex items-center gap-2.5 text-sea-ink"
+            className="flex items-center text-sea-ink"
           >
-            <Logo size={36} />
-            <span className="font-display font-medium text-[22px] leading-none tracking-tight">
+            <Logo size={72} />
+            <span className="font-display font-medium text-[26px] leading-none tracking-tight -ml-1">
               Seagull
             </span>
           </Link>
