@@ -18,12 +18,12 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 glass-nav">
       <Container>
-        <nav className="flex h-16 items-center justify-between gap-6">
+        <nav className="flex h-20 items-center justify-between gap-6">
           <Link
             href="/"
-            className="flex items-center gap-2.5 text-ink-primary"
+            className="flex items-center gap-2.5 text-black"
           >
-            <Logo size={44} />
+            <Logo size={64} />
             <span className="font-display text-[22px] leading-none">
               Seagull
             </span>
@@ -55,10 +55,8 @@ function NavLink({
     <Link
       href={href}
       className={cn(
-        "px-3 py-2 text-meta rounded-btn transition-colors",
-        active
-          ? "text-ink-primary bg-surface-inset"
-          : "text-ink-secondary hover:text-ink-primary"
+        "px-3 py-2 text-meta rounded-btn transition-colors text-black",
+        active ? "bg-surface-inset" : "hover:bg-surface-inset"
       )}
     >
       {children}
