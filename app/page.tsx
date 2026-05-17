@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { FileText, Map as MapIcon, Route, ArrowRight, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/Container";
-import { IconBadge } from "@/components/IconBadge";
 import { GlassButton, GlassFilter } from "@/components/ui/liquid-glass";
 import { WaveBackground } from "@/components/WaveBackground";
 
@@ -99,18 +98,45 @@ function ToolCards() {
             <Link
               key={t.href}
               href={t.href}
-              className="group relative flex h-full flex-col glass rounded-card p-7 hover:shadow-cardHover hover:-translate-y-0.5 transition-all duration-200 ease-out"
+              className="group relative flex h-full flex-col glass rounded-card p-7 overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-cardHover hover:bg-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sea-deep focus-visible:ring-offset-2"
             >
-              <IconBadge>
+              {/* Decorative sea-tinted glow that brightens on hover */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full opacity-60 blur-2xl transition-all duration-500 ease-out group-hover:opacity-100 group-hover:scale-110"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(125,211,252,0.55) 0%, rgba(186,230,253,0) 70%)",
+                }}
+              />
+
+              {/* Icon — sea-tinted gradient badge */}
+              <div
+                className="relative flex h-14 w-14 items-center justify-center rounded-icon text-sea-ink transition-transform duration-300 ease-out group-hover:scale-105"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(224,242,254,0.95) 0%, rgba(186,230,253,0.75) 50%, rgba(125,211,252,0.55) 100%)",
+                  boxShadow:
+                    "inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(15,42,61,0.06)",
+                }}
+              >
                 <t.icon className="h-6 w-6" strokeWidth={1.75} />
-              </IconBadge>
-              <h3 className="mt-5 text-card tracking-tight">
+              </div>
+
+              <h3 className="relative mt-6 text-card tracking-tight text-sea-ink">
                 {t.title}
               </h3>
-              <p className="mt-3 text-body text-ink-secondary leading-relaxed">{t.desc}</p>
-              <div className="mt-auto pt-6 inline-flex items-center gap-1.5 text-meta text-ink-primary">
-                Open
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              <p className="relative mt-2.5 text-body text-ink-secondary leading-relaxed">
+                {t.desc}
+              </p>
+
+              {/* Divider + CTA chip */}
+              <div className="relative mt-auto pt-6">
+                <div className="h-px w-full bg-gradient-to-r from-sea-mist/70 via-sea-mist/25 to-transparent" />
+                <div className="mt-4 inline-flex items-center gap-1.5 text-meta font-medium text-sea-ink transition-colors duration-200 group-hover:text-sea-deep">
+                  Open
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1" />
+                </div>
               </div>
             </Link>
           ))}
