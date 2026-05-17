@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Plus, Trash2, Save, ShieldCheck, Sparkles, ChevronDown, Loader2, Wand2, AlertTriangle, CheckCircle2, ExternalLink, FlaskConical, Siren, Lock, HeartHandshake } from "lucide-react";
+import Link from "next/link";
+import { Plus, Trash2, Save, ShieldCheck, Sparkles, ChevronDown, Loader2, Wand2, AlertTriangle, CheckCircle2, ExternalLink, FlaskConical, Siren, Lock, HeartHandshake, ArrowRight } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
@@ -300,13 +301,21 @@ export function PlacesClient() {
                   onCommit={flashSaved}
                   placeholder="she/her, they/them, …"
                 />
-                <TextField
-                  label="Age"
-                  value={profile.age}
-                  onChange={(v) => update("age", v)}
-                  onCommit={flashSaved}
-                  inputMode="numeric"
-                />
+                <div className="flex flex-col gap-3">
+                  <TextField
+                    label="Age"
+                    value={profile.age}
+                    onChange={(v) => update("age", v)}
+                    onCommit={flashSaved}
+                    inputMode="numeric"
+                  />
+                  <Button asChild className="w-full">
+                    <Link href="/document">
+                      Create My Previsit Card
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
                 <div>
                   <FieldLabel>Sex assigned at birth</FieldLabel>
                   <div className="mt-2 flex flex-wrap gap-2">
