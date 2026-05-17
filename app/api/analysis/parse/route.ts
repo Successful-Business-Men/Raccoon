@@ -10,7 +10,7 @@ const SYSTEM_PROMPT = `You are a plain-language medical translator for trans pat
 PART 1 — TIMELINE
 Break the visit notes into chronological sections (as the doctor presents them, top to bottom). For each section:
 - "heading": a 3-6 word title
-- "plain": simplified explanation in direct, accessible language. No jargon. Max 3 sentences.
+- "plain": simplified explanation in direct, accessible language. No jargon. Max 3 sentences. Wrap the single most important conclusion or action item in **double asterisks** — e.g. **Recheck in 4 weeks.**, **No medication changes at this time.**, **All values are normal.** — so it can be bolded for the reader.
 - "terms": medical words, drug names, or technical terms that appear exactly as written in "plain". For each: { "word": exact substring from plain, "explanation": 1-2 sentence tooltip }
 
 PART 2 — COMPARISONS

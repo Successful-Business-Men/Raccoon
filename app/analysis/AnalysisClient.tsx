@@ -258,7 +258,7 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
             No sections could be extracted from this document.
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start">
             {result.timeline.map((item, i) => (
               <TimelineCard key={i} index={i} item={item} />
             ))}
@@ -330,7 +330,7 @@ function TimelineCard({ index, item }: { index: number; item: TimelineItem }) {
         </div>
         {open && (
           <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
-            <AnnotatedText text={item.plain} terms={item.terms} />
+            <AnnotatedText text={item.plain} terms={item.terms} bold />
           </p>
         )}
       </div>
