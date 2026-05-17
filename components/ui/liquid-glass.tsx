@@ -151,19 +151,9 @@ export const GlassButton: React.FC<{
   <GlassEffect
     href={href}
     ariaLabel={ariaLabel}
-    className={cn(
-      "rounded-[28px] px-9 py-5 hover:px-10 hover:py-6 hover:rounded-[32px]",
-      className
-    )}
+    className={cn("rounded-[28px] px-9 py-5", className)}
   >
-    <div
-      className="transition-all duration-700 hover:scale-[0.98]"
-      style={{
-        transitionTimingFunction: "cubic-bezier(0.175, 0.885, 0.32, 2.2)",
-      }}
-    >
-      {children}
-    </div>
+    <div>{children}</div>
   </GlassEffect>
 );
 
