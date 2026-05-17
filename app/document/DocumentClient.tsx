@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useState } from "react";
 import Link from "next/link";
-import { Printer, AlertCircle } from "lucide-react";
+import { Printer, ClipboardList } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
@@ -54,7 +54,7 @@ export function DocumentClient() {
       <Container className="pb-16">
         {!loaded ? null : !hasProfile ? (
           <div className="glass rounded-card p-7 flex items-start gap-4">
-            <AlertCircle className="h-7 w-7 shrink-0 text-status-restricted" />
+            <ClipboardList className="h-7 w-7 shrink-0 text-status-restricted" />
             <div>
               <h2 className="text-subsection">Set Up Your Profile First</h2>
               <p className="mt-2 text-meta text-ink-secondary leading-relaxed">

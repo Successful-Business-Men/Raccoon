@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
-import { Info } from "lucide-react";
+import { CalendarClock } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Pill, StatusPill } from "@/components/Pill";
@@ -56,7 +56,7 @@ export function MapClient() {
       />
       <Container className="pb-16 relative">
       <div className="glass rounded-card p-7 mb-8 flex items-start gap-4">
-        <Info className="h-7 w-7 shrink-0 text-sea-deep" />
+        <CalendarClock className="h-7 w-7 shrink-0 text-sea-deep" />
         <div>
           <h2 className="text-subsection">Best Effort Snapshot</h2>
           <p className="mt-2 text-meta text-ink-secondary leading-relaxed">

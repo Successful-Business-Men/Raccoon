@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  AlertCircle,
+  UserCircle2,
   CheckCircle2,
   HelpCircle,
   Loader2,
@@ -88,7 +88,7 @@ export function ContinuityClient() {
           <div className="flex flex-col gap-6">
             {loaded && !hasProfile && (
               <div className="glass rounded-card p-7 flex items-start gap-4">
-                <AlertCircle className="h-7 w-7 shrink-0 text-status-restricted" />
+                <UserCircle2 className="h-7 w-7 shrink-0 text-status-restricted" />
                 <div>
                   <h2 className="text-subsection">We Don't Know Your Regimen Yet</h2>
                   <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
