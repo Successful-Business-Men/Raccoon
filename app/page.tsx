@@ -19,15 +19,16 @@ function Hero() {
   return (
     <section className="relative isolate -mt-16 pt-16 overflow-hidden ocean-hero">
       <WaveBackground />
-      {/* Long, gentle fade to white at the bottom of the hero so it doesn't
-          terminate on a hard line. The next section picks up where this leaves
-          off with a matching ocean tint that fades the rest of the way down. */}
+      {/* Long fade at the bottom of the hero. The final color is the SAME
+          effective rgb the Tools wash produces at its top edge
+          (rgba(186,230,253,0.55) over white body ≈ rgb(217,241,254)), so the
+          two sections meet at an identical pixel value — no visible seam. */}
       <div
         aria-hidden
         className="absolute inset-x-0 bottom-0 h-96 pointer-events-none"
         style={{
           background:
-            "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 35%, rgba(255,255,255,0.7) 70%, rgba(255,255,255,0.98) 100%)",
+            "linear-gradient(180deg, rgba(217,241,254,0) 0%, rgba(217,241,254,0.3) 35%, rgba(217,241,254,0.75) 70%, rgba(217,241,254,1) 100%)",
         }}
       />
       <GlassFilter />
