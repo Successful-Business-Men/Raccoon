@@ -5,6 +5,7 @@ import { Info } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Pill, StatusPill } from "@/components/Pill";
+import { Button } from "@/components/Button";
 import {
   CARE_STATUS_BY_CODE,
   PROCEDURE_KEYS,
@@ -79,13 +80,8 @@ export function MapClient() {
       <div className="glass rounded-card p-6 mb-8">
         <div className="flex flex-col gap-3">
           <div>
-            <div className="flex items-baseline justify-between gap-4 mb-2">
-              <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
-                Procedure
-              </div>
-              <div className="text-meta text-ink-secondary shrink-0">
-                Last comprehensive update: <span className="text-ink-primary">{lastUpdate}</span>
-              </div>
+            <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary mb-2">
+              Procedure
             </div>
             <div className="flex flex-wrap gap-2">
               {PROCEDURE_KEYS.map((p) => (
@@ -114,6 +110,10 @@ export function MapClient() {
                 </Pill>
               ))}
             </div>
+          </div>
+          <div className="mt-2 pt-3 border-t divider-soft text-meta text-ink-secondary">
+            Last comprehensive update:{" "}
+            <span className="text-ink-primary font-medium">{lastUpdate}</span>
           </div>
         </div>
       </div>
@@ -167,14 +167,13 @@ export function MapClient() {
               </a>{" "}
               before acting on anything you see here.
             </p>
-            <p>
-              <a
-                href="mailto:hello@seagull.app?subject=Care%20Map%20error"
-                className="text-ink-primary underline-offset-4 hover:underline"
-              >
-                Report An Error
-              </a>
-            </p>
+            <div className="pt-2">
+              <Button asChild variant="secondary" size="sm">
+                <a href="mailto:hello@seagull.app?subject=Care%20Map%20error">
+                  Report An Error
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
