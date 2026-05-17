@@ -120,7 +120,7 @@ export function PlacesClient() {
     <div className="page-ocean">
       <PageHero
         title="Type It Once. Use It Everywhere."
-        description="Add your meds, surgeries, and labs once — the Previsit Card and Lab Check pull from here automatically, so you never retype anything."
+        description="Add your meds, surgeries, and labs once. The Previsit Card and Lab Check pull from here automatically, so you never retype anything."
       >
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-meta text-sea-ink/75">
           <span className="inline-flex items-center gap-2">
@@ -147,11 +147,7 @@ export function PlacesClient() {
                 </Button>
               }
             >
-              {profile.medications.length === 0 ? (
-                <EmptyHint>
-                  Nothing here yet. Try "Smart Fill" above, or click "Add".
-                </EmptyHint>
-              ) : (
+              {profile.medications.length > 0 && (
                 <div className="space-y-2">
                   {profile.medications.map((m) => (
                     <MedRow
