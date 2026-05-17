@@ -55,7 +55,7 @@ export function MapClient() {
         title="Where your state stands on gender-affirming care."
         description="The current legal landscape for HRT, surgery, ID changes, and shield laws — by state. Hover for a quick read, click a state for the full breakdown."
       />
-      <Container className="-mt-14 pb-16 relative">
+      <Container className="pb-16 relative">
       <div className="glass rounded-card p-4 mb-8 flex items-start gap-3 text-meta text-ink-secondary leading-relaxed">
         <span className="mt-0.5 inline-block h-2 w-2 rounded-full bg-status-restricted shrink-0" />
         <div>

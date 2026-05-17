@@ -125,7 +125,7 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
           <TierTally tier="red" label="Active concerns" count={tierCounts.red} />
         </div>
       </PageHero>
-      <Container className="-mt-14 pb-16">
+      <Container className="pb-16">
 
       {/* Search + sort */}
       <div className="glass rounded-card p-5 mb-6">

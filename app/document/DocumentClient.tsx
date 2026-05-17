@@ -175,7 +175,7 @@ export function DocumentClient() {
         title="A structured record you can hand to a lawyer or filing agency."
         description="A short conversation builds a packet: what happened, who was involved, what evidence exists, and which legal protections apply. Free, private, downloadable as PDF."
       />
-      <Container className="-mt-14 pb-16">
+      <Container className="pb-16">
       <div className="grid gap-8 lg:grid-cols-[3fr_2fr]">
         {/* Chat column */}
         <div className="flex flex-col min-h-[70vh]">

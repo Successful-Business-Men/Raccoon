@@ -219,7 +219,7 @@ export function ContinuityClient() {
         title="Plan a move without losing access to your care."
         description="Tell us where you are and what you need. We'll generate a personalized checklist — records, insurance, medication risk, legal — with the most urgent steps surfaced first."
       />
-      <Container size="plan" className="-mt-14 pb-16">
+      <Container size="plan" className="pb-16">
 
       <div className="rounded-card bg-surface-inset p-5 mb-6 flex gap-3 items-start text-meta text-ink-secondary">
         <Shield className="h-5 w-5 mt-0.5 shrink-0 text-ink-primary" />
