@@ -97,6 +97,87 @@
   }
 }
 
+/* ─── Spotlight hover effect on every glass card container ─────────────
+   A single global pointermove listener (components/SpotlightCursor.tsx)
+   updates --spot-x / --spot-y on :root. Each card uses background-attachment:
+   fixed, so the radial gradient is positioned in viewport coordinates —
+   only the card directly under the cursor lights up. The :hover gate also
+   ensures the inner fill and border glow only paint on the hovered card. */
+.glass.rounded-card,
+.glass-strong.rounded-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.glass.rounded-card > *,
+.glass-strong.rounded-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Inner blue fill — subtle wash that follows the cursor inside the card */
+.glass.rounded-card::before,
+.glass-strong.rounded-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: radial-gradient(
+    240px 240px at var(--spot-x, -9999px) var(--spot-y, -9999px),
+    hsl(210 100% 60% / 0.22),
+    transparent 70%
+  );
+  background-attachment: fixed;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 280ms ease;
+  z-index: 0;
+}
+
+.glass.rounded-card:hover::before,
+.glass-strong.rounded-card:hover::before {
+  opacity: 1;
+}
+
+/* Outer border glow — bright blue ring traces the cursor along the edge */
+.glass.rounded-card::after,
+.glass-strong.rounded-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background-image: radial-gradient(
+    180px 180px at var(--spot-x, -9999px) var(--spot-y, -9999px),
+    hsl(210 100% 55% / 1),
+    transparent 70%
+  );
+  background-attachment: fixed;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude;
+  filter: brightness(1.3);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 280ms ease;
+  z-index: 0;
+}
+
+.glass.rounded-card:hover::after,
+.glass-strong.rounded-card:hover::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass.rounded-card::before,
+  .glass-strong.rounded-card::before,
+  .glass.rounded-card::after,
+  .glass-strong.rounded-card::after {
+    transition: none;
+  }
+}
+
 /* react-simple-maps focus outline cleanup */
 .rsm-geography:focus {
   outline: none;

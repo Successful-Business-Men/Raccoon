@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito, Fredoka } from "next/font/google";
 import { Nav } from "@/components/Nav";
+import { SpotlightCursor } from "@/components/SpotlightCursor";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${nunito.variable} ${fredoka.variable}`}>
       <body className="min-h-screen flex flex-col">
+        <SpotlightCursor />
         <Nav />
         <main className="flex-1">{children}</main>
       </body>
