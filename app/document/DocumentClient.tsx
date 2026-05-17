@@ -378,7 +378,7 @@ export function DocumentClient() {
               ) : (
                 <>
                   <div className="flex items-center justify-center py-4">
-                    <div ref={walletRef}>
+                    <div ref={walletRef} className="w-full max-w-[440px]">
                       <WalletPass profile={profile} reason={reason} goals={goals} />
                     </div>
                   </div>
