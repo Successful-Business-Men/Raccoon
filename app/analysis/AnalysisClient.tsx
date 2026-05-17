@@ -258,11 +258,7 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
             No sections could be extracted from this document.
           </div>
         ) : (
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start">
-            {result.timeline.map((item, i) => (
-              <TimelineCard key={i} index={i} item={item} />
-            ))}
-          </div>
+          <TimelineGrid items={result.timeline} />
         )}
       </section>
 
@@ -294,20 +290,111 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
   );
 }
 
-// ── Timeline card (accordion) ─────────────────────────────────────────────────
+// ── Timeline grid + drawer ────────────────────────────────────────────────────
 
-function TimelineCard({ index, item }: { index: number; item: TimelineItem }) {
-  const [open, setOpen] = useState(false);
+function TimelineGrid({ items }: { items: TimelineItem[] }) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const activeItem = activeIndex !== null ? items[activeIndex] : null;
+
+  return (
+    <>
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item, i) => (
+          <TimelineCard
+            key={i}
+            index={i}
+            item={item}
+            onOpen={() => setActiveIndex(i)}
+          />
+        ))}
+      </div>
+
+      {/* Drawer backdrop */}
+      {activeItem && (
+        <div
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px]"
+          onClick={() => setActiveIndex(null)}
+          aria-hidden
+        />
+      )}
+
+      {/* Drawer panel */}
+      <div
+        className={cn(
+          "fixed top-0 right-0 bottom-0 z-50 w-full max-w-md glass-strong flex flex-col",
+          "transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
+          activeItem ? "translate-x-0" : "translate-x-full"
+        )}
+        aria-modal="true"
+        role="dialog"
+      >
+        {activeItem && (
+          <>
+            {/* Drawer header */}
+            <div className="flex items-start justify-between gap-4 px-7 pt-7 pb-5 border-b border-white/40">
+              <div className="flex items-center gap-3">
+                <div className="h-7 w-7 shrink-0 rounded-full bg-brand/15 text-brand text-meta font-bold flex items-center justify-center">
+                  {activeIndex! + 1}
+                </div>
+                <h3 className="text-body font-bold text-ink-primary leading-snug">
+                  {activeItem.heading}
+                </h3>
+              </div>
+              <button
+                onClick={() => setActiveIndex(null)}
+                className="shrink-0 text-ink-secondary hover:text-ink-primary transition-colors mt-0.5"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Drawer body */}
+            <div className="flex-1 overflow-y-auto px-7 py-6">
+              <p className="text-meta text-ink-secondary leading-relaxed">
+                <AnnotatedText text={activeItem.plain} terms={activeItem.terms} bold />
+              </p>
+
+              {activeItem.terms.length > 0 && (
+                <div className="mt-6 flex flex-col gap-3">
+                  <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-ink-secondary/60">
+                    Terms in this section
+                  </p>
+                  {activeItem.terms.map((t, i) => (
+                    <div key={i} className="glass-inset rounded-card px-4 py-3">
+                      <p className="text-meta font-semibold text-ink-primary">{t.word}</p>
+                      <p className="mt-0.5 text-meta text-ink-secondary leading-relaxed">{t.explanation}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+function TimelineCard({
+  index,
+  item,
+  onOpen,
+}: {
+  index: number;
+  item: TimelineItem;
+  onOpen: () => void;
+}) {
   const [clickFlash, setClickFlash] = useState(false);
 
-  function handleToggle() {
+  function handleOpen() {
     setClickFlash(true);
     setTimeout(() => setClickFlash(false), 380);
-    setOpen((v) => !v);
+    onOpen();
   }
 
   return (
-    <div className="glass rounded-card p-6 flex gap-5">
+    <div className="glass rounded-card p-6 flex gap-5 h-full">
       <div className="flex-shrink-0 flex items-start pt-0.5">
         <div className="h-7 w-7 rounded-full bg-brand/15 text-brand text-meta font-bold flex items-center justify-center">
           {index + 1}
@@ -317,22 +404,17 @@ function TimelineCard({ index, item }: { index: number; item: TimelineItem }) {
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-body text-ink-primary font-bold">{item.heading}</h3>
           <button
-            onClick={handleToggle}
+            onClick={handleOpen}
             className={cn(
-              "shrink-0 text-meta transition-colors duration-150 select-none",
+              "shrink-0 text-meta transition-colors duration-150 select-none whitespace-nowrap",
               clickFlash
                 ? "animate-show-more-click"
                 : "text-ink-secondary hover:text-brand"
             )}
           >
-            {open ? "Show less" : "Show more…"}
+            Show more…
           </button>
         </div>
-        {open && (
-          <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
-            <AnnotatedText text={item.plain} terms={item.terms} bold />
-          </p>
-        )}
       </div>
     </div>
   );
