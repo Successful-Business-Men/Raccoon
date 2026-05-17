@@ -136,7 +136,7 @@ function UploadAndAnalyze({ profile }: { profile: Profile }) {
       <div className="glass rounded-card p-7">
         <h2 className="text-subsection">Upload Your Visit Notes</h2>
         <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
-          Drop the after visit summary your doctor gave you, PDF, photo, or screenshot.
+          Drop the after visit summary your doctor gave you (PDF, photo, or screenshot).
           We'll read the whole thing so you don't have to decode it.
         </p>
 
