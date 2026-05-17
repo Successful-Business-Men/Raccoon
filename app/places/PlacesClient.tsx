@@ -119,7 +119,7 @@ export function PlacesClient() {
 
   return (
     <div className="page-ocean">
-      <AuroraOverlay />
+      <AuroraOverlay variant="sky" />
       <PageHero
         title={<>Type It Once<br />Use It Everywhere</>}
         description="Add your meds, surgeries, and labs once. The Previsit Card and Lab Check pull from here automatically, so you never retype anything."

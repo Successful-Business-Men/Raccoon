@@ -7,6 +7,7 @@ import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
+import { AuroraOverlay } from "@/components/ui/aurora-background";
 import {
   emptyProfile,
   loadProfile,
@@ -46,6 +47,7 @@ export function DocumentClient() {
 
   return (
     <div className="page-ocean">
+      <AuroraOverlay variant="amber" />
       <PageHero
         title={<>Hand It To The Front Desk<br />The Doctor Reads It In 30 Seconds</>}
         description="One box for today's reason. One box for your hormones. Print it, screenshot it, or show it on your phone."

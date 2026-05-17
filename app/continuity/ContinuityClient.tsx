@@ -21,6 +21,7 @@ import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
+import { AuroraOverlay } from "@/components/ui/aurora-background";
 import { cn } from "@/lib/cn";
 import { emptyProfile, loadProfile, type Profile } from "@/lib/profile";
 
@@ -78,6 +79,7 @@ export function ContinuityClient() {
 
   return (
     <div className="page-ocean">
+      <AuroraOverlay variant="emerald" />
       <PageHero
         title="A Weird Number Isn't Always A Problem"
         description="Upload a blood report or type a single value. We tell you whether the number is from your hormones, or from something separate worth bringing up. Not medical advice, just translation."

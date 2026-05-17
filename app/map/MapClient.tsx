@@ -6,6 +6,7 @@ import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Pill, StatusPill } from "@/components/Pill";
 import { Button } from "@/components/Button";
+import { AuroraOverlay } from "@/components/ui/aurora-background";
 import {
   CARE_STATUS_BY_CODE,
   PROCEDURE_KEYS,
@@ -50,6 +51,7 @@ export function MapClient() {
 
   return (
     <div className="page-ocean">
+      <AuroraOverlay variant="violet" />
       <PageHero
         title="Where Your State Stands On Gender Affirming Care"
         description="The legal landscape for HRT, surgery, ID changes, and shield laws across all 50 states. Hover for a quick read, click a state for the full breakdown."
