@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FileText, Map as MapIcon, Route, ArrowRight, ShieldCheck } from "lucide-react";
+import { FileText, Map as MapIcon, Route, ArrowRight, ArrowDown, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/Container";
 import { GlassButton, GlassFilter } from "@/components/ui/liquid-glass";
 import { WaveBackground } from "@/components/WaveBackground";
@@ -44,16 +44,14 @@ function Hero() {
             check your state.
           </p>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <GlassButton href="/places" ariaLabel="Check a Safety Score">
+          <div className="mt-10 flex items-center justify-center">
+            <GlassButton
+              href="#tools"
+              ariaLabel="Explore the toolkit — jump to all four tools"
+            >
               <span className="inline-flex items-center gap-2 text-body font-medium text-sea-ink">
-                Check a Safety Score
-                <ArrowRight className="h-4 w-4" strokeWidth={2} />
-              </span>
-            </GlassButton>
-            <GlassButton href="/document" ariaLabel="Document an incident">
-              <span className="inline-flex items-center gap-2 text-body font-medium text-sea-ink">
-                Document an incident
+                Explore the toolkit
+                <ArrowDown className="h-4 w-4" strokeWidth={2} />
               </span>
             </GlassButton>
           </div>
@@ -91,7 +89,7 @@ function ToolCards() {
     },
   ];
   return (
-    <section className="pb-section">
+    <section id="tools" className="scroll-mt-24 pb-section">
       <Container>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 items-stretch">
           {tools.map((t) => (

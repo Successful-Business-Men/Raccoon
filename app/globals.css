@@ -9,6 +9,11 @@
     text-rendering: optimizeLegibility;
     overscroll-behavior-y: none;
   }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
   body {
     @apply text-ink-primary font-sans;
     background-color: #FFFFFF;
