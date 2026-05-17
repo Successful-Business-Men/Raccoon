@@ -24,10 +24,10 @@ export function PageHero({
       />
       <div
         aria-hidden
-        className="absolute inset-x-0 bottom-0 h-24 pointer-events-none"
+        className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
         style={{
           background:
-            "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.96) 100%)",
+            "linear-gradient(180deg, rgba(234,246,255,0) 0%, rgba(234,246,255,0.55) 55%, rgba(244,250,254,1) 100%)",
         }}
       />
       <Container className="relative">

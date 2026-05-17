@@ -171,12 +171,58 @@
   }
 }
 
-/* Interior-page tint: soft ocean wash so glass cards have something to
-   read against, without competing with the homepage's full wave hero. */
+/* Interior-page tint: a soft ocean wash that fills the entire viewport
+   (background-attachment: fixed), with ambient highlights at both top and
+   bottom of the viewport. As the user scrolls, the visible viewport is
+   never blank white — there's always a gentle ocean character behind the
+   content, without overwhelming it with saturated blue. */
 .page-ocean {
+  position: relative;
   background:
-    radial-gradient(60% 50% at 80% 0%, rgba(125, 211, 252, 0.22) 0%, rgba(125, 211, 252, 0) 70%),
-    radial-gradient(50% 40% at 10% 8%, rgba(186, 230, 253, 0.35) 0%, rgba(186, 230, 253, 0) 65%),
-    linear-gradient(180deg, #F5FBFF 0%, #FFFFFF 60%);
+    /* top-of-viewport ambient highlights */
+    radial-gradient(70% 35% at 80% 0%, rgba(56, 189, 248, 0.12) 0%, rgba(56, 189, 248, 0) 60%),
+    radial-gradient(55% 30% at 8% 4%, rgba(125, 211, 252, 0.20) 0%, rgba(125, 211, 252, 0) 60%),
+    /* mid-viewport breathing room */
+    radial-gradient(50% 30% at 95% 55%, rgba(186, 230, 253, 0.14) 0%, rgba(186, 230, 253, 0) 70%),
+    /* bottom-of-viewport ambient wash so the page never goes blank */
+    radial-gradient(80% 28% at 50% 100%, rgba(56, 189, 248, 0.16) 0%, rgba(56, 189, 248, 0) 70%),
+    /* continuous soft ocean base, viewport-tall */
+    linear-gradient(180deg, #EAF6FF 0%, #F4FAFE 35%, #F1F8FD 65%, #DDF0FB 100%);
   background-attachment: fixed;
+  background-size: 100% 100%;
+}
+
+/* Subtle animated tide at the bottom of the viewport on interior pages.
+   Reuses the homepage wave SVG at lower opacity, with a slower scroll —
+   adds fluid motion without dominating. Hidden in reduced-motion. */
+.page-ocean::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 18vh;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 100' preserveAspectRatio='none'><path d='M0,22 Q200,9 400,22 T800,22 T1200,22 T1600,22 L1600,100 L0,100 Z' fill='%237dd3fc'/></svg>");
+  background-repeat: repeat-x;
+  background-size: 1600px 100%;
+  background-position-y: 0;
+  opacity: 0.28;
+  animation: wave-scroll 120s linear infinite;
+  will-change: background-position;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 1) 100%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 1) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-ocean::after {
+    animation: none;
+  }
+}
+
+/* Page content sits above the tide. */
+.page-ocean > * {
+  position: relative;
+  z-index: 1;
 }
