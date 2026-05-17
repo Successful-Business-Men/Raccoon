@@ -54,7 +54,7 @@ export function MapClient() {
       <AuroraOverlay variant="violet" />
       <PageHero
         title="Where Your State Stands On Gender Affirming Care"
-        description="The legal landscape for HRT, surgery, ID changes, and shield laws across all 50 states. Hover for a quick read, click a state for the full breakdown."
+        description="The legal landscape for HRT, surgery, ID changes, and shield laws across all 50 states."
       />
       <Container className="pb-16 relative">
       <div className="glass rounded-card p-7 mb-8 flex items-start gap-4">
