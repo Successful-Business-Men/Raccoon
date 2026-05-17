@@ -178,64 +178,75 @@ export function DocumentClient() {
       <Container className="pb-16">
       <div className="grid gap-8 lg:grid-cols-[3fr_2fr]">
         {/* Chat column */}
-        <div className="flex flex-col min-h-[70vh]">
+        <div className="flex flex-col min-h-[70vh] gap-4">
           {place && (
-            <header className="mb-6">
-              <div className="rounded-card glass p-4 flex items-start gap-3">
-                <MapPin className="h-4 w-4 mt-1 shrink-0 text-ink-primary" />
-                <div className="flex-1 text-meta">
-                  <div className="text-ink-primary font-bold">
-                    Filing at {place.name}
-                  </div>
-                  <div className="text-ink-secondary">
-                    {place.address} · {place.city}, {place.state_code} ·{" "}
-                    {savedToPlace ? (
-                      <Link
-                        href={`/places`}
-                        className="text-status-protected underline-offset-4 hover:underline"
-                      >
-                        Added to Safety Score ↗
-                      </Link>
-                    ) : (
-                      "will feed the Safety Score once the packet is filled"
-                    )}
-                  </div>
+            <div className="rounded-card glass p-4 flex items-start gap-3">
+              <MapPin className="h-4 w-4 mt-1 shrink-0 text-ink-primary" />
+              <div className="flex-1 text-meta">
+                <div className="text-ink-primary font-bold">
+                  Filing at {place.name}
+                </div>
+                <div className="text-ink-secondary">
+                  {place.address} · {place.city}, {place.state_code} ·{" "}
+                  {savedToPlace ? (
+                    <Link
+                      href={`/places`}
+                      className="text-status-protected underline-offset-4 hover:underline"
+                    >
+                      Added to Safety Score ↗
+                    </Link>
+                  ) : (
+                    "will feed the Safety Score once the packet is filled"
+                  )}
                 </div>
               </div>
-            </header>
-          )}
-
-          <div
-            ref={chatRef}
-            className="flex-1 overflow-y-auto pr-1 space-y-4 pb-6"
-          >
-            {messages.map((m, i) => (
-              <Bubble key={i} role={m.role} text={m.content} />
-            ))}
-            {streamingText && <Bubble role="assistant" text={streamingText} streaming />}
-            {busy && !streamingText && (
-              <div className="flex items-center gap-2 text-ink-secondary text-meta">
-                <Loader2 className="h-4 w-4 animate-spin" /> Thinking…
-              </div>
-            )}
-          </div>
-
-          {showOpenerChips && (
-            <div className="flex flex-wrap gap-2 pb-4">
-              {CATEGORY_CHIPS.map((c) => (
-                <Pill key={c.label} onClick={() => send(c.value)}>
-                  {c.label}
-                </Pill>
-              ))}
             </div>
           )}
 
-          <ChatInput
-            value={input}
-            onChange={setInput}
-            onSend={() => send(input)}
-            disabled={busy}
-          />
+          {/* One bounded surface so the conversation has an unmistakable
+              start (titled header) and end (input footer). */}
+          <div className="glass rounded-card flex flex-1 flex-col overflow-hidden">
+            <div className="border-b divider-soft px-7 py-5">
+              <h2 className="text-subsection">Conversation</h2>
+              <p className="mt-1 text-meta text-ink-secondary">
+                Answer in your own words — your packet fills in on the right as we talk.
+              </p>
+            </div>
+
+            <div
+              ref={chatRef}
+              className="flex-1 overflow-y-auto px-7 py-6 space-y-4"
+            >
+              {messages.map((m, i) => (
+                <Bubble key={i} role={m.role} text={m.content} />
+              ))}
+              {streamingText && <Bubble role="assistant" text={streamingText} streaming />}
+              {busy && !streamingText && (
+                <div className="flex items-center gap-2 text-ink-secondary text-meta">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Thinking…
+                </div>
+              )}
+            </div>
+
+            <div className="border-t divider-soft px-7 py-5 space-y-3">
+              {showOpenerChips && (
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORY_CHIPS.map((c) => (
+                    <Pill key={c.label} onClick={() => send(c.value)}>
+                      {c.label}
+                    </Pill>
+                  ))}
+                </div>
+              )}
+
+              <ChatInput
+                value={input}
+                onChange={setInput}
+                onSend={() => send(input)}
+                disabled={busy}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Packet preview column */}
@@ -264,8 +275,8 @@ function Bubble({
         className={cn(
           "max-w-[85%] rounded-card px-5 py-3.5 text-body leading-relaxed whitespace-pre-wrap",
           isUser
-            ? "glass-inset text-ink-primary"
-            : "glass text-ink-primary"
+            ? "bg-accent text-white"
+            : "glass-strong text-ink-primary"
         )}
       >
         {text}
@@ -287,7 +298,7 @@ function ChatInput({
   disabled: boolean;
 }) {
   return (
-    <div className="glass rounded-card p-3 flex items-end gap-2 border border-divider/30">
+    <div className="glass-inset rounded-btn p-2 flex items-end gap-2 border border-divider">
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
