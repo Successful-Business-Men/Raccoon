@@ -1,10 +1,9 @@
 import { PlacesClient } from "./PlacesClient";
-import { listPlaces } from "@/lib/score";
 
 export const metadata = {
-  title: "Safety Score — Seagull",
+  title: "Profile — Seagull",
 };
 
-export default function PlacesPage() {
-  return <PlacesClient places={listPlaces()} />;
+export default function ProfilePage() {
+  return <PlacesClient />;
 }

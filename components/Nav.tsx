@@ -7,10 +7,10 @@ import { Logo } from "./Logo";
 import { cn } from "@/lib/cn";
 
 const TOOL_LINKS = [
-  { href: "/document", label: "Document" },
+  { href: "/places", label: "Profile" },
+  { href: "/document", label: "Visit Card" },
+  { href: "/continuity", label: "Lab Check" },
   { href: "/map", label: "Care Map" },
-  { href: "/places", label: "Safety Score" },
-  { href: "/continuity", label: "Continuity" },
 ];
 
 export function Nav() {

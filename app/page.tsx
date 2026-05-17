@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FileText, Map as MapIcon, Route, ArrowRight, ArrowDown, ShieldCheck } from "lucide-react";
+import { FileText, Map as MapIcon, FlaskConical, ArrowRight, ArrowDown, User } from "lucide-react";
 import { Container } from "@/components/Container";
 import { GlassButton, GlassFilter } from "@/components/ui/liquid-glass";
 import { WaveBackground } from "@/components/WaveBackground";
@@ -32,12 +32,12 @@ function Hero() {
       <Container>
         <div className="relative mx-auto max-w-[860px] text-center pt-28 pb-section">
           <h1 className="text-hero text-balance text-sea-ink">
-            A toolkit for trans Americans navigating discrimination
-            and shifting laws.
+            A translator between you and your doctor.
           </h1>
           <p className="mt-6 text-lede text-sea-ink text-balance max-w-[560px] mx-auto">
-            Document discrimination, score businesses, plan a move,
-            check your state.
+            Type your meds and surgeries once. Hand over a card that
+            explains everything in 30 seconds. Find out if a weird
+            blood test is actually a problem.
           </p>
 
           <div className="mt-10 flex items-center justify-center">
@@ -61,27 +61,27 @@ function ToolCards() {
   const tools = [
     {
       href: "/places",
-      icon: ShieldCheck,
-      title: "Safety Score",
-      desc: "A transparent score from state law, corporate policy, and first-party reports.",
+      icon: User,
+      title: "Your profile",
+      desc: "Meds, surgeries, last labs. Stored in your browser. Type it once, use it everywhere.",
     },
     {
       href: "/document",
       icon: FileText,
-      title: "Document an incident",
-      desc: "Record housing, employment, healthcare, or public-accommodation discrimination.",
+      title: "Pre-visit card",
+      desc: "Hand it to the doctor. Two boxes: why you're here, and what is not why you're here.",
+    },
+    {
+      href: "/continuity",
+      icon: FlaskConical,
+      title: "Lab check",
+      desc: "A weird number? Type it in. Find out if it's normal for someone on your hormones — or worth asking about.",
     },
     {
       href: "/map",
       icon: MapIcon,
-      title: "Check your state",
-      desc: "Current law on gender-affirming care, ID changes, and shield laws.",
-    },
-    {
-      href: "/continuity",
-      icon: Route,
-      title: "Plan continuity of care",
-      desc: "Records, insurance, and timing — so a move doesn't break your care.",
+      title: "Care Map",
+      desc: "Current law on gender-affirming care, ID changes, and shield laws in your state.",
     },
   ];
   return (

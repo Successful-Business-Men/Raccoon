@@ -1,389 +1,522 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import {
-  Search,
-  ChevronDown,
-  AlertTriangle,
-  FileText,
-  ExternalLink,
-  ArrowUpDown,
-  ArrowRight,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, Trash2, Save, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
+import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
-import { ScoreRing } from "@/components/ScoreRing";
 import { cn } from "@/lib/cn";
-import type {
-  PlaceRecord,
-  SafetyScore,
-  SafetyTier,
-  SeedIncident,
-} from "@/types";
-import { scorePlace, TIER_DESCRIPTION, TIER_LABEL } from "@/lib/score";
-import { getAllUserIncidents } from "@/lib/placeIncidents";
+import {
+  emptyProfile,
+  loadProfile,
+  newId,
+  prettyRoute,
+  saveProfile,
+  type HormoneRoute,
+  type LabValue,
+  type Medication,
+  type Profile,
+  type Surgery,
+} from "@/lib/profile";
 
-const CATEGORIES = [
-  "All",
-  "Restaurant",
-  "Retail",
-  "Healthcare",
-  "Pharmacy",
-  "Bar/Nightlife",
-  "Hotel/Lodging",
-  "Service",
-] as const;
-
-const TIER_FILTERS: Array<{ id: "all" | SafetyTier; label: string }> = [
-  { id: "all", label: "All tiers" },
-  { id: "green", label: "Affirming" },
-  { id: "yellow", label: "Limited data" },
-  { id: "red", label: "Concerns" },
+const ROUTE_OPTIONS: Array<{ id: HormoneRoute; label: string }> = [
+  { id: "injection_im", label: "IM injection" },
+  { id: "injection_subq", label: "subQ injection" },
+  { id: "patch", label: "Patch" },
+  { id: "gel", label: "Gel" },
+  { id: "oral", label: "Oral" },
+  { id: "implant", label: "Implant" },
+  { id: "other", label: "Other" },
 ];
 
-type SortKey = "score_asc" | "score_desc" | "name" | "incidents";
-const SORTS: Array<{ id: SortKey; label: string }> = [
-  { id: "score_asc", label: "Lowest score first" },
-  { id: "score_desc", label: "Highest score first" },
-  { id: "incidents", label: "Most reports first" },
-  { id: "name", label: "Name (A–Z)" },
-];
-
-export function PlacesClient({ places }: { places: PlaceRecord[] }) {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("All");
-  const [tier, setTier] = useState<"all" | SafetyTier>("all");
-  const [sort, setSort] = useState<SortKey>("score_asc");
-  const [userIncidents, setUserIncidents] = useState<Record<string, SeedIncident[]>>({});
+export function PlacesClient() {
+  const [profile, setProfile] = useState<Profile>(emptyProfile());
+  const [loaded, setLoaded] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
 
   useEffect(() => {
-    setUserIncidents(getAllUserIncidents());
-    function onFocus() {
-      setUserIncidents(getAllUserIncidents());
-    }
-    window.addEventListener("focus", onFocus);
-    window.addEventListener("storage", onFocus);
-    return () => {
-      window.removeEventListener("focus", onFocus);
-      window.removeEventListener("storage", onFocus);
-    };
+    setProfile(loadProfile());
+    setLoaded(true);
   }, []);
 
-  const scored = useMemo(() => {
-    return places.map((p) => ({
-      place: p,
-      score: scorePlace({ place: p, extra_incidents: userIncidents[p.place_id] || [] }),
+  useEffect(() => {
+    if (!loaded) return;
+    saveProfile(profile);
+  }, [profile, loaded]);
+
+  function flashSaved() {
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1400);
+  }
+
+  function update<K extends keyof Profile>(key: K, value: Profile[K]) {
+    setProfile((p) => ({ ...p, [key]: value }));
+  }
+
+  function addMed() {
+    setProfile((p) => ({
+      ...p,
+      medications: [
+        ...p.medications,
+        { id: newId(), name: "", dose: "", route: "", frequency: "", started: "" },
+      ],
     }));
-  }, [places, userIncidents]);
+  }
+  function updateMed(id: string, patch: Partial<Medication>) {
+    setProfile((p) => ({
+      ...p,
+      medications: p.medications.map((m) => (m.id === id ? { ...m, ...patch } : m)),
+    }));
+  }
+  function removeMed(id: string) {
+    setProfile((p) => ({ ...p, medications: p.medications.filter((m) => m.id !== id) }));
+  }
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    let list = scored.filter(({ place, score }) => {
-      if (category !== "All" && place.category !== category) return false;
-      if (tier !== "all" && score.tier !== tier) return false;
-      if (!q) return true;
-      return (
-        place.name.toLowerCase().includes(q) ||
-        place.city.toLowerCase().includes(q) ||
-        place.state_code.toLowerCase().includes(q) ||
-        (place.chain || "").toLowerCase().includes(q)
-      );
-    });
-    list.sort((a, b) => {
-      switch (sort) {
-        case "score_asc":
-          return a.score.point_estimate - b.score.point_estimate;
-        case "score_desc":
-          return b.score.point_estimate - a.score.point_estimate;
-        case "incidents":
-          return b.score.incident_count - a.score.incident_count;
-        case "name":
-          return a.place.name.localeCompare(b.place.name);
-      }
-    });
-    return list;
-  }, [scored, query, category, tier, sort]);
+  function addSurgery() {
+    setProfile((p) => ({
+      ...p,
+      surgeries: [...p.surgeries, { id: newId(), name: "", date: "", notes: "" }],
+    }));
+  }
+  function updateSurgery(id: string, patch: Partial<Surgery>) {
+    setProfile((p) => ({
+      ...p,
+      surgeries: p.surgeries.map((s) => (s.id === id ? { ...s, ...patch } : s)),
+    }));
+  }
+  function removeSurgery(id: string) {
+    setProfile((p) => ({ ...p, surgeries: p.surgeries.filter((s) => s.id !== id) }));
+  }
 
-  const tierCounts = useMemo(() => {
-    const counts: Record<SafetyTier, number> = { green: 0, yellow: 0, red: 0 };
-    for (const { score } of scored) counts[score.tier]++;
-    return counts;
-  }, [scored]);
+  function addLab() {
+    setProfile((p) => ({
+      ...p,
+      recent_labs: [
+        ...p.recent_labs,
+        { id: newId(), name: "", value: "", unit: "", date: "" },
+      ],
+    }));
+  }
+  function updateLab(id: string, patch: Partial<LabValue>) {
+    setProfile((p) => ({
+      ...p,
+      recent_labs: p.recent_labs.map((l) => (l.id === id ? { ...l, ...patch } : l)),
+    }));
+  }
+  function removeLab(id: string) {
+    setProfile((p) => ({ ...p, recent_labs: p.recent_labs.filter((l) => l.id !== id) }));
+  }
 
   return (
     <div className="page-ocean">
       <PageHero
-        eyebrow="Safety Score"
-        title="Know a business before you walk in."
-        description="A decision aid for physical businesses — combining state legal posture, corporate non-discrimination policy, and first-party incident reports filed through Seagull. Each score shows its receipts."
+        eyebrow="Your profile"
+        title="Type it once. Use it everywhere."
+        description="Meds, surgeries, recent labs. Lives in your browser. Never sent to a server. The Pre-visit Card and Lab Check both read from this."
       >
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-meta text-sea-ink/75">
-          <TierTally tier="green" label="Affirming" count={tierCounts.green} />
-          <TierTally tier="yellow" label="Limited data" count={tierCounts.yellow} />
-          <TierTally tier="red" label="Active concerns" count={tierCounts.red} />
+          <span className="inline-flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4" />
+            <span className="text-ink-primary font-bold">Local-only</span> by default
+          </span>
+          <span className={cn("transition-opacity", savedFlash ? "opacity-100" : "opacity-0")}>
+            <span className="text-status-protected font-bold">Saved</span>
+          </span>
         </div>
       </PageHero>
+
       <Container className="pb-16">
+        <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+          {/* Left column: forms */}
+          <div className="flex flex-col gap-6">
+            <Section title="About you" subtitle="Optional — used to personalize your visit card.">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <TextField
+                  label="Name (or what you go by)"
+                  value={profile.display_name}
+                  onChange={(v) => update("display_name", v)}
+                  onCommit={flashSaved}
+                />
+                <TextField
+                  label="Pronouns"
+                  value={profile.pronouns}
+                  onChange={(v) => update("pronouns", v)}
+                  onCommit={flashSaved}
+                  placeholder="she/her, they/them, …"
+                />
+                <TextField
+                  label="Age"
+                  value={profile.age}
+                  onChange={(v) => update("age", v)}
+                  onCommit={flashSaved}
+                  inputMode="numeric"
+                />
+                <div>
+                  <FieldLabel>Sex assigned at birth</FieldLabel>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {(["male", "female", "intersex"] as const).map((s) => (
+                      <Pill
+                        key={s}
+                        selected={profile.sex_assigned_at_birth === s}
+                        onClick={() => {
+                          update(
+                            "sex_assigned_at_birth",
+                            profile.sex_assigned_at_birth === s ? "" : s
+                          );
+                          flashSaved();
+                        }}
+                      >
+                        {s[0].toUpperCase() + s.slice(1)}
+                      </Pill>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4">
+                <FieldLabel>One-line regimen summary (optional)</FieldLabel>
+                <textarea
+                  value={profile.hormone_regimen_summary}
+                  onChange={(e) => update("hormone_regimen_summary", e.target.value)}
+                  onBlur={flashSaved}
+                  rows={2}
+                  placeholder="e.g. Estradiol valerate IM, spironolactone PO. Started Jan 2022."
+                  className="mt-2 w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
+                />
+              </div>
+            </Section>
 
-      {/* Search + sort */}
-      <div className="glass rounded-card p-5 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-secondary" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name, chain, city, or state"
-              className="w-full pl-11 pr-4 py-2.5 rounded-btn border border-divider bg-surface focus:outline-none focus:ring-2 focus:ring-accent/30 text-meta"
-            />
-          </div>
-          <div className="relative">
-            <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-secondary pointer-events-none" />
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortKey)}
-              className="pl-10 pr-8 py-2.5 rounded-btn border border-divider bg-surface text-meta focus:outline-none focus:ring-2 focus:ring-accent/30 appearance-none"
+            <Section
+              title="Medications"
+              subtitle="Hormones, blockers, anything you want a doctor to know about."
+              action={
+                <Button size="sm" variant="secondary" onClick={addMed}>
+                  <Plus className="h-4 w-4" /> Add med
+                </Button>
+              }
             >
-              {SORTS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+              {profile.medications.length === 0 ? (
+                <EmptyHint>No medications yet. Click "Add med" to start.</EmptyHint>
+              ) : (
+                <div className="space-y-4">
+                  {profile.medications.map((m) => (
+                    <div
+                      key={m.id}
+                      className="rounded-card border border-divider bg-surface-inset/40 p-4"
+                    >
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        <TextField
+                          label="Name"
+                          value={m.name}
+                          onChange={(v) => updateMed(m.id, { name: v })}
+                          onCommit={flashSaved}
+                          placeholder="Estradiol, testosterone, spironolactone…"
+                        />
+                        <TextField
+                          label="Dose"
+                          value={m.dose}
+                          onChange={(v) => updateMed(m.id, { dose: v })}
+                          onCommit={flashSaved}
+                          placeholder="4 mg, 200 mg, 0.1 mL…"
+                        />
+                        <TextField
+                          label="Frequency"
+                          value={m.frequency}
+                          onChange={(v) => updateMed(m.id, { frequency: v })}
+                          onCommit={flashSaved}
+                          placeholder="weekly, twice daily…"
+                        />
+                        <TextField
+                          label="Started"
+                          value={m.started}
+                          onChange={(v) => updateMed(m.id, { started: v })}
+                          onCommit={flashSaved}
+                          placeholder="Jan 2022"
+                        />
+                      </div>
+                      <div className="mt-3">
+                        <FieldLabel>Route</FieldLabel>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {ROUTE_OPTIONS.map((r) => (
+                            <Pill
+                              key={r.id}
+                              selected={m.route === r.id}
+                              onClick={() => {
+                                updateMed(m.id, { route: m.route === r.id ? "" : r.id });
+                                flashSaved();
+                              }}
+                            >
+                              {r.label}
+                            </Pill>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          onClick={() => removeMed(m.id)}
+                          className="inline-flex items-center gap-1.5 text-meta text-ink-secondary hover:text-status-banned"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" /> Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Section>
+
+            <Section
+              title="Surgical history"
+              subtitle="Past gender-affirming procedures, or anything else relevant."
+              action={
+                <Button size="sm" variant="secondary" onClick={addSurgery}>
+                  <Plus className="h-4 w-4" /> Add surgery
+                </Button>
+              }
+            >
+              {profile.surgeries.length === 0 ? (
+                <EmptyHint>No surgeries logged.</EmptyHint>
+              ) : (
+                <div className="space-y-4">
+                  {profile.surgeries.map((s) => (
+                    <div
+                      key={s.id}
+                      className="rounded-card border border-divider bg-surface-inset/40 p-4"
+                    >
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        <TextField
+                          label="Procedure"
+                          value={s.name}
+                          onChange={(v) => updateSurgery(s.id, { name: v })}
+                          onCommit={flashSaved}
+                          placeholder="Top surgery, orchiectomy, …"
+                        />
+                        <TextField
+                          label="Date"
+                          value={s.date}
+                          onChange={(v) => updateSurgery(s.id, { date: v })}
+                          onCommit={flashSaved}
+                          placeholder="2023-08"
+                        />
+                      </div>
+                      <div className="mt-3">
+                        <FieldLabel>Notes (optional)</FieldLabel>
+                        <textarea
+                          value={s.notes || ""}
+                          onChange={(e) => updateSurgery(s.id, { notes: e.target.value })}
+                          onBlur={flashSaved}
+                          rows={2}
+                          className="mt-2 w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
+                        />
+                      </div>
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          onClick={() => removeSurgery(s.id)}
+                          className="inline-flex items-center gap-1.5 text-meta text-ink-secondary hover:text-status-banned"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" /> Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Section>
+
+            <Section
+              title="Recent labs"
+              subtitle="Latest blood work. Adds context when a new number looks off."
+              action={
+                <Button size="sm" variant="secondary" onClick={addLab}>
+                  <Plus className="h-4 w-4" /> Add lab
+                </Button>
+              }
+            >
+              {profile.recent_labs.length === 0 ? (
+                <EmptyHint>No labs logged yet.</EmptyHint>
+              ) : (
+                <div className="space-y-4">
+                  {profile.recent_labs.map((l) => (
+                    <div
+                      key={l.id}
+                      className="rounded-card border border-divider bg-surface-inset/40 p-4 grid sm:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-3 items-end"
+                    >
+                      <TextField
+                        label="Test"
+                        value={l.name}
+                        onChange={(v) => updateLab(l.id, { name: v })}
+                        onCommit={flashSaved}
+                        placeholder="Estradiol, Hgb, …"
+                      />
+                      <TextField
+                        label="Value"
+                        value={l.value}
+                        onChange={(v) => updateLab(l.id, { value: v })}
+                        onCommit={flashSaved}
+                      />
+                      <TextField
+                        label="Unit"
+                        value={l.unit}
+                        onChange={(v) => updateLab(l.id, { unit: v })}
+                        onCommit={flashSaved}
+                        placeholder="pg/mL, ng/dL…"
+                      />
+                      <TextField
+                        label="Date"
+                        value={l.date}
+                        onChange={(v) => updateLab(l.id, { date: v })}
+                        onCommit={flashSaved}
+                        placeholder="2025-03"
+                      />
+                      <button
+                        onClick={() => removeLab(l.id)}
+                        className="inline-flex items-center justify-center h-10 w-10 text-ink-secondary hover:text-status-banned"
+                        aria-label="Remove lab"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Section>
           </div>
+
+          {/* Right column: privacy + community sharing */}
+          <aside className="lg:sticky lg:top-24 lg:self-start flex flex-col gap-6">
+            <div className="glass rounded-card p-7">
+              <h2 className="text-subsection">Your data, your machine</h2>
+              <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
+                Everything you type here is saved only in this browser. Clear
+                it any time by removing site data. Nothing leaves your device
+                unless you opt in below.
+              </p>
+              <div className="mt-5">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    if (confirm("Clear all profile data from this browser?")) {
+                      setProfile(emptyProfile());
+                    }
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" /> Clear all data
+                </Button>
+              </div>
+            </div>
+
+            <div className="glass rounded-card p-7">
+              <h2 className="text-subsection">Help the next person</h2>
+              <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
+                The medical books mostly have ranges for "men" and "women" —
+                not "person on testosterone for 3 years." Doctors are guessing
+                at your normal because nobody collected the data. We can
+                change that. If you opt in, your numbers (no name, no face)
+                join a growing reference set the Lab Check uses to tell people
+                what normal actually looks like.
+              </p>
+              <label className="mt-5 flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={profile.share_anonymously}
+                  onChange={(e) => {
+                    update("share_anonymously", e.target.checked);
+                    flashSaved();
+                  }}
+                  className="mt-1 h-4 w-4 rounded border-divider"
+                />
+                <span className="text-meta text-ink-primary">
+                  Share my labs and regimen anonymously to improve the
+                  reference data
+                </span>
+              </label>
+            </div>
+
+            <div className="glass rounded-card p-7">
+              <div className="flex items-center gap-2">
+                <Save className="h-4 w-4 text-ink-secondary" />
+                <span className="text-meta text-ink-secondary">
+                  Saves automatically as you type.
+                </span>
+              </div>
+            </div>
+          </aside>
         </div>
-
-        <div className="mt-4 flex flex-wrap gap-2 items-center">
-          <span className="text-meta text-ink-secondary mr-1">Tier</span>
-          {TIER_FILTERS.map((t) => (
-            <Pill key={t.id} selected={tier === t.id} onClick={() => setTier(t.id)}>
-              {t.label}
-            </Pill>
-          ))}
-          <span className="mx-2 h-4 w-px bg-divider" aria-hidden />
-          <span className="text-meta text-ink-secondary mr-1">Category</span>
-          {CATEGORIES.map((c) => (
-            <Pill key={c} selected={category === c} onClick={() => setCategory(c)}>
-              {c}
-            </Pill>
-          ))}
-        </div>
-
-        <div className="mt-4 text-meta text-ink-secondary">
-          Showing {filtered.length} of {scored.length} places
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        {filtered.map(({ place, score }) => (
-          <PlaceCard key={place.place_id} place={place} score={score} />
-        ))}
-        {filtered.length === 0 && (
-          <div className="md:col-span-2 rounded-card bg-surface-inset p-8 text-center text-ink-secondary">
-            No places match. Try a different filter.
-          </div>
-        )}
-      </div>
-
-      <Methodology />
       </Container>
     </div>
   );
 }
 
-function TierTally({
-  tier,
-  label,
-  count,
+function Section({
+  title,
+  subtitle,
+  action,
+  children,
 }: {
-  tier: SafetyTier;
-  label: string;
-  count: number;
+  title: string;
+  subtitle?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
 }) {
-  const dot = tier === "green" ? "bg-status-protected" : tier === "yellow" ? "bg-status-restricted" : "bg-status-banned";
   return (
-    <span className="inline-flex items-center gap-2">
-      <span className={cn("h-2 w-2 rounded-full", dot)} />
-      <span className="text-ink-primary font-bold">{count}</span> {label}
-    </span>
-  );
-}
-
-const TIER_TEXT_COLOR: Record<SafetyTier, string> = {
-  green: "text-status-protected",
-  yellow: "text-status-restricted",
-  red: "text-status-banned",
-};
-
-const TIER_DOT: Record<SafetyTier, string> = {
-  green: "bg-status-protected",
-  yellow: "bg-status-restricted",
-  red: "bg-status-banned",
-};
-
-function PlaceCard({ place, score }: { place: PlaceRecord; score: SafetyScore }) {
-  const [open, setOpen] = useState(false);
-  const tierAccent: Record<SafetyTier, string> = {
-    green: "before:bg-status-protected",
-    yellow: "before:bg-status-restricted",
-    red: "before:bg-status-banned",
-  };
-
-  return (
-    <div
-      className={cn(
-        "relative glass rounded-card overflow-hidden hover:shadow-cardHover transition-shadow",
-        "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1",
-        tierAccent[score.tier]
-      )}
-    >
-      <Link
-        href={`/places/${place.place_id}`}
-        className="block p-5 hover:bg-surface-inset/40 transition-colors"
-      >
-        <div className="flex items-center justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
-              {place.category} · {place.city}, {place.state_code}
-            </div>
-            <h3 className="mt-1 text-card truncate">
-              {place.name}
-            </h3>
-            <div className="mt-0.5 text-meta text-ink-secondary truncate">
-              {place.address}
-            </div>
-
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-meta">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-chip bg-surface-inset px-3 py-1 font-medium",
-                  TIER_TEXT_COLOR[score.tier]
-                )}
-              >
-                <span className={cn("h-2 w-2 rounded-full", TIER_DOT[score.tier])} />
-                {TIER_LABEL[score.tier]}
-              </span>
-              <span className="text-ink-secondary tabular-nums">
-                {score.incident_count}{" "}
-                {score.incident_count === 1 ? "report" : "reports"}
-              </span>
-            </div>
-          </div>
-          <ScoreRing score={score} size={96} className="shrink-0" />
+    <div className="glass rounded-card p-7">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-subsection">{title}</h2>
+          {subtitle && (
+            <p className="mt-1 text-meta text-ink-secondary">{subtitle}</p>
+          )}
         </div>
-
-        <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
-          {TIER_DESCRIPTION[score.tier]}
-        </p>
-      </Link>
-
-      <div className="border-t divider-soft px-5 py-3 flex flex-wrap gap-x-5 gap-y-2 items-center text-meta">
-        <button
-          onClick={() => setOpen((o) => !o)}
-          className="inline-flex items-center gap-1.5 text-ink-primary hover:underline underline-offset-4"
-        >
-          Why this score?
-          <ChevronDown
-            className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")}
-          />
-        </button>
-        <Link
-          href={`/document?place_id=${encodeURIComponent(place.place_id)}`}
-          className="inline-flex items-center gap-1.5 text-ink-primary hover:underline underline-offset-4"
-        >
-          <FileText className="h-3.5 w-3.5" />
-          Report an experience
-        </Link>
-        <Link
-          href={`/places/${place.place_id}`}
-          className="ml-auto inline-flex items-center gap-1 text-ink-primary hover:underline underline-offset-4"
-        >
-          Details
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
+        {action}
       </div>
-
-      {open && (
-        <div className="border-t divider-soft bg-surface-inset px-5 py-4">
-          <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary mb-3">
-            Signals moving this score
-          </div>
-          <ComponentList score={score} />
-        </div>
-      )}
+      <div className="mt-5">{children}</div>
     </div>
   );
 }
 
-export function ComponentList({ score }: { score: SafetyScore }) {
+function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <ul className="space-y-3">
-      {score.components.map((c, i) => (
-        <li key={i} className="flex items-start gap-3">
-          <span
-            className={cn(
-              "mt-0.5 inline-block min-w-[44px] text-right text-meta font-bold tabular-nums",
-              c.contribution > 0
-                ? "text-status-protected"
-                : c.contribution < 0
-                  ? "text-status-banned"
-                  : "text-ink-secondary"
-            )}
-          >
-            {c.contribution > 0 ? "+" : ""}
-            {Math.round(c.contribution)}
-          </span>
-          <div className="flex-1 min-w-0">
-            <div className="text-meta text-ink-primary leading-snug">{c.label}</div>
-            <div className="text-meta text-ink-secondary mt-0.5">
-              {c.source_url ? (
-                <a
-                  href={c.source_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 underline-offset-4 hover:underline"
-                >
-                  {c.source}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              ) : (
-                c.source
-              )}
-            </div>
-          </div>
-        </li>
-      ))}
-    </ul>
+    <label className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
+      {children}
+    </label>
   );
 }
 
-function Methodology() {
+function TextField({
+  label,
+  value,
+  onChange,
+  onCommit,
+  placeholder,
+  inputMode,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  onCommit?: () => void;
+  placeholder?: string;
+  inputMode?: "text" | "numeric";
+}) {
   return (
-    <section className="mt-10 rounded-card bg-surface-inset p-6">
-      <div className="flex items-start gap-3">
-        <AlertTriangle className="h-5 w-5 mt-0.5 shrink-0 text-ink-primary" />
-        <div className="text-meta text-ink-secondary leading-relaxed">
-          <div className="text-ink-primary text-meta font-bold mb-2">
-            How the score works
-          </div>
-          <p>
-            Start with a state-level prior from the Care Map (legal posture for
-            adult-affirming care, ID changes, and shield laws). Update with the
-            corporation&apos;s HRC Corporate Equality Index where available. Apply
-            time-decayed penalties for first-party incident reports filed through
-            Seagull, news, and litigation. The credible interval widens when data
-            is sparse — &quot;Limited data&quot; is a respectable answer, not a
-            failure mode.
-          </p>
-          <p className="mt-3">
-            The score is a decision aid, not a verdict. Businesses can claim a
-            profile and respond. Incident reports are moderated before they
-            count toward the score in production.
-          </p>
-        </div>
-      </div>
-    </section>
+    <div>
+      <FieldLabel>{label}</FieldLabel>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onCommit}
+        placeholder={placeholder}
+        inputMode={inputMode}
+        className="mt-2 w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
+      />
+    </div>
+  );
+}
+
+function EmptyHint({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-card bg-surface-inset px-5 py-4 text-meta text-ink-secondary">
+      {children}
+    </div>
   );
 }
