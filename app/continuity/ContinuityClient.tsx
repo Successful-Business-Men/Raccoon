@@ -133,9 +133,7 @@ export function ContinuityClient() {
             </div>
 
             <div className="glass rounded-card p-7">
-              <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary mb-3">
-                Data Sources
-              </div>
+              <h2 className="text-subsection mb-3">🔬 Data Sources</h2>
               <ul className="space-y-2 text-meta text-ink-primary">
                 <li className="inline-flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-accent" />
