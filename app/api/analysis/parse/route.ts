@@ -14,16 +14,18 @@ Break the visit notes into chronological sections (as the doctor presents them, 
 - "terms": medical words, drug names, or technical terms that appear exactly as written in "plain". For each: { "word": exact substring from plain, "explanation": 1-2 sentence tooltip }
 
 PART 2 — COMPARISONS
-List each concrete recommendation, finding, or instruction from the notes. For each:
-- "recommendation": one concise sentence
-- "alignment": "aligned" if this makes sense given the patient's data and will likely help them | "concern" if this is complicated by or in tension with their existing data (not bad — just worth understanding) | "neutral" if there is not enough profile data to evaluate against
-- "headline": one short sentence the patient reads first
-- "detail": 2-4 sentences explaining the reasoning. Reference specific values from their profile (lab numbers, medication names, surgery dates) wherever possible.
+CONSOLIDATE related recommendations into single entries — for example, combine multiple minerals or supplements into one "Supplementation" entry, combine multiple lab rechecks into one "Lab monitoring" entry, etc. Aim for the fewest meaningful entries rather than one per sentence.
+
+For each consolidated comparison entry:
+- "recommendation": one concise sentence summarizing the consolidated recommendation(s)
+- "alignment": "aligned" if this makes sense given the patient data and should help them | "concern" if this is complicated by or in tension with their existing data | "neutral" if there is not enough profile data to evaluate
+- "headline": ONE sentence describing WHAT this recommendation is about (e.g. "Bone density monitoring is being added" or "Your hormone levels are being maintained at the current dose") — describe the topic, not the alignment
+- "detail": 2-4 sentences of reasoning. Reference specific values from the patient profile (lab numbers, med names, surgery dates) wherever possible. Wrap the most important conclusion in **double asterisks** — e.g. "**Your dosage will remain the same.**" or "**This does not change your HRT regimen.**" — so it can be bolded for the reader.
+- "terms": medical words or drug names that appear exactly as written in "detail". For each: { "word": exact substring, "explanation": 1-2 sentence tooltip }
 
 RULES:
 - Mention once (in the first timeline item only) that you are not a doctor and this is not medical advice.
 - Do not invent information not in the document. If something is unclear, omit it.
-- Deduplicate: if the same recommendation appears twice, list it once.
 - Be calm and direct. Patients are often anxious.
 
 OUTPUT FORMAT — VALID JSON ONLY, NO PROSE BEFORE OR AFTER:
@@ -42,12 +44,13 @@ OUTPUT FORMAT — VALID JSON ONLY, NO PROSE BEFORE OR AFTER:
       "recommendation": "...",
       "alignment": "aligned" | "concern" | "neutral",
       "headline": "...",
-      "detail": "..."
+      "detail": "...",
+      "terms": [{ "word": "exact word as written in detail", "explanation": "..." }]
     }
   ]
 }
 
-If the file cannot be read, return {"visit_date":"","provider":"","timeline":[{"heading":"Could not read this file","plain":"The file was unreadable or not a medical document. Try a clearer photo or a PDF.","terms":[]}],"comparisons":[]}.`;
+If the file cannot be read, return {"visit_date":"","provider":"","timeline":[{"heading":"Could not read this file","plain":"The file was unreadable or not a medical document. Try a clearer photo or a PDF with selectable text.","terms":[]}],"comparisons":[]}.`;
 
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
@@ -188,6 +191,12 @@ function extractJson(text: string): AnalysisResult | null {
               : "neutral",
             headline: String(c?.headline || ""),
             detail: String(c?.detail || ""),
+            terms: Array.isArray(c?.terms)
+              ? c.terms.map((t: any) => ({
+                  word: String(t?.word || ""),
+                  explanation: String(t?.explanation || ""),
+                })).filter((t: { word: string }) => t.word)
+              : [],
           }))
         : [],
     };
@@ -212,6 +221,7 @@ interface Comparison {
   alignment: "aligned" | "concern" | "neutral";
   headline: string;
   detail: string;
+  terms: TermDef[];
 }
 
 interface AnalysisResult {

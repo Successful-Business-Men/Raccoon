@@ -36,6 +36,7 @@ interface Comparison {
   alignment: "aligned" | "concern" | "neutral";
   headline: string;
   detail: string;
+  terms: TermDef[];
 }
 
 interface AnalysisResult {
@@ -74,15 +75,10 @@ export function AnalysisClient() {
           <div className="mb-6 glass rounded-card p-6 flex items-start gap-3">
             <AlertCircle className="h-6 w-6 shrink-0 text-status-restricted mt-0.5" />
             <div className="text-meta text-ink-secondary leading-relaxed">
-              <span className="text-ink-primary font-bold">
-                No profile data yet.
-              </span>{" "}
+              <span className="text-ink-primary font-bold">No profile data yet.</span>{" "}
               The summary section will still work. For the comparison section to reference your
               specific labs and medications, add them on the{" "}
-              <a href="/places" className="underline underline-offset-4">
-                Profile page
-              </a>{" "}
-              first.
+              <a href="/places" className="underline underline-offset-4">Profile page</a> first.
             </div>
           </div>
         )}
@@ -138,11 +134,10 @@ function UploadAndAnalyze({ profile }: { profile: Profile }) {
       <div className="glass rounded-card p-7">
         <h2 className="text-subsection">Upload Your Visit Notes</h2>
         <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
-          Drop the after-visit summary your doctor gave you — PDF, photo, or
-          screenshot. We'll read the whole thing so you don't have to decode it.
+          Drop the after-visit summary your doctor gave you — PDF, photo, or screenshot.
+          We'll read the whole thing so you don't have to decode it.
         </p>
 
-        {/* Drop zone */}
         <div
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={() => setDragging(false)}
@@ -203,13 +198,9 @@ function UploadAndAnalyze({ profile }: { profile: Profile }) {
           </span>
           <Button onClick={analyze} disabled={!file || busy}>
             {busy ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" /> Analyzing…
-              </>
+              <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing…</>
             ) : (
-              <>
-                <Sparkles className="h-4 w-4" /> Analyze visit
-              </>
+              <><Sparkles className="h-4 w-4" /> Analyze visit</>
             )}
           </Button>
         </div>
@@ -221,7 +212,6 @@ function UploadAndAnalyze({ profile }: { profile: Profile }) {
         )}
       </div>
 
-      {/* Results */}
       {result && <AnalysisResults result={result} />}
     </div>
   );
@@ -232,7 +222,6 @@ function UploadAndAnalyze({ profile }: { profile: Profile }) {
 function AnalysisResults({ result }: { result: AnalysisResult }) {
   return (
     <div className="flex flex-col gap-8">
-      {/* Meta */}
       {(result.visit_date || result.provider) && (
         <div className="flex flex-wrap gap-x-6 gap-y-1 text-meta text-ink-secondary">
           {result.visit_date && (
@@ -250,16 +239,14 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
         </div>
       )}
 
-      {/* Section 1 */}
+      {/* Section 1 — Plain language timeline */}
       <section>
         <div className="flex items-center gap-3 mb-5">
           <div className="h-8 w-1 rounded-full bg-brand" />
-          <h2 className="text-card text-ink-primary">
-            What the doctor's notes say
-          </h2>
+          <h2 className="text-card text-ink-primary">What the doctor's notes say</h2>
         </div>
         <p className="mb-5 text-meta text-ink-secondary -mt-2">
-          Your visit notes, broken into plain language. Hover over any{" "}
+          Your visit notes in plain language. Hover any{" "}
           <span className="underline decoration-dotted underline-offset-4 text-brand font-medium cursor-help">
             highlighted word
           </span>{" "}
@@ -279,35 +266,26 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
         )}
       </section>
 
-      {/* Section 2 */}
+      {/* Section 2 — Profile comparison */}
       {result.comparisons.length > 0 && (
         <section>
           <div className="flex items-center gap-3 mb-5">
             <div className="h-8 w-1 rounded-full bg-sea-deep" />
-            <h2 className="text-card text-ink-primary">
-              How this applies to you
-            </h2>
+            <h2 className="text-card text-ink-primary">How this applies to you</h2>
           </div>
           <p className="mb-5 text-meta text-ink-secondary -mt-2">
-            Each recommendation from the doctor, checked against what we know
-            about your medications, labs, and history.
+            Each recommendation from the doctor, checked against your medications, labs, and history.
+            Hover any highlighted word for more context.
           </p>
 
-          <div className="flex flex-col gap-4">
-            {result.comparisons.map((c, i) => (
-              <ComparisonCard key={i} comparison={c} />
-            ))}
-          </div>
+          <ComparisonList comparisons={result.comparisons} />
 
           <div className="mt-6 rounded-card bg-surface-inset px-5 py-4 flex items-start gap-3">
             <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-ink-secondary" />
             <p className="text-meta text-ink-secondary leading-relaxed">
-              This is context, not medical advice. Your clinician has the full
-              picture. For anything urgent, call your provider or{" "}
-              <span className="text-ink-primary font-bold">
-                Trans Lifeline 877-565-8860
-              </span>
-              .
+              This is context, not medical advice. Your clinician has the full picture.
+              For anything urgent, call your provider or{" "}
+              <span className="text-ink-primary font-bold">Trans Lifeline 877-565-8860</span>.
             </p>
           </div>
         </section>
@@ -321,19 +299,40 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
 function TimelineCard({ index, item }: { index: number; item: TimelineItem }) {
   return (
     <div className="glass rounded-card p-6 flex gap-5">
-      {/* Step number */}
       <div className="flex-shrink-0 flex items-start pt-0.5">
         <div className="h-7 w-7 rounded-full bg-brand/15 text-brand text-meta font-bold flex items-center justify-center">
           {index + 1}
         </div>
       </div>
-
       <div className="min-w-0">
         <h3 className="text-body text-ink-primary font-bold">{item.heading}</h3>
         <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
           <AnnotatedText text={item.plain} terms={item.terms} />
         </p>
       </div>
+    </div>
+  );
+}
+
+// ── Comparison list (accordion controller) ────────────────────────────────────
+
+function ComparisonList({ comparisons }: { comparisons: Comparison[] }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  function toggle(i: number) {
+    setOpenIndex((prev) => (prev === i ? null : i));
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {comparisons.map((c, i) => (
+        <ComparisonCard
+          key={i}
+          comparison={c}
+          isOpen={openIndex === i}
+          onToggle={() => toggle(i)}
+        />
+      ))}
     </div>
   );
 }
@@ -360,34 +359,46 @@ const ALIGNMENT_META = {
   neutral: {
     icon: HelpCircle,
     color: "text-ink-secondary",
-    border: "border-l-divider",
+    border: "border-l-[rgba(0,0,0,0.08)]",
     bg: "",
     badge: "bg-surface-inset text-ink-secondary",
     label: "No data to compare",
   },
 };
 
-function ComparisonCard({ comparison }: { comparison: Comparison }) {
+function ComparisonCard({
+  comparison,
+  isOpen,
+  onToggle,
+}: {
+  comparison: Comparison;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
   const meta = ALIGNMENT_META[comparison.alignment] ?? ALIGNMENT_META.neutral;
   const Icon = meta.icon;
-  const [expanded, setExpanded] = useState(true);
+  const [clickFlash, setClickFlash] = useState(false);
+
+  function handleToggle() {
+    setClickFlash(true);
+    setTimeout(() => setClickFlash(false), 380);
+    onToggle();
+  }
 
   return (
     <div
       className={cn(
-        "rounded-card border border-divider border-l-4 p-5",
+        "rounded-card border border-divider border-l-4 px-5 py-4",
         meta.border,
         meta.bg
       )}
     >
-      {/* Header row */}
       <div className="flex items-start gap-3">
         <Icon className={cn("h-5 w-5 mt-0.5 shrink-0", meta.color)} />
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-3 flex-wrap">
-            <p className="text-body text-ink-primary font-bold leading-snug">
-              {comparison.headline}
-            </p>
+          {/* Top row: badge + show more */}
+          <div className="flex items-center justify-between gap-3">
             <span
               className={cn(
                 "text-meta px-2 py-0.5 rounded-chip font-bold uppercase tracking-[0.08em] shrink-0",
@@ -396,26 +407,43 @@ function ComparisonCard({ comparison }: { comparison: Comparison }) {
             >
               {meta.label}
             </span>
+
+            {/* Show more / less — grey → brand blue on hover, click flash */}
+            <button
+              onClick={handleToggle}
+              className={cn(
+                "shrink-0 text-meta transition-colors duration-150 select-none",
+                clickFlash
+                  ? "animate-show-more-click"
+                  : "text-ink-secondary hover:text-brand"
+              )}
+            >
+              {isOpen ? "Show less" : "Show more…"}
+            </button>
           </div>
+
+          {/* Headline — one sentence describing the topic */}
+          <p className="mt-2 text-body text-ink-primary font-medium leading-snug">
+            {comparison.headline}
+          </p>
+
+          {/* Italic "Doctor said" */}
           <p className="mt-1 text-meta text-ink-secondary italic">
             Doctor said: {comparison.recommendation}
           </p>
+
+          {/* Expanded detail */}
+          {isOpen && (
+            <p className="mt-3 text-meta text-ink-primary leading-relaxed">
+              <AnnotatedText
+                text={comparison.detail}
+                terms={comparison.terms ?? []}
+                bold
+              />
+            </p>
+          )}
         </div>
       </div>
-
-      {/* Detail */}
-      {expanded && (
-        <p className="mt-3 ml-8 text-meta text-ink-primary leading-relaxed">
-          {comparison.detail}
-        </p>
-      )}
-
-      <button
-        onClick={() => setExpanded((v) => !v)}
-        className="mt-2 ml-8 text-meta text-ink-secondary hover:text-ink-primary underline-offset-4 hover:underline transition-colors"
-      >
-        {expanded ? "Show less" : "Show more"}
-      </button>
     </div>
   );
 }
@@ -443,7 +471,6 @@ function InlineTerm({ word, explanation }: { word: string; explanation: string }
           className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2.5 w-60 rounded-card bg-ink-primary text-white text-meta leading-relaxed px-4 py-3 shadow-cardHover pointer-events-none"
         >
           {explanation}
-          {/* Arrow */}
           <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-ink-primary rotate-45" />
         </span>
       )}
@@ -451,38 +478,66 @@ function InlineTerm({ word, explanation }: { word: string; explanation: string }
   );
 }
 
-// Splits plain text and injects <InlineTerm> components for matched words.
+/**
+ * Renders plain text with:
+ * - `**word**` markers → <strong> (when bold=true)
+ * - term matches → <InlineTerm> tooltip
+ * Processing order: bold first (so **drug name** → strong + term tooltip inside)
+ */
 function AnnotatedText({
   text,
   terms,
+  bold = false,
 }: {
   text: string;
   terms: TermDef[];
+  bold?: boolean;
 }) {
-  if (!terms.length) return <>{text}</>;
+  // Step 1: split on **…** markers
+  const boldParts: Array<{ text: string; strong: boolean }> = [];
+  if (bold) {
+    const segments = text.split(/\*\*([^*]+)\*\*/g);
+    segments.forEach((seg, i) => {
+      if (seg) boldParts.push({ text: seg, strong: i % 2 === 1 });
+    });
+  } else {
+    boldParts.push({ text, strong: false });
+  }
 
+  // Step 2: within each segment, split on term matches
   const filtered = terms.filter((t) => t.word && t.explanation);
-  if (!filtered.length) return <>{text}</>;
 
-  const escaped = filtered.map((t) =>
-    t.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-  );
-  const pattern = new RegExp(`(${escaped.join("|")})`, "gi");
-  const parts = text.split(pattern);
+  function annotateSegment(raw: string, isStrong: boolean, keyPrefix: string) {
+    if (!filtered.length) {
+      return isStrong ? <strong key={keyPrefix}>{raw}</strong> : <span key={keyPrefix}>{raw}</span>;
+    }
+    const escaped = filtered.map((t) =>
+      t.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    );
+    const pattern = new RegExp(`(${escaped.join("|")})`, "gi");
+    const parts = raw.split(pattern);
 
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (!part) return null;
+    const inner = parts
+      .filter((p) => p)
+      .map((part, i) => {
         const term = filtered.find(
           (t) => t.word.toLowerCase() === part.toLowerCase()
         );
         return term ? (
-          <InlineTerm key={i} word={part} explanation={term.explanation} />
+          <InlineTerm key={`${keyPrefix}-t${i}`} word={part} explanation={term.explanation} />
         ) : (
-          <span key={i}>{part}</span>
+          <span key={`${keyPrefix}-s${i}`}>{part}</span>
         );
-      })}
+      });
+
+    return isStrong ? <strong key={keyPrefix}>{inner}</strong> : <>{inner}</>;
+  }
+
+  return (
+    <>
+      {boldParts.map((bp, i) =>
+        annotateSegment(bp.text, bp.strong, `bp${i}`)
+      )}
     </>
   );
 }

@@ -134,10 +134,7 @@
   z-index: 0;
 }
 
-.glass.rounded-card:hover::before,
-.glass-strong.rounded-card:hover::before {
-  opacity: 1;
-}
+/* hover spotlight removed */
 
 /* Outer border glow — bright blue ring traces the cursor along the edge */
 .glass.rounded-card::after,
@@ -164,10 +161,7 @@
   z-index: 0;
 }
 
-.glass.rounded-card:hover::after,
-.glass-strong.rounded-card:hover::after {
-  opacity: 1;
-}
+/* hover border glow removed */
 
 @media (prefers-reduced-motion: reduce) {
   .glass.rounded-card::before,
@@ -253,6 +247,15 @@
   to {
     background-position-x: -1600px;
   }
+}
+
+@keyframes show-more-click {
+  0%   { color: #218cff; }
+  40%  { color: #86caff; }
+  100% { color: #218cff; }
+}
+.animate-show-more-click {
+  animation: show-more-click 0.35s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
