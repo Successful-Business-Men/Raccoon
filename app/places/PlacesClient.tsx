@@ -121,12 +121,12 @@ export function PlacesClient() {
       <PageHero
         eyebrow="Your profile"
         title="Type it once. Use it everywhere."
-        description="The Pre-visit Card and Lab Check both read from this. Lives in your browser. Never sent to a server unless you opt in below."
+        description="The Previsit Card and Lab Check both read from this. Lives in your browser. Never sent to a server unless you opt in below."
       >
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-meta text-sea-ink/75">
           <span className="inline-flex items-center gap-2">
             <ShieldCheck className="h-4 w-4" />
-            <span className="text-ink-primary font-bold">Local-only</span> by default
+            <span className="text-ink-primary font-bold">Local only</span> by default
           </span>
           <span className={cn("transition-opacity", savedFlash ? "opacity-100" : "opacity-0")}>
             <span className="text-status-protected font-bold">Saved</span>
@@ -171,7 +171,7 @@ export function PlacesClient() {
 
             <Section
               title="Surgical history"
-              subtitle="Past gender-affirming procedures, or anything else relevant."
+              subtitle="Past gender affirming procedures, or anything else relevant."
               action={
                 <Button size="sm" variant="secondary" onClick={addSurgery}>
                   <Plus className="h-4 w-4" /> Add
@@ -206,7 +206,7 @@ export function PlacesClient() {
             >
               {profile.recent_labs.length === 0 ? (
                 <EmptyHint>
-                  No labs logged. You can also just upload a blood-work PDF in Lab Check.
+                  No labs logged. You can also just upload a bloodwork PDF in Lab Check.
                 </EmptyHint>
               ) : (
                 <div className="space-y-2">
@@ -278,7 +278,7 @@ export function PlacesClient() {
             <div className="glass rounded-card p-7">
               <h2 className="text-subsection">Your data, your machine</h2>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
-                Everything you type is saved only in this browser. The smart-fill
+                Everything you type is saved only in this browser. The smart fill
                 feature sends just the text you paste to Claude and nothing else.
               </p>
               <div className="mt-5">
@@ -590,7 +590,7 @@ function DrugSafety({ medications }: { medications: Medication[] }) {
             <h2 className="text-subsection">Drug safety check</h2>
           </div>
           <p className="mt-1 text-meta text-ink-secondary">
-            Live lookup against the FDA's drug recall & adverse-event databases.
+            Live lookup against the FDA's drug recall & adverse event databases.
           </p>
         </div>
         <Button size="sm" variant="secondary" onClick={run} disabled={busy}>
@@ -635,7 +635,7 @@ function DrugSafety({ medications }: { medications: Medication[] }) {
                 </span>
                 {it.adverse && (
                   <span className="ml-auto text-meta text-ink-secondary">
-                    {it.adverse.total_reports.toLocaleString()} adverse-event reports on file
+                    {it.adverse.total_reports.toLocaleString()} adverse event reports on file
                   </span>
                 )}
               </div>

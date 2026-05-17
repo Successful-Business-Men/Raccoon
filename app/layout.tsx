@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Seagull — A translator between you and doctors",
     description:
-      "A pre-visit card so doctors look at the thing that hurts. A lab checker so a weird number doesn't waste a month of your life. Built by trans people, for trans people.",
+      "A previsit card so doctors look at the thing that hurts. A lab checker so a weird number doesn't waste a month of your life. Built by trans people, for trans people.",
     type: "website",
   },
 };

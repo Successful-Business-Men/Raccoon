@@ -21,7 +21,7 @@ const QUICK_REASONS = [
   "I have a rash.",
   "I'm having migraines.",
   "I have chest pain.",
-  "Follow-up on a previous visit.",
+  "Followup on a previous visit.",
 ];
 
 export function DocumentClient() {
@@ -47,7 +47,7 @@ export function DocumentClient() {
   return (
     <div className="page-ocean">
       <PageHero
-        eyebrow="Pre-visit card"
+        eyebrow="Previsit card"
         title="Hand it to the front desk. The doctor reads it in 30 seconds."
         description="Two boxes. Box 1: the thing that hurts. Box 2: I take hormones — and this is not why. Print it, screenshot it, or just show your phone."
       />
@@ -105,7 +105,7 @@ export function DocumentClient() {
                   value={extraContext}
                   onChange={(e) => setExtraContext(e.target.value)}
                   rows={3}
-                  placeholder="Allergic to penicillin. Currently 8 weeks post-op from top surgery."
+                  placeholder="Allergic to penicillin. Currently 8 weeks postop from top surgery."
                   className="mt-4 w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
                 />
               </div>
@@ -176,7 +176,7 @@ const PrintableCard = forwardRef<
         <div className="flex items-start justify-between gap-4 border-b divider-soft pb-4">
           <div>
             <div className="text-meta uppercase tracking-[0.18em] text-ink-secondary">
-              Pre-visit card
+              Previsit card
             </div>
             <div className="mt-1 text-card">
               {name || "Patient"}
@@ -258,7 +258,7 @@ const PrintableCard = forwardRef<
 
       <div className="mt-5 pt-4 border-t divider-soft text-meta text-ink-secondary leading-relaxed">
         This card was made by the patient using Seagull. It is a
-        self-report, not a medical record.
+        self report, not a medical record.
       </div>
     </div>
   );

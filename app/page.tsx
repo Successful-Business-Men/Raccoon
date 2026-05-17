@@ -71,7 +71,7 @@ function ToolCards() {
     {
       href: "/document",
       icon: FileText,
-      title: "Pre-visit card",
+      title: "Previsit card",
       desc: "Hand it to the doctor. Two boxes: why you're here, and what is not why you're here.",
     },
     {
@@ -84,7 +84,7 @@ function ToolCards() {
       href: "/map",
       icon: MapIcon,
       title: "Care Map",
-      desc: "Current law on gender-affirming care, ID changes, and shield laws in your state.",
+      desc: "Current law on gender affirming care, ID changes, and shield laws in your state.",
     },
   ];
   return (
@@ -154,19 +154,19 @@ function TrustSection() {
     {
       name: "openFDA",
       org: "U.S. Food & Drug Administration",
-      role: "Live drug recalls & adverse-event reports",
+      role: "Live drug recalls & adverse event reports",
       url: "https://open.fda.gov/apis/drug/",
     },
     {
-      name: "PubMed E-utils",
+      name: "PubMed Eutils",
       org: "National Center for Biotechnology Information",
-      role: "Trans-HRT research citations on demand",
+      role: "Trans HRT research citations on demand",
       url: "https://eutils.ncbi.nlm.nih.gov/",
     },
     {
       name: "Claude",
       org: "Anthropic",
-      role: "Vision-based lab-report parsing & interpretation",
+      role: "Vision based lab report parsing & interpretation",
       url: "https://www.anthropic.com/",
     },
   ];

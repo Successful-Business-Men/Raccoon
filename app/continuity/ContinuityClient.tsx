@@ -81,7 +81,7 @@ export function ContinuityClient() {
       <PageHero
         eyebrow="Lab check"
         title="A weird number isn't always a problem."
-        description="Upload your full blood report, or type a single value. Either way you get a plain-language read against your hormones. Not medical advice — just translation."
+        description="Upload your full blood report, or type a single value. Either way you get a plain language read against your hormones. Not medical advice — just translation."
       />
 
       <Container className="pb-16">
@@ -96,7 +96,7 @@ export function ContinuityClient() {
                   </span>{" "}
                   We'll still answer, but it'll be generic. Add your hormones
                   on the <Link href="/places" className="underline">profile page</Link>{" "}
-                  (smart-fill takes one sentence) for a tailored read.
+                  (smart fill takes one sentence) for a tailored read.
                 </div>
               </div>
             )}
@@ -145,7 +145,7 @@ export function ContinuityClient() {
                     rel="noreferrer"
                     className="hover:underline underline-offset-4"
                   >
-                    PubMed E-utilities — research citations
+                    PubMed Eutilities — research citations
                   </a>
                 </li>
                 <li className="inline-flex items-center gap-2">
@@ -556,7 +556,7 @@ function Citations({
         </ul>
       ) : (
         <div className="mt-3 text-meta text-ink-secondary">
-          No matching studies on PubMed for this lab in the trans-HRT literature.
+          No matching studies on PubMed for this lab in the trans HRT literature.
         </div>
       )}
     </div>
