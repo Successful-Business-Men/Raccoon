@@ -16,6 +16,7 @@ import {
   X,
   BookOpen,
   ExternalLink,
+  Microscope,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
@@ -132,9 +133,11 @@ export function ContinuityClient() {
               </div>
             </div>
 
-            <div className="glass rounded-card p-7">
-              <h2 className="text-subsection mb-3">🔬 Data Sources</h2>
-              <ul className="space-y-2 text-meta text-ink-primary">
+            <div className="glass rounded-card p-7 flex items-start gap-4">
+              <Microscope className="h-7 w-7 shrink-0 text-accent" />
+              <div className="flex-1 min-w-0">
+                <h2 className="text-subsection">Data Sources</h2>
+                <ul className="mt-3 space-y-2 text-meta text-ink-primary">
                 <li className="inline-flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-accent" />
                   <a
@@ -168,7 +171,8 @@ export function ContinuityClient() {
                     NLM RxNorm, medication normalization
                   </a>
                 </li>
-              </ul>
+                </ul>
+              </div>
             </div>
 
             <div className="glass rounded-card p-7 flex items-start gap-4">

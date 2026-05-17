@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Plus, Trash2, Save, ShieldCheck, Sparkles, ChevronDown, Loader2, Wand2, AlertTriangle, CheckCircle2, ExternalLink, FlaskConical, Siren, ScanLine } from "lucide-react";
+import { Plus, Trash2, Save, ShieldCheck, Sparkles, ChevronDown, Loader2, Wand2, AlertTriangle, CheckCircle2, ExternalLink, FlaskConical, Siren, Lock, HeartHandshake } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
@@ -187,7 +187,7 @@ export function PlacesClient() {
             <Section
               title="Anatomical Inventory"
               subtitle="What's actually in your body now. Cuts through gendered EHR defaults so the right screenings get ordered."
-              icon={<ScanLine className="h-7 w-7 text-accent" />}
+              icon={<span className="text-[1.75rem] leading-none" aria-hidden>🫀</span>}
             >
               <textarea
                 value={profile.anatomical_inventory}
@@ -331,58 +331,66 @@ export function PlacesClient() {
           </div>
 
           <aside className="lg:sticky lg:top-24 lg:self-start flex flex-col gap-6">
-            <div className="glass rounded-card p-7">
-              <h2 className="text-subsection">Your Data, Your Machine</h2>
-              <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
-                Everything you type stays in this browser. Smart Fill sends
-                only the text you paste, nothing else, to Claude.
-              </p>
-              <div className="mt-5">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    if (confirm("Clear all profile data from this browser?")) {
-                      setProfile(emptyProfile());
-                    }
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" /> Clear all data
-                </Button>
+            <div className="glass rounded-card p-7 flex items-start gap-4">
+              <Lock className="h-7 w-7 shrink-0 text-accent" />
+              <div>
+                <h2 className="text-subsection">Your Data, Your Machine</h2>
+                <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
+                  Everything you type stays in this browser. Smart Fill sends
+                  only the text you paste, nothing else, to Claude.
+                </p>
+                <div className="mt-5">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      if (confirm("Clear all profile data from this browser?")) {
+                        setProfile(emptyProfile());
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" /> Clear all data
+                  </Button>
+                </div>
               </div>
             </div>
 
-            <div className="glass rounded-card p-7">
-              <h2 className="text-subsection">Help The Next Person</h2>
-              <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
-                Medical books have ranges for "men" and "women," not
-                "person on estradiol for 4 years." Opt in and your numbers
-                (no name, no face) join the reference set Lab Check uses to
-                show people what normal actually looks like.
-              </p>
-              <label className="mt-5 flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={profile.share_anonymously}
-                  onChange={(e) => {
-                    update("share_anonymously", e.target.checked);
-                    flashSaved();
-                  }}
-                  className="mt-1 h-4 w-4 rounded border-divider"
-                  style={{ accentColor: "#BAE6FD" }}
-                />
-                <span className="text-meta text-ink-primary">
-                  Share my labs and regimen anonymously
-                </span>
-              </label>
+            <div className="glass rounded-card p-7 flex items-start gap-4">
+              <HeartHandshake className="h-7 w-7 shrink-0 text-status-protected" />
+              <div>
+                <h2 className="text-subsection">Help The Next Person</h2>
+                <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
+                  Medical books have ranges for "men" and "women," not
+                  "person on estradiol for 4 years." Opt in and your numbers
+                  (no name, no face) join the reference set Lab Check uses to
+                  show people what normal actually looks like.
+                </p>
+                <label className="mt-5 flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={profile.share_anonymously}
+                    onChange={(e) => {
+                      update("share_anonymously", e.target.checked);
+                      flashSaved();
+                    }}
+                    className="mt-1 h-4 w-4 rounded border-divider"
+                    style={{ accentColor: "#BAE6FD" }}
+                  />
+                  <span className="text-meta text-ink-primary">
+                    Share my labs and regimen anonymously
+                  </span>
+                </label>
+              </div>
             </div>
 
-            <div className="glass rounded-card p-7">
-              <div className="flex items-center gap-2">
-                <Save className="h-4 w-4 text-ink-secondary" />
-                <span className="text-meta text-ink-secondary">
-                  Saves automatically as you type.
-                </span>
+            <div className="glass rounded-card p-7 flex items-start gap-4">
+              <Save className="h-7 w-7 shrink-0 text-ink-secondary" />
+              <div>
+                <h2 className="text-subsection">Saved As You Type</h2>
+                <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
+                  No save button. Every field commits to local storage the
+                  moment you stop typing.
+                </p>
               </div>
             </div>
           </aside>
