@@ -310,6 +310,7 @@ export function PlacesClient() {
                     flashSaved();
                   }}
                   className="mt-1 h-4 w-4 rounded border-divider"
+                  style={{ accentColor: "#BAE6FD" }}
                 />
                 <span className="text-meta text-ink-primary">
                   Share my labs and regimen anonymously
