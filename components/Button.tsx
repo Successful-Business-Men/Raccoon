@@ -1,15 +1,15 @@
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/cn";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-btn font-medium transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30 disabled:opacity-50 disabled:cursor-not-allowed select-none",
+  "inline-flex items-center justify-center gap-2 rounded-btn font-medium transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 disabled:opacity-50 disabled:cursor-not-allowed select-none",
   {
     variants: {
       variant: {
         primary:
-          "bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-sm",
+          "bg-brand text-black hover:bg-brand-hover active:bg-brand-active shadow-sm",
         secondary:
           "bg-surface text-ink-primary border border-divider hover:bg-surface-inset active:scale-[0.98]",
         ghost: "bg-transparent text-ink-primary hover:bg-surface-inset",
@@ -32,12 +32,27 @@ export interface ButtonProps
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, onClick, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+    const [bouncing, setBouncing] = useState(false);
+
+    function handleClick(e: React.MouseEvent<HTMLButtonElement>) {
+      if (!props.disabled && (variant === "primary" || variant == null)) {
+        setBouncing(true);
+        setTimeout(() => setBouncing(false), 400);
+      }
+      (onClick as React.MouseEventHandler<HTMLButtonElement> | undefined)?.(e);
+    }
+
     return (
       <Comp
         ref={ref}
-        className={cn(buttonVariants({ variant, size }), className)}
+        className={cn(
+          buttonVariants({ variant, size }),
+          bouncing && "animate-btn-bounce",
+          className
+        )}
+        onClick={handleClick}
         {...props}
       />
     );

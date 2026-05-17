@@ -17,6 +17,11 @@ const config: Config = {
           DEFAULT: "#2C2C2E",
           hover: "#1D1D1F",
         },
+        brand: {
+          DEFAULT: "#218cff",
+          hover: "#6ab4ff",
+          active: "#1a70cc",
+        },
         status: {
           protected: "#34C759",
           legal: "#A7D8A7",
@@ -92,10 +97,18 @@ const config: Config = {
           from: { backgroundPosition: "50% 50%, 50% 50%" },
           to: { backgroundPosition: "350% 50%, 350% 50%" },
         },
+        "btn-bounce": {
+          "0%":   { transform: "scale(1)" },
+          "30%":  { transform: "scale(1.08)" },
+          "60%":  { transform: "scale(0.94)" },
+          "80%":  { transform: "scale(1.03)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
       animation: {
         marquee: "marquee 40s linear infinite",
         aurora: "aurora 60s linear infinite",
+        "btn-bounce": "btn-bounce 0.4s ease-in-out both",
       },
     },
   },
