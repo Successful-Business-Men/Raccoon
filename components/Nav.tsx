@@ -21,7 +21,7 @@ export function Nav() {
         <nav className="flex h-20 items-center justify-between gap-6">
           <Link
             href="/"
-            className="flex items-center gap-2.5 text-black"
+            className="flex items-center gap-1 text-black"
           >
             <Logo size={64} />
             <span className="font-display text-[22px] leading-none">
