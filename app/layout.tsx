@@ -20,7 +20,7 @@ const fredoka = Fredoka({
 export const metadata: Metadata = {
   title: "Seagull — A toolkit for trans Americans",
   description:
-    "Document an incident for a lawyer or filing agency, score a business before you walk in, see where your state stands on gender-affirming care, and plan a move without losing access. Free, private, built by and for the trans community.",
+    "Document an incident for a lawyer or filing agency, score a business before you walk in, see where your state stands on gender-affirming care, and plan a move without losing access.",
   metadataBase: new URL("https://seagull.app"),
   icons: { icon: "/seagull.png" },
   openGraph: {

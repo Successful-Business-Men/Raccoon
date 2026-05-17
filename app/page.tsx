@@ -31,10 +31,6 @@ function Hero() {
 
       <Container>
         <div className="relative mx-auto max-w-[860px] text-center pt-28 pb-section">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-chip glass-inset px-4 py-1.5 text-meta text-sea-ink/80">
-            <span className="h-1.5 w-1.5 rounded-full bg-sea-deep" />
-            Free, private, no signup — built with the trans community
-          </div>
           <h1 className="text-hero text-balance text-sea-ink">
             A toolkit for trans Americans navigating discrimination
             and shifting laws.
