@@ -207,6 +207,7 @@ export function PlacesClient() {
                   <Plus className="h-4 w-4" /> Add
                 </Button>
               }
+              className="relative z-20"
             >
               {profile.medications.length > 0 && (
                 <div className="space-y-2">
@@ -870,15 +871,17 @@ function Section({
   icon,
   action,
   children,
+  className,
 }: {
   title: string;
   subtitle?: string;
   icon?: React.ReactNode;
   action?: React.ReactNode;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="glass rounded-card p-7">
+    <div className={cn("glass rounded-card p-7", className)}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
