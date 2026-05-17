@@ -16,6 +16,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
 import { cn } from "@/lib/cn";
@@ -212,15 +213,13 @@ export function ContinuityClient() {
   }
 
   return (
-    <Container size="plan" className="py-12">
-      <header className="mb-8">
-        <h1 className="text-section">Plan continuity of care</h1>
-        <p className="mt-3 text-lede text-ink-secondary leading-relaxed">
-          Tell us where you are and what you need. We&apos;ll generate a
-          personalized checklist — records, insurance, medication risk, legal —
-          with the most urgent steps surfaced first.
-        </p>
-      </header>
+    <div className="page-ocean">
+      <PageHero
+        eyebrow="Continuity of care"
+        title="Plan a move without losing access to your care."
+        description="Tell us where you are and what you need. We'll generate a personalized checklist — records, insurance, medication risk, legal — with the most urgent steps surfaced first."
+      />
+      <Container size="plan" className="-mt-14 pb-16">
 
       <div className="rounded-card bg-surface-inset p-5 mb-6 flex gap-3 items-start text-meta text-ink-secondary">
         <Shield className="h-5 w-5 mt-0.5 shrink-0 text-ink-primary" />
@@ -414,7 +413,8 @@ export function ContinuityClient() {
           onConfirm={panicClear}
         />
       )}
-    </Container>
+      </Container>
+    </div>
   );
 }
 

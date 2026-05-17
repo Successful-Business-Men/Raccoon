@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowUp, Download, Loader2, MapPin } from "lucide-react";
 import { Container } from "@/components/Container";
+import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
 import { cn } from "@/lib/cn";
@@ -168,18 +169,19 @@ export function DocumentClient() {
   const packetReady = isPacketReady(packet);
 
   return (
-    <Container className="py-12">
+    <div className="page-ocean">
+      <PageHero
+        eyebrow="Document an incident"
+        title="A structured record you can hand to a lawyer or filing agency."
+        description="A short conversation builds a packet: what happened, who was involved, what evidence exists, and which legal protections apply. Free, private, downloadable as PDF."
+      />
+      <Container className="-mt-14 pb-16">
       <div className="grid gap-8 lg:grid-cols-[3fr_2fr]">
         {/* Chat column */}
         <div className="flex flex-col min-h-[70vh]">
-          <header className="mb-6">
-            <h1 className="text-section">Document an incident</h1>
-            <p className="mt-3 text-lede text-ink-secondary">
-              I&apos;ll ask a few questions and build a structured packet you can
-              hand to a lawyer or filing agency.
-            </p>
-            {place && (
-              <div className="mt-5 rounded-card bg-surface-inset p-4 flex items-start gap-3">
+          {place && (
+            <header className="mb-6">
+              <div className="rounded-card glass p-4 flex items-start gap-3">
                 <MapPin className="h-4 w-4 mt-1 shrink-0 text-ink-primary" />
                 <div className="flex-1 text-meta">
                   <div className="text-ink-primary font-bold">
@@ -200,8 +202,8 @@ export function DocumentClient() {
                   </div>
                 </div>
               </div>
-            )}
-          </header>
+            </header>
+          )}
 
           <div
             ref={chatRef}
@@ -241,7 +243,8 @@ export function DocumentClient() {
           <PacketPreview packet={packet} ready={packetReady} />
         </aside>
       </div>
-    </Container>
+      </Container>
+    </div>
   );
 }
 

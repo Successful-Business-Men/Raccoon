@@ -170,3 +170,13 @@
     animation: none;
   }
 }
+
+/* Interior-page tint: soft ocean wash so glass cards have something to
+   read against, without competing with the homepage's full wave hero. */
+.page-ocean {
+  background:
+    radial-gradient(60% 50% at 80% 0%, rgba(125, 211, 252, 0.22) 0%, rgba(125, 211, 252, 0) 70%),
+    radial-gradient(50% 40% at 10% 8%, rgba(186, 230, 253, 0.35) 0%, rgba(186, 230, 253, 0) 65%),
+    linear-gradient(180deg, #F5FBFF 0%, #FFFFFF 60%);
+  background-attachment: fixed;
+}

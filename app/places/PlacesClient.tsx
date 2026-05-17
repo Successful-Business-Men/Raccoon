@@ -12,6 +12,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { PageHero } from "@/components/PageHero";
 import { Pill } from "@/components/Pill";
 import { ScoreRing } from "@/components/ScoreRing";
 import { cn } from "@/lib/cn";
@@ -112,20 +113,19 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
   }, [scored]);
 
   return (
-    <Container className="py-12">
-      <header className="mb-8 max-w-prose">
-        <h1 className="text-section">Safety Score</h1>
-        <p className="mt-3 text-lede text-ink-secondary leading-relaxed">
-          A decision aid for physical businesses — combining state legal
-          posture, corporate non-discrimination policy, and first-party incident
-          reports filed through Seagull. Each score shows its receipts.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-meta text-ink-secondary">
+    <div className="page-ocean">
+      <PageHero
+        eyebrow="Safety Score"
+        title="Know a business before you walk in."
+        description="A decision aid for physical businesses — combining state legal posture, corporate non-discrimination policy, and first-party incident reports filed through Seagull. Each score shows its receipts."
+      >
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-meta text-sea-ink/75">
           <TierTally tier="green" label="Affirming" count={tierCounts.green} />
           <TierTally tier="yellow" label="Limited data" count={tierCounts.yellow} />
           <TierTally tier="red" label="Active concerns" count={tierCounts.red} />
         </div>
-      </header>
+      </PageHero>
+      <Container className="-mt-14 pb-16">
 
       {/* Search + sort */}
       <div className="glass rounded-card p-5 mb-6">
@@ -188,7 +188,8 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
       </div>
 
       <Methodology />
-    </Container>
+      </Container>
+    </div>
   );
 }
 
