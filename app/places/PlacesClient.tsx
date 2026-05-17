@@ -119,14 +119,13 @@ export function PlacesClient() {
   return (
     <div className="page-ocean">
       <PageHero
-        eyebrow="Your Profile"
         title="Type It Once. Use It Everywhere."
         description="The Previsit Card and Lab Check both read from here. Everything stays in your browser unless you opt in below."
       >
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-meta text-sea-ink/75">
           <span className="inline-flex items-center gap-2">
             <ShieldCheck className="h-4 w-4" />
-            <span className="text-ink-primary font-bold">Local only</span> by default
+            <span className="text-ink-primary font-bold">Stays on your device</span>
           </span>
           <span className={cn("transition-opacity", savedFlash ? "opacity-100" : "opacity-0")}>
             <span className="text-status-protected font-bold">Saved</span>
