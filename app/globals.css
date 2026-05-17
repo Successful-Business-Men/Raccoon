@@ -123,8 +123,8 @@
   inset: 0;
   border-radius: inherit;
   background-image: radial-gradient(
-    240px 240px at var(--spot-x, -9999px) var(--spot-y, -9999px),
-    hsl(210 100% 60% / 0.22),
+    520px 520px at var(--spot-x, -9999px) var(--spot-y, -9999px),
+    hsl(210 100% 60% / 0.26),
     transparent 70%
   );
   background-attachment: fixed;
@@ -148,7 +148,7 @@
   padding: 2px;
   border-radius: inherit;
   background-image: radial-gradient(
-    180px 180px at var(--spot-x, -9999px) var(--spot-y, -9999px),
+    360px 360px at var(--spot-x, -9999px) var(--spot-y, -9999px),
     hsl(210 100% 55% / 1),
     transparent 70%
   );
