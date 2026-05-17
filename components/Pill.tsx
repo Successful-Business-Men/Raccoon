@@ -1,12 +1,12 @@
 import { cn } from "@/lib/cn";
 import type { CareStatus } from "@/types";
 
-const STATUS_STYLES: Record<CareStatus, { dot: string; label: string }> = {
-  PROTECTED: { dot: "bg-status-protected", label: "Protected" },
-  LEGAL: { dot: "bg-status-legal", label: "Legal" },
-  RESTRICTED: { dot: "bg-status-restricted", label: "Restricted" },
-  BANNED: { dot: "bg-status-banned", label: "Banned" },
-  IN_LITIGATION: { dot: "bg-status-litigation", label: "In litigation" },
+const STATUS_STYLES: Record<CareStatus, { dot: string; label: string; ring: string }> = {
+  PROTECTED: { dot: "bg-status-protected", label: "Protected", ring: "ring-status-protected" },
+  LEGAL: { dot: "bg-status-legal", label: "Legal", ring: "ring-status-legal" },
+  RESTRICTED: { dot: "bg-status-restricted", label: "Restricted", ring: "ring-status-restricted" },
+  BANNED: { dot: "bg-status-banned", label: "Banned", ring: "ring-status-banned" },
+  IN_LITIGATION: { dot: "bg-status-litigation", label: "In litigation", ring: "ring-status-litigation" },
 };
 
 export function StatusPill({ status, className }: { status: CareStatus; className?: string }) {
@@ -14,7 +14,8 @@ export function StatusPill({ status, className }: { status: CareStatus; classNam
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-btn bg-white/80 px-3 py-2 text-meta font-medium text-sea-ink shadow-[inset_0_0_0_1px_rgba(15,42,61,0.08)]",
+        "inline-flex items-center gap-2 rounded-btn bg-white/80 px-3 py-2 text-meta font-medium text-sea-ink ring-1 ring-inset",
+        s.ring,
         className
       )}
     >
