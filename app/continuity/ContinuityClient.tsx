@@ -87,15 +87,15 @@ export function ContinuityClient() {
         <div className="grid gap-8 lg:grid-cols-[3fr_2fr]">
           <div className="flex flex-col gap-6">
             {loaded && !hasProfile && (
-              <div className="glass rounded-card p-6 flex items-start gap-3">
+              <div className="glass rounded-card p-7 flex items-start gap-4">
                 <AlertCircle className="h-7 w-7 shrink-0 text-status-restricted" />
-                <div className="text-meta text-ink-secondary leading-relaxed">
-                  <h3 className="text-[15px] font-bold text-ink-primary mb-1.5">
-                    Heads up. We don't know your regimen yet.
-                  </h3>
-                  We can still answer, but the read will be generic. Add your
-                  hormones on the <Link href="/places" className="underline">profile page</Link>{" "}
-                  (Smart Fill takes one sentence) for a tailored result.
+                <div>
+                  <h2 className="text-subsection">We Don't Know Your Regimen Yet</h2>
+                  <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
+                    We can still answer, but the read will be generic. Add your
+                    hormones on the <Link href="/places" className="underline">profile page</Link>{" "}
+                    (Smart Fill takes one sentence) for a tailored result.
+                  </p>
                 </div>
               </div>
             )}

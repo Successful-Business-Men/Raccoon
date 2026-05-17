@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
+import { Info } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Pill, StatusPill } from "@/components/Pill";
@@ -53,23 +54,25 @@ export function MapClient() {
         description="The legal landscape for HRT, surgery, ID changes, and shield laws across all 50 states. Hover for a quick read, click a state for the full breakdown."
       />
       <Container className="pb-16 relative">
-      <div className="glass rounded-card p-4 mb-8 text-meta text-ink-secondary leading-relaxed">
-        <h3 className="flex items-center gap-2 text-[15px] font-bold text-ink-primary mb-1.5">
-          <span aria-hidden>📋</span>
-          Best effort snapshot
-        </h3>
-        State buckets reflect patterns reported by HRC, MAP, Lambda Legal,
-        and KFF across 2024 and 2025. This isn't realtime legal
-        adjudication, and the law in some states changes weekly. Always{" "}
-        <a
-          href="https://www.lambdalegal.org/help"
-          target="_blank"
-          rel="noreferrer"
-          className="text-ink-primary underline-offset-4 hover:underline"
-        >
-          verify with Lambda Legal&apos;s Help Desk
-        </a>{" "}
-        before acting.
+      <div className="glass rounded-card p-7 mb-8 flex items-start gap-4">
+        <Info className="h-7 w-7 shrink-0 text-sea-deep" />
+        <div>
+          <h2 className="text-subsection">Best Effort Snapshot</h2>
+          <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
+            State buckets reflect patterns reported by HRC, MAP, Lambda Legal,
+            and KFF across 2024 and 2025. This isn't realtime legal
+            adjudication, and the law in some states changes weekly. Always{" "}
+            <a
+              href="https://www.lambdalegal.org/help"
+              target="_blank"
+              rel="noreferrer"
+              className="text-ink-primary underline-offset-4 hover:underline"
+            >
+              verify with Lambda Legal&apos;s Help Desk
+            </a>{" "}
+            before acting.
+          </p>
+        </div>
       </div>
 
       {/* Filter bar */}
