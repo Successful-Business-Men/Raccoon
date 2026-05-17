@@ -25,7 +25,7 @@ export function Nav() {
             className="flex items-center text-sea-ink"
           >
             <Logo size={72} />
-            <span className="font-display font-medium text-[36px] leading-none tracking-tight -ml-1">
+            <span className="font-display font-medium text-[28px] leading-none tracking-tight -ml-1">
               Seagull
             </span>
           </Link>
@@ -57,10 +57,10 @@ function NavLink({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "px-3 py-2 text-meta font-bold rounded-btn transition-colors",
+        "px-3 py-2 text-[16px] font-bold rounded-btn transition-colors",
         active
-          ? "bg-white/80 text-sea-ink shadow-[inset_0_0_0_1px_rgba(15,42,61,0.08)]"
-          : "text-sea-ink/75 hover:text-sea-ink hover:bg-white/55"
+          ? "bg-white/80 text-black shadow-[inset_0_0_0_1px_rgba(15,42,61,0.08)]"
+          : "text-black/80 hover:text-black hover:bg-white/55"
       )}
     >
       {children}
