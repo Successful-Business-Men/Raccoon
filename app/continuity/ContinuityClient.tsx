@@ -173,18 +173,18 @@ export function ContinuityClient() {
               </ul>
             </div>
 
-            <div className="rounded-card bg-surface-inset p-6">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="h-5 w-5 mt-0.5 shrink-0 text-ink-primary" />
-                <div className="text-meta text-ink-secondary leading-relaxed">
-                  <div className="text-ink-primary text-meta font-bold mb-1">
-                    Not medical advice.
-                  </div>
+            <div className="glass rounded-card p-7 flex items-start gap-4">
+              <AlertTriangle className="h-7 w-7 shrink-0 text-status-banned" />
+              <div>
+                <h2 className="text-subsection">Not Medical Advice</h2>
+                <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
                   Seagull turns "is this number weird?" into context.
+                </p>
+                <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
                   Diagnosis and treatment belong with your clinician. For an
                   emergency, call 911 or{" "}
                   <span className="text-ink-primary font-bold">Trans Lifeline at 877-565-8860</span>.
-                </div>
+                </p>
               </div>
             </div>
           </aside>
