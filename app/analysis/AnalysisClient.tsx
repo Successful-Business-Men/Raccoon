@@ -294,9 +294,18 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
   );
 }
 
-// ── Timeline card ─────────────────────────────────────────────────────────────
+// ── Timeline card (accordion) ─────────────────────────────────────────────────
 
 function TimelineCard({ index, item }: { index: number; item: TimelineItem }) {
+  const [open, setOpen] = useState(false);
+  const [clickFlash, setClickFlash] = useState(false);
+
+  function handleToggle() {
+    setClickFlash(true);
+    setTimeout(() => setClickFlash(false), 380);
+    setOpen((v) => !v);
+  }
+
   return (
     <div className="glass rounded-card p-6 flex gap-5">
       <div className="flex-shrink-0 flex items-start pt-0.5">
@@ -304,34 +313,38 @@ function TimelineCard({ index, item }: { index: number; item: TimelineItem }) {
           {index + 1}
         </div>
       </div>
-      <div className="min-w-0">
-        <h3 className="text-body text-ink-primary font-bold">{item.heading}</h3>
-        <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
-          <AnnotatedText text={item.plain} terms={item.terms} />
-        </p>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-body text-ink-primary font-bold">{item.heading}</h3>
+          <button
+            onClick={handleToggle}
+            className={cn(
+              "shrink-0 text-meta transition-colors duration-150 select-none",
+              clickFlash
+                ? "animate-show-more-click"
+                : "text-ink-secondary hover:text-brand"
+            )}
+          >
+            {open ? "Show less" : "Show more…"}
+          </button>
+        </div>
+        {open && (
+          <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
+            <AnnotatedText text={item.plain} terms={item.terms} />
+          </p>
+        )}
       </div>
     </div>
   );
 }
 
-// ── Comparison list (accordion controller) ────────────────────────────────────
+// ── Comparison list ───────────────────────────────────────────────────────────
 
 function ComparisonList({ comparisons }: { comparisons: Comparison[] }) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  function toggle(i: number) {
-    setOpenIndex((prev) => (prev === i ? null : i));
-  }
-
   return (
     <div className="flex flex-col gap-3">
       {comparisons.map((c, i) => (
-        <ComparisonCard
-          key={i}
-          comparison={c}
-          isOpen={openIndex === i}
-          onToggle={() => toggle(i)}
-        />
+        <ComparisonCard key={i} comparison={c} />
       ))}
     </div>
   );
@@ -366,24 +379,9 @@ const ALIGNMENT_META = {
   },
 };
 
-function ComparisonCard({
-  comparison,
-  isOpen,
-  onToggle,
-}: {
-  comparison: Comparison;
-  isOpen: boolean;
-  onToggle: () => void;
-}) {
+function ComparisonCard({ comparison }: { comparison: Comparison }) {
   const meta = ALIGNMENT_META[comparison.alignment] ?? ALIGNMENT_META.neutral;
   const Icon = meta.icon;
-  const [clickFlash, setClickFlash] = useState(false);
-
-  function handleToggle() {
-    setClickFlash(true);
-    setTimeout(() => setClickFlash(false), 380);
-    onToggle();
-  }
 
   return (
     <div
@@ -397,51 +395,30 @@ function ComparisonCard({
         <Icon className={cn("h-5 w-5 mt-0.5 shrink-0", meta.color)} />
 
         <div className="flex-1 min-w-0">
-          {/* Top row: badge + show more */}
-          <div className="flex items-center justify-between gap-3">
-            <span
-              className={cn(
-                "text-meta px-2 py-0.5 rounded-chip font-bold uppercase tracking-[0.08em] shrink-0",
-                meta.badge
-              )}
-            >
-              {meta.label}
-            </span>
+          <span
+            className={cn(
+              "text-meta px-2 py-0.5 rounded-chip font-bold uppercase tracking-[0.08em]",
+              meta.badge
+            )}
+          >
+            {meta.label}
+          </span>
 
-            {/* Show more / less — grey → brand blue on hover, click flash */}
-            <button
-              onClick={handleToggle}
-              className={cn(
-                "shrink-0 text-meta transition-colors duration-150 select-none",
-                clickFlash
-                  ? "animate-show-more-click"
-                  : "text-ink-secondary hover:text-brand"
-              )}
-            >
-              {isOpen ? "Show less" : "Show more…"}
-            </button>
-          </div>
-
-          {/* Headline — one sentence describing the topic */}
           <p className="mt-2 text-body text-ink-primary font-medium leading-snug">
             {comparison.headline}
           </p>
 
-          {/* Italic "Doctor said" */}
           <p className="mt-1 text-meta text-ink-secondary italic">
             Doctor said: {comparison.recommendation}
           </p>
 
-          {/* Expanded detail */}
-          {isOpen && (
-            <p className="mt-3 text-meta text-ink-primary leading-relaxed">
-              <AnnotatedText
-                text={comparison.detail}
-                terms={comparison.terms ?? []}
-                bold
-              />
-            </p>
-          )}
+          <p className="mt-3 text-meta text-ink-primary leading-relaxed">
+            <AnnotatedText
+              text={comparison.detail}
+              terms={comparison.terms ?? []}
+              bold
+            />
+          </p>
         </div>
       </div>
     </div>
