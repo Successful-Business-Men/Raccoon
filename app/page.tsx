@@ -35,9 +35,10 @@ function Hero() {
             A Translator Between You And Your Doctor.
           </h1>
           <p className="mt-6 text-lede text-sea-ink text-balance max-w-[560px] mx-auto">
-            Type your meds once. Hand the doctor a card that explains
-            everything in 30 seconds. Tell whether a weird lab number is
-            normal for your hormones — backed by live data from
+            Type your meds once. Hand the doctor a card that keeps today&apos;s
+            complaint separate from your hormone context — in 30 seconds.
+            Tell whether a weird lab number is from HRT, or from something
+            else worth asking about. Backed by live data from
             <span className="font-bold"> RxNorm</span>,
             <span className="font-bold"> openFDA</span>, and
             <span className="font-bold"> PubMed</span>.
@@ -72,13 +73,13 @@ function ToolCards() {
       href: "/document",
       icon: FileText,
       title: "Previsit Card",
-      desc: "Hand it to the doctor. Two boxes: why you're here, and what is not why you're here.",
+      desc: "Two boxes for the doctor — today's complaint, and hormone context — so the right thing gets looked at.",
     },
     {
       href: "/continuity",
       icon: FlaskConical,
       title: "Lab Check",
-      desc: "Type in a weird number. Find out if it's normal for someone on your hormones — or worth asking about.",
+      desc: "Type in a weird number. Find out if it's from your hormones — or something separate worth asking about.",
     },
     {
       href: "/map",

@@ -195,8 +195,16 @@ const PrintableCard = forwardRef<
           </div>
         </div>
 
+        {/* Clinician preamble — names the two-box separation as the purpose */}
+        <div className="mt-4 text-meta text-ink-secondary leading-relaxed">
+          <span className="text-ink-primary font-bold">For the clinician:</span>{" "}
+          Box 1 is today&apos;s chief complaint. Box 2 is hormone context,
+          included so it doesn&apos;t get mistaken for the cause. Please
+          assess them separately.
+        </div>
+
         {/* Box 1 */}
-        <div className="mt-5 rounded-card border-2 border-accent/70 p-5">
+        <div className="mt-4 rounded-card border-2 border-accent/70 p-5">
           <div className="text-meta uppercase tracking-[0.12em] text-accent font-bold">
             Box 1 — Today I Am Here Because
           </div>
@@ -207,8 +215,8 @@ const PrintableCard = forwardRef<
 
         {/* Box 2 */}
         <div className="mt-4 rounded-card border-2 border-ink-secondary/40 p-5 bg-surface-inset/40">
-          <div className="text-meta uppercase tracking-[0.12em] text-ink-primary font-bold">
-            Box 2 — I Take Hormones. This Is Not Why I'm Here Today.
+          <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary font-bold">
+            Box 2 — Hormone Context (Not Today&apos;s Reason)
           </div>
           <div className="mt-3 space-y-2 text-meta text-ink-primary leading-relaxed">
             {regimen && <p>{regimen}</p>}

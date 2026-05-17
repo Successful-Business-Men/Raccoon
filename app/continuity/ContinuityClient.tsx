@@ -81,7 +81,7 @@ export function ContinuityClient() {
       <PageHero
         eyebrow="Lab Check"
         title="A Weird Number Isn't Always A Problem."
-        description="Upload a blood report or type a single value. Either way, you get a plain-language read that accounts for your hormones. Not medical advice — just translation."
+        description="Upload a blood report or type a single value. We tell you whether the number is from your hormones, or from something separate worth bringing up. Not medical advice — just translation."
       />
 
       <Container className="pb-16">
@@ -393,7 +393,7 @@ const VERDICT_META: Record<
     dot: "bg-status-restricted",
   },
   outside_hrt_explanation: {
-    label: "Hormones don't explain this — ask your doctor",
+    label: "Likely not from HRT — bring to your clinician",
     icon: AlertTriangle,
     color: "text-status-banned",
     dot: "bg-status-banned",
@@ -464,11 +464,11 @@ function ResultLine({ item, regimen }: { item: ParsedItem; regimen: string }) {
 function shortVerdict(v: Verdict): string {
   switch (v) {
     case "likely_normal_for_regimen":
-      return "Expected";
+      return "Expected on HRT";
     case "borderline_ask_doctor":
       return "Borderline";
     case "outside_hrt_explanation":
-      return "Ask doctor";
+      return "Not from HRT";
     default:
       return "In range";
   }
