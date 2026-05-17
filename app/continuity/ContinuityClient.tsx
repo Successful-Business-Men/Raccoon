@@ -79,8 +79,8 @@ export function ContinuityClient() {
   return (
     <div className="page-ocean">
       <PageHero
-        eyebrow="Lab check"
-        title="A weird number isn't always a problem."
+        eyebrow="Lab Check"
+        title="A Weird Number Isn't Always A Problem."
         description="Upload your full blood report, or type a single value. Either way you get a plain language read against your hormones. Not medical advice — just translation."
       />
 
@@ -110,7 +110,7 @@ export function ContinuityClient() {
             <div className="glass rounded-card p-7">
               <div className="flex items-center gap-2">
                 <Users className="h-5 w-5 text-ink-primary" />
-                <h2 className="text-subsection">The missing book</h2>
+                <h2 className="text-subsection">The Missing Book</h2>
               </div>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
                 Medical textbooks have ranges for "men" and "women" — not
@@ -134,7 +134,7 @@ export function ContinuityClient() {
 
             <div className="glass rounded-card p-7">
               <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary mb-3">
-                Data sources
+                Data Sources
               </div>
               <ul className="space-y-2 text-meta text-ink-primary">
                 <li className="inline-flex items-center gap-2">
@@ -235,7 +235,7 @@ function UploadReport({ profile }: { profile: Profile }) {
     <div className="glass rounded-card p-7">
       <div className="flex items-center gap-2">
         <Upload className="h-5 w-5 text-accent" />
-        <h2 className="text-subsection">Upload your blood report</h2>
+        <h2 className="text-subsection">Upload Your Blood Report</h2>
       </div>
       <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
         Drop a PDF or a phone photo. We'll read every value and tell you which
@@ -518,7 +518,7 @@ function Citations({
       <div className="flex items-center gap-2">
         <BookOpen className="h-4 w-4 text-ink-primary" />
         <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
-          Recent research
+          Recent Research
         </div>
       </div>
       {busy && !citations ? (
@@ -606,7 +606,7 @@ function SingleValueCheck({ profile }: { profile: Profile }) {
 
   return (
     <div className="glass rounded-card p-7">
-      <h2 className="text-subsection">Or check a single value</h2>
+      <h2 className="text-subsection">Or Check A Single Value</h2>
       <p className="mt-1 text-meta text-ink-secondary">
         Faster if you just want to look up one number.
       </p>
@@ -704,7 +704,7 @@ function SingleResult({
       {result.ask_doctor_about && (
         <div className="mt-4 rounded-btn border border-divider bg-surface px-4 py-3">
           <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
-            Bring this up
+            Bring This Up
           </div>
           <p className="mt-1 text-meta text-ink-primary">{result.ask_doctor_about}</p>
         </div>

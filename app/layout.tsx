@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://seagull.app"),
   icons: { icon: "/seagull.png" },
   openGraph: {
-    title: "Seagull — A translator between you and doctors",
+    title: "Seagull — A Translator Between You And Doctors",
     description:
       "A previsit card so doctors look at the thing that hurts. A lab checker so a weird number doesn't waste a month of your life. Built by trans people, for trans people.",
     type: "website",

@@ -59,7 +59,7 @@ export function StateDrawer({
           <div className="rounded-card bg-status-restricted/10 p-5 flex gap-3 items-start">
             <AlertTriangle className="h-5 w-5 text-status-restricted mt-0.5 shrink-0" />
             <div className="text-body leading-relaxed">
-              <div className="font-medium">Verify before acting</div>
+              <div className="font-medium">Verify Before Acting</div>
               <p className="text-ink-secondary mt-1">
                 The law in some states changes weekly. Before making medical or
                 travel decisions, contact{" "}
@@ -79,7 +79,7 @@ export function StateDrawer({
 
         {state.related_orgs && state.related_orgs.length > 0 ? (
           <div className="px-7 pb-10">
-            <h3 className="text-card mb-3">Related organizations</h3>
+            <h3 className="text-card mb-3">Related Organizations</h3>
             <ul className="space-y-2">
               {state.related_orgs.map((o) => (
                 <li key={o.url}>

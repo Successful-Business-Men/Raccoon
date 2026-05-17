@@ -119,8 +119,8 @@ export function PlacesClient() {
   return (
     <div className="page-ocean">
       <PageHero
-        eyebrow="Your profile"
-        title="Type it once. Use it everywhere."
+        eyebrow="Your Profile"
+        title="Type It Once. Use It Everywhere."
         description="The Previsit Card and Lab Check both read from this. Lives in your browser. Never sent to a server unless you opt in below."
       >
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-meta text-sea-ink/75">
@@ -170,7 +170,7 @@ export function PlacesClient() {
             <DrugSafety medications={profile.medications} />
 
             <Section
-              title="Surgical history"
+              title="Surgical History"
               subtitle="Past gender affirming procedures, or anything else relevant."
               action={
                 <Button size="sm" variant="secondary" onClick={addSurgery}>
@@ -196,7 +196,7 @@ export function PlacesClient() {
             </Section>
 
             <Section
-              title="Recent labs"
+              title="Recent Labs"
               subtitle="Optional. Adds context when a new number looks off."
               action={
                 <Button size="sm" variant="secondary" onClick={addLab}>
@@ -226,7 +226,7 @@ export function PlacesClient() {
             <Disclosure
               open={aboutOpen}
               onToggle={() => setAboutOpen((v) => !v)}
-              label="About you (optional)"
+              label="About You (Optional)"
               hint="Only used to personalize the visit card."
             >
               <div className="grid sm:grid-cols-2 gap-4">
@@ -276,7 +276,7 @@ export function PlacesClient() {
 
           <aside className="lg:sticky lg:top-24 lg:self-start flex flex-col gap-6">
             <div className="glass rounded-card p-7">
-              <h2 className="text-subsection">Your data, your machine</h2>
+              <h2 className="text-subsection">Your Data, Your Machine</h2>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
                 Everything you type is saved only in this browser. The smart fill
                 feature sends just the text you paste to Claude and nothing else.
@@ -297,7 +297,7 @@ export function PlacesClient() {
             </div>
 
             <div className="glass rounded-card p-7">
-              <h2 className="text-subsection">Help the next person</h2>
+              <h2 className="text-subsection">Help The Next Person</h2>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
                 Medical books mostly have ranges for "men" and "women" — not
                 "person on estradiol for 4 years." Opt in and your numbers (no
@@ -376,7 +376,7 @@ function SmartFill({
     <div className="glass rounded-card p-7">
       <div className="flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-accent" />
-        <h2 className="text-subsection">Smart fill</h2>
+        <h2 className="text-subsection">Smart Fill</h2>
       </div>
       <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
         Describe your regimen and history in a sentence or two. We'll fill in
@@ -511,7 +511,7 @@ function MedRow({
       {open && suggestions.length > 0 && (
         <div className="absolute left-0 right-0 mt-1 z-20 glass-strong rounded-btn border border-divider shadow-cardHover overflow-hidden">
           <div className="px-3 py-1.5 text-meta uppercase tracking-[0.12em] text-ink-secondary border-b divider-soft">
-            RxNorm matches
+            RxNorm Matches
           </div>
           {suggestions.map((s, i) => (
             <button
@@ -587,7 +587,7 @@ function DrugSafety({ medications }: { medications: Medication[] }) {
         <div>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-accent" />
-            <h2 className="text-subsection">Drug safety check</h2>
+            <h2 className="text-subsection">Drug Safety Check</h2>
           </div>
           <p className="mt-1 text-meta text-ink-secondary">
             Live lookup against the FDA's drug recall & adverse event databases.
@@ -671,7 +671,7 @@ function DrugSafety({ medications }: { medications: Medication[] }) {
               {it.adverse?.top_reactions?.length ? (
                 <div className="mt-3">
                   <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
-                    Top reported reactions
+                    Top Reported Reactions
                   </div>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {it.adverse.top_reactions.map((r) => (

@@ -47,8 +47,8 @@ export function DocumentClient() {
   return (
     <div className="page-ocean">
       <PageHero
-        eyebrow="Previsit card"
-        title="Hand it to the front desk. The doctor reads it in 30 seconds."
+        eyebrow="Previsit Card"
+        title="Hand It To The Front Desk. The Doctor Reads It In 30 Seconds."
         description="Two boxes. Box 1: the thing that hurts. Box 2: I take hormones — and this is not why. Print it, screenshot it, or just show your phone."
       />
 
@@ -57,7 +57,7 @@ export function DocumentClient() {
           <div className="glass rounded-card p-7 flex items-start gap-4">
             <AlertCircle className="h-5 w-5 mt-0.5 shrink-0 text-status-restricted" />
             <div>
-              <h2 className="text-subsection">Set up your profile first</h2>
+              <h2 className="text-subsection">Set Up Your Profile First</h2>
               <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
                 The "this is not why I'm here" box pulls from your medications
                 and surgical history. Add at least one medication or a regimen
@@ -75,7 +75,7 @@ export function DocumentClient() {
             {/* Left: inputs */}
             <div className="flex flex-col gap-6 print:hidden">
               <div className="glass rounded-card p-7">
-                <h2 className="text-subsection">Today's reason</h2>
+                <h2 className="text-subsection">Today's Reason</h2>
                 <p className="mt-1 text-meta text-ink-secondary">
                   In your own words. Plain language is best.
                 </p>
@@ -96,7 +96,7 @@ export function DocumentClient() {
               </div>
 
               <div className="glass rounded-card p-7">
-                <h2 className="text-subsection">Anything else?</h2>
+                <h2 className="text-subsection">Anything Else?</h2>
                 <p className="mt-1 text-meta text-ink-secondary">
                   Allergies, recent injuries, anything you want the doctor to
                   see at a glance. Optional.
@@ -176,7 +176,7 @@ const PrintableCard = forwardRef<
         <div className="flex items-start justify-between gap-4 border-b divider-soft pb-4">
           <div>
             <div className="text-meta uppercase tracking-[0.18em] text-ink-secondary">
-              Previsit card
+              Previsit Card
             </div>
             <div className="mt-1 text-card">
               {name || "Patient"}
@@ -199,7 +199,7 @@ const PrintableCard = forwardRef<
         {/* Box 1 */}
         <div className="mt-5 rounded-card border-2 border-accent/70 p-5">
           <div className="text-meta uppercase tracking-[0.12em] text-accent font-bold">
-            Box 1 — Today I am here because
+            Box 1 — Today I Am Here Because
           </div>
           <p className="mt-2 text-body text-ink-primary whitespace-pre-wrap leading-relaxed">
             {reason || "—"}
@@ -209,7 +209,7 @@ const PrintableCard = forwardRef<
         {/* Box 2 */}
         <div className="mt-4 rounded-card border-2 border-ink-secondary/40 p-5 bg-surface-inset/40">
           <div className="text-meta uppercase tracking-[0.12em] text-ink-primary font-bold">
-            Box 2 — I am on hormones. This is NOT why I am here today.
+            Box 2 — I Am On Hormones. This Is NOT Why I Am Here Today.
           </div>
           <div className="mt-3 space-y-2 text-meta text-ink-primary leading-relaxed">
             {regimen && <p>{regimen}</p>}
@@ -228,7 +228,7 @@ const PrintableCard = forwardRef<
             {surgeries.length > 0 && (
               <div>
                 <div className="uppercase tracking-[0.1em] text-ink-secondary text-[11px]">
-                  Surgical history
+                  Surgical History
                 </div>
                 <ul className="mt-1 list-disc pl-5 space-y-0.5">
                   {surgeries.map((s) => (
@@ -248,7 +248,7 @@ const PrintableCard = forwardRef<
         {extraContext.trim() && (
           <div className="mt-4 rounded-card border border-divider p-5">
             <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
-              Other context
+              Other Context
             </div>
             <p className="mt-2 text-meta text-ink-primary whitespace-pre-wrap leading-relaxed">
               {extraContext}

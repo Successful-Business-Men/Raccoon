@@ -65,19 +65,19 @@ function ToolCards() {
     {
       href: "/places",
       icon: User,
-      title: "Your profile",
+      title: "Your Profile",
       desc: "Meds, surgeries, last labs. Stored in your browser. Type it once, use it everywhere.",
     },
     {
       href: "/document",
       icon: FileText,
-      title: "Previsit card",
+      title: "Previsit Card",
       desc: "Hand it to the doctor. Two boxes: why you're here, and what is not why you're here.",
     },
     {
       href: "/continuity",
       icon: FlaskConical,
-      title: "Lab check",
+      title: "Lab Check",
       desc: "A weird number? Type it in. Find out if it's normal for someone on your hormones — or worth asking about.",
     },
     {
@@ -175,7 +175,7 @@ function TrustSection() {
       <Container>
         <div className="text-center">
           <div className="text-meta uppercase tracking-[0.18em] text-ink-secondary">
-            Live data from
+            Live Data From
           </div>
         </div>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
