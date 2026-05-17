@@ -139,7 +139,7 @@ export function DocumentClient() {
       <AuroraOverlay variant="amber" />
       <PageHero
         title={<>Hand It To The Front Desk<br />The Doctor Reads It In 30 Seconds</>}
-        description="A card that thinks. Auto-computed postop weeks, screening reminders from your anatomy, and an Apple Wallet–style pass for your phone."
+        description="A card that thinks. Auto computed postop weeks, screening reminders from your anatomy, and an Apple Wallet style pass for your phone."
       />
 
       <Container className="pb-16">
@@ -231,8 +231,8 @@ export function DocumentClient() {
                       <h2 className="text-subsection">Clinician Briefing</h2>
                     </div>
                     <p className="mt-1 text-meta text-ink-secondary">
-                      Claude turns your inputs into a one-sentence clinician
-                      summary, an elevator pitch you can read at check-in, and
+                      Claude turns your inputs into a one sentence clinician
+                      summary, an elevator pitch you can read at check in, and
                       the questions to expect.
                     </p>
                   </div>
@@ -270,7 +270,7 @@ export function DocumentClient() {
                   <div className="mt-4 space-y-4">
                     {briefIsStale && (
                       <div className="rounded-btn bg-status-restricted/10 border border-status-restricted/40 text-meta text-ink-primary px-3 py-2">
-                        Your inputs changed — regenerate to refresh the brief.
+                        Your inputs changed, regenerate to refresh the brief.
                       </div>
                     )}
                     {brief.questions_patient_should_ask.length > 0 && (
@@ -286,7 +286,7 @@ export function DocumentClient() {
                       </div>
                     )}
                     <div className="text-[11px] text-ink-secondary leading-snug">
-                      The clinician-facing parts of this briefing are also
+                      The clinician facing parts of this briefing are also
                       rendered on the card itself. Review them before handing
                       it over.
                     </div>
@@ -370,7 +370,7 @@ export function DocumentClient() {
                   </div>
                   <div className="glass rounded-card p-5 flex items-center justify-between gap-4 print:hidden">
                     <div className="text-meta text-ink-secondary leading-snug">
-                      Saves a high-res PNG.
+                      Saves a high res PNG.
                       <br />
                       Add it to Photos, then Wallet, or AirDrop it.
                     </div>
@@ -518,7 +518,7 @@ const PrintableCard = forwardRef<
               <li key={a.id}>
                 <span className="font-bold">{a.substance}</span>
                 {a.reaction && (
-                  <span className="text-ink-secondary"> — {a.reaction}</span>
+                  <span className="text-ink-secondary">, {a.reaction}</span>
                 )}
               </li>
             ))}
@@ -666,7 +666,7 @@ const PrintableCard = forwardRef<
             ))}
           </ul>
           <div className="mt-2 text-[11px] text-ink-secondary">
-            Derived from anatomy + age. Reminders only — not a recommendation.
+            Derived from anatomy + age. Reminders only, not a recommendation.
           </div>
         </div>
       )}

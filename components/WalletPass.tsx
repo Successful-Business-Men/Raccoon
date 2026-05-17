@@ -210,7 +210,7 @@ export const WalletPass = forwardRef<HTMLDivElement, WalletPassProps>(
           TODAY
         </div>
         <div style={{ marginTop: 2, fontSize: 12, lineHeight: 1.35, opacity: 0.95 }}>
-          {reason.trim() || "—"}
+          {reason.trim() || ""}
         </div>
 
         {filledGoals.length > 0 && (

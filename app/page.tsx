@@ -39,7 +39,7 @@ function Hero() {
             A Translator Between You And Your Doctor
           </h1>
           <p className="mt-6 text-lede text-sea-ink text-balance max-w-[560px] mx-auto">
-            Log meds once. Hand your doctor a 30-second card that separates
+            Log meds once. Hand your doctor a 30 second card that separates
             your HRT from today&rsquo;s visit, and decode your lab results
             using live medical data using
             <span className="font-bold"> openFDA</span> and
@@ -75,13 +75,13 @@ function ToolCards() {
       href: "/document",
       icon: FileText,
       title: "Previsit Card",
-      desc: "Two boxes for the doctor — today's complaint and your hormone context, kept separate.",
+      desc: "Two boxes for the doctor, today's complaint and your hormone context, kept separate.",
     },
     {
       href: "/analysis",
       icon: NotebookText,
       title: "After Visit",
-      desc: "Upload your visit notes. Get a plain-language breakdown checked against your own data.",
+      desc: "Upload your visit notes. Get a plain language breakdown checked against your own data.",
     },
     {
       href: "/continuity",
@@ -93,7 +93,7 @@ function ToolCards() {
       href: "/map",
       icon: MapIcon,
       title: "Care Map",
-      desc: "See where your state stands on gender-affirming care, ID changes, and shield laws.",
+      desc: "See where your state stands on gender affirming care, ID changes, and shield laws.",
     },
   ];
   return (

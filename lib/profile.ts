@@ -100,7 +100,7 @@ function migrate(p: any): Profile {
       if (typeof s?.description === "string") {
         return { id: s.id || newId(), description: s.description, date: s.date || "" };
       }
-      const desc = [s?.name, s?.notes].filter(Boolean).join(" — ");
+      const desc = [s?.name, s?.notes].filter(Boolean).join(", ");
       return { id: s?.id || newId(), description: desc, date: s?.date || "" };
     });
   }

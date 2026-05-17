@@ -67,7 +67,7 @@ export function AnalysisClient() {
     <div className="page-ocean">
       <PageHero
         title={<>What Your Doctor Said,<br />In Plain English</>}
-        description="Upload your after-visit notes or summary. We'll break down the key points in simple language and compare the doctor's recommendations against your own health data."
+        description="Upload your after visit notes or summary. We'll break down the key points in simple language and compare the doctor's recommendations against your own health data."
       />
 
       <Container className="pb-16">
@@ -134,7 +134,7 @@ function UploadAndAnalyze({ profile }: { profile: Profile }) {
       <div className="glass rounded-card p-7">
         <h2 className="text-subsection">Upload Your Visit Notes</h2>
         <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
-          Drop the after-visit summary your doctor gave you — PDF, photo, or screenshot.
+          Drop the after visit summary your doctor gave you, PDF, photo, or screenshot.
           We'll read the whole thing so you don't have to decode it.
         </p>
 
@@ -169,7 +169,7 @@ function UploadAndAnalyze({ profile }: { profile: Profile }) {
                 <ImageIcon className="h-6 w-6" />
               </div>
               <div className="mt-3 text-body text-ink-primary font-medium">
-                Drop your after-visit summary here
+                Drop your after visit summary here
               </div>
               <div className="mt-1 text-meta text-ink-secondary">
                 or click to choose · PDF or photo · max 8 MB

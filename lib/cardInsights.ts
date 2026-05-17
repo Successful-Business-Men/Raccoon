@@ -67,16 +67,16 @@ export function screeningReminders(p: Profile): ScreeningReminder[] {
   };
 
   if (age >= 21 && age <= 65 && hasOrgan("cervix", "female")) {
-    out.push({ label: "Pap", detail: "every 3–5 yr · 21–65" });
+    out.push({ label: "Pap", detail: "every 3 to 5 yr · 21 to 65" });
   }
   if (age >= 40 && age <= 74 && hasOrgan("breast", "female")) {
-    out.push({ label: "Mammogram", detail: "every 2 yr · 40–74" });
+    out.push({ label: "Mammogram", detail: "every 2 yr · 40 to 74" });
   }
   if (age >= 55 && age <= 69 && hasOrgan("prostate", "male")) {
-    out.push({ label: "Prostate (shared decision)", detail: "55–69" });
+    out.push({ label: "Prostate (shared decision)", detail: "55 to 69" });
   }
   if (age >= 45 && age <= 75) {
-    out.push({ label: "Colorectal", detail: "every 1–10 yr · 45–75" });
+    out.push({ label: "Colorectal", detail: "every 1 to 10 yr · 45 to 75" });
   }
   return out;
 }

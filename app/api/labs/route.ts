@@ -70,7 +70,7 @@ export async function POST(req: Request) {
           verdict: "borderline_ask_doctor",
           headline: "I couldn't make a confident call on that one.",
           explanation:
-            "The model didn't return a clean answer. That's on us, not you. When in doubt, ask your doctor — and consider rephrasing the lab name (e.g. \"hematocrit\" rather than \"HCT %\").",
+            "The model didn't return a clean answer. That's on us, not you. When in doubt, ask your doctor, and consider rephrasing the lab name (e.g. \"hematocrit\" rather than \"HCT %\").",
           ask_doctor_about: "",
         }),
         { headers: { "content-type": "application/json" } }
