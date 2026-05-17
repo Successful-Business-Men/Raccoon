@@ -1,18 +1,25 @@
 "use client";
 
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Printer, ClipboardList } from "lucide-react";
+import { Printer, ClipboardList, Download, Wallet } from "lucide-react";
+import { toPng } from "html-to-image";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
 import { AuroraOverlay } from "@/components/ui/aurora-background";
+import { WalletPass } from "@/components/WalletPass";
 import {
   emptyProfile,
   loadProfile,
   type Profile,
 } from "@/lib/profile";
+import {
+  annotateSurgeries,
+  hormoneDuration,
+  screeningReminders,
+} from "@/lib/cardInsights";
 
 const QUICK_REASONS = [
   "My arm hurts.",
@@ -25,12 +32,18 @@ const QUICK_REASONS = [
   "Followup on a previous visit.",
 ];
 
+type Mode = "full" | "wallet";
+
 export function DocumentClient() {
   const [profile, setProfile] = useState<Profile>(emptyProfile());
   const [reason, setReason] = useState("");
   const [extraContext, setExtraContext] = useState("");
   const [goals, setGoals] = useState<string[]>(["", "", ""]);
+  const [mode, setMode] = useState<Mode>("full");
+  const [busy, setBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
+
+  const walletRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setProfile(loadProfile());
@@ -50,12 +63,33 @@ export function DocumentClient() {
     window.print();
   }
 
+  async function saveWalletPng() {
+    if (!walletRef.current || busy) return;
+    setBusy(true);
+    try {
+      const dataUrl = await toPng(walletRef.current, {
+        pixelRatio: 3,
+        cacheBust: true,
+        backgroundColor: "transparent",
+      });
+      const a = document.createElement("a");
+      a.download = `previsit-card-${new Date().toISOString().slice(0, 10)}.png`;
+      a.href = dataUrl;
+      a.click();
+    } catch (err) {
+      console.error(err);
+      alert("Couldn't save the image. Try again, or use Print instead.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="page-ocean">
       <AuroraOverlay variant="amber" />
       <PageHero
         title={<>Hand It To The Front Desk<br />The Doctor Reads It In 30 Seconds</>}
-        description="One card. Allergies, today's reason, your ranked goals, and the body context that EHRs get wrong. Print it, screenshot it, or show it on your phone."
+        description="A card that thinks. Auto-computed postop weeks, screening reminders from your anatomy, and an Apple Wallet–style pass for your phone."
       />
 
       <Container className="pb-16">
@@ -76,7 +110,7 @@ export function DocumentClient() {
             </div>
           </div>
         ) : (
-          <div className="grid gap-8 lg:grid-cols-2">
+          <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
             {/* Left: inputs */}
             <div className="flex flex-col gap-6 print:hidden">
               <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
@@ -95,9 +129,13 @@ export function DocumentClient() {
                   placeholder="My arm has been hurting for three days after I fell off my bike."
                   className="mt-4 w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
                 />
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 grid grid-cols-2 gap-2">
                   {QUICK_REASONS.map((r) => (
-                    <Pill key={r} onClick={() => setReason(r)}>
+                    <Pill
+                      key={r}
+                      onClick={() => setReason(r)}
+                      className="w-full justify-center text-center"
+                    >
                       {r}
                     </Pill>
                   ))}
@@ -149,28 +187,83 @@ export function DocumentClient() {
                   className="mt-4 w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
                 />
               </div>
-
-              <div className="glass rounded-card p-5 flex items-center justify-between gap-4">
-                <div className="text-meta text-ink-secondary">
-                  The card updates as you type.
-                </div>
-                <Button onClick={print} disabled={!reason.trim()}>
-                  <Printer className="h-4 w-4" /> Print card
-                </Button>
-              </div>
             </div>
 
-            {/* Right: printable card */}
-            <div className="lg:sticky lg:top-24 lg:self-start flex flex-col gap-3">
-              <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary print:hidden">
-                Preview
+            {/* Right: previews */}
+            <div className="flex flex-col gap-6">
+              {/* Preview toggle */}
+              <div className="flex items-center justify-between gap-3 print:hidden">
+                <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
+                  Preview
+                </div>
+                <div className="inline-flex rounded-btn border border-divider bg-surface p-1 text-meta">
+                  <button
+                    onClick={() => setMode("full")}
+                    className={
+                      "px-3 py-1 rounded-btn transition-colors " +
+                      (mode === "full"
+                        ? "bg-accent/15 text-ink-primary font-bold"
+                        : "text-ink-secondary")
+                    }
+                  >
+                    Full Card
+                  </button>
+                  <button
+                    onClick={() => setMode("wallet")}
+                    className={
+                      "px-3 py-1 rounded-btn transition-colors " +
+                      (mode === "wallet"
+                        ? "bg-accent/15 text-ink-primary font-bold"
+                        : "text-ink-secondary")
+                    }
+                  >
+                    Wallet Pass
+                  </button>
+                </div>
               </div>
-              <PrintableCard
-                profile={profile}
-                reason={reason}
-                extraContext={extraContext}
-                goals={goals}
-              />
+
+              {mode === "full" ? (
+                <>
+                  <PrintableCard
+                    profile={profile}
+                    reason={reason}
+                    extraContext={extraContext}
+                    goals={goals}
+                  />
+                  <div className="glass rounded-card p-5 flex items-center justify-between gap-4 print:hidden">
+                    <div className="text-meta text-ink-secondary">
+                      Card updates as you type.
+                    </div>
+                    <Button onClick={print} disabled={!reason.trim()}>
+                      <Printer className="h-4 w-4" /> Print card
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-center py-4">
+                    <div ref={walletRef}>
+                      <WalletPass profile={profile} reason={reason} goals={goals} />
+                    </div>
+                  </div>
+                  <div className="glass rounded-card p-5 flex items-center justify-between gap-4 print:hidden">
+                    <div className="text-meta text-ink-secondary leading-snug">
+                      Saves a high-res PNG.
+                      <br />
+                      Add it to Photos, then Wallet, or AirDrop it.
+                    </div>
+                    <Button onClick={saveWalletPng} disabled={busy || !reason.trim()}>
+                      {busy ? (
+                        <>Saving…</>
+                      ) : (
+                        <>
+                          <Download className="h-4 w-4" /> Save pass
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -226,11 +319,14 @@ const PrintableCard = forwardRef<
   const age = profile.age.trim();
   const sex = profile.sex_assigned_at_birth;
   const meds = profile.medications;
-  const surgeries = profile.surgeries;
+  const surgeries = annotateSurgeries(profile.surgeries);
   const regimen = profile.hormone_regimen_summary.trim();
   const allergies = profile.allergies.filter((a) => a.substance.trim());
   const inventory = profile.anatomical_inventory.trim();
   const filledGoals = goals.map((g) => g.trim()).filter(Boolean);
+
+  const regimenYears = hormoneDuration(regimen);
+  const screenings = screeningReminders(profile);
 
   const demographicBits = [
     age && `age ${age}`,
@@ -271,12 +367,24 @@ const PrintableCard = forwardRef<
         </div>
       </div>
 
-      {/* Allergies strip — first because it changes prescribing */}
-      {allergies.length > 0 && (
-        <div className="mt-4 rounded-card border-2 border-status-banned/80 bg-status-banned/5 p-4">
-          <div className="text-meta uppercase tracking-[0.12em] text-status-banned font-bold">
-            Allergies
-          </div>
+      {/* Allergies — red strip, top of the card */}
+      <div
+        className={
+          "mt-4 rounded-card border-2 p-4 " +
+          (allergies.length > 0
+            ? "border-status-banned/80 bg-status-banned/5"
+            : "border-status-protected/50 bg-status-protected/5")
+        }
+      >
+        <div
+          className={
+            "text-meta uppercase tracking-[0.12em] font-bold " +
+            (allergies.length > 0 ? "text-status-banned" : "text-status-protected")
+          }
+        >
+          Allergies
+        </div>
+        {allergies.length > 0 ? (
           <ul className="mt-2 space-y-0.5 text-meta text-ink-primary">
             {allergies.map((a) => (
               <li key={a.id}>
@@ -287,10 +395,12 @@ const PrintableCard = forwardRef<
               </li>
             ))}
           </ul>
-        </div>
-      )}
+        ) : (
+          <div className="mt-1 text-meta text-ink-secondary">No known allergies.</div>
+        )}
+      </div>
 
-      {/* Anatomical inventory — addresses gendered EHR defaults */}
+      {/* Anatomical inventory */}
       {inventory && (
         <div className="mt-3 rounded-card border border-divider bg-surface-inset/40 p-3">
           <span className="text-meta uppercase tracking-[0.12em] text-ink-secondary font-bold">
@@ -332,8 +442,13 @@ const PrintableCard = forwardRef<
 
       {/* Box 2 */}
       <div className="mt-4 rounded-card border-2 border-ink-secondary/40 p-5 bg-surface-inset/40">
-        <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary font-bold">
-          Box 2 · Hormone Context (Not Today&apos;s Reason)
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary font-bold">
+            Box 2 · Hormone Context (Not Today&apos;s Reason)
+          </div>
+          {regimenYears && (
+            <div className="text-meta text-ink-secondary">{regimenYears}</div>
+          )}
         </div>
         <div className="mt-3 space-y-2 text-meta text-ink-primary leading-relaxed">
           {regimen && <p>{regimen}</p>}
@@ -361,6 +476,11 @@ const PrintableCard = forwardRef<
                     {s.date && (
                       <span className="text-ink-secondary"> · {s.date}</span>
                     )}
+                    {s.postop && (
+                      <span className="ml-2 text-accent font-bold">
+                        · {s.postop}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -368,6 +488,26 @@ const PrintableCard = forwardRef<
           )}
         </div>
       </div>
+
+      {/* Screening reminders — derived, not echoed */}
+      {screenings.length > 0 && (
+        <div className="mt-4 rounded-card border border-divider p-5">
+          <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary font-bold">
+            Screening windows · USPSTF general guidance
+          </div>
+          <ul className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-meta text-ink-primary">
+            {screenings.map((s) => (
+              <li key={s.label}>
+                <span className="font-bold">{s.label}</span>{" "}
+                <span className="text-ink-secondary">{s.detail}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-2 text-[11px] text-ink-secondary">
+            Derived from anatomy + age. Reminders only — not a recommendation.
+          </div>
+        </div>
+      )}
 
       {extraContext.trim() && (
         <div className="mt-4 rounded-card border border-divider p-5">
