@@ -150,73 +150,56 @@ function TrustSection() {
       tag: "Medications",
       name: "RxNorm",
       org: "U.S. National Library of Medicine",
-      role: "Real drug names, with autocomplete as you type.",
       url: "https://rxnav.nlm.nih.gov/",
     },
     {
       tag: "Recalls",
       name: "openFDA",
       org: "U.S. Food & Drug Administration",
-      role: "Live drug recalls and adverse event reports.",
       url: "https://open.fda.gov/apis/drug/",
     },
     {
       tag: "Studies",
       name: "PubMed",
       org: "National Center for Biotechnology Information",
-      role: "Trans HRT research citations, on demand.",
       url: "https://eutils.ncbi.nlm.nih.gov/",
     },
   ];
   return (
-    <section className="pb-section">
+    <section className="pb-20">
       <Container>
-        <div className="text-center max-w-[640px] mx-auto">
-          <div className="inline-flex items-center gap-2.5">
-            <span className="relative flex h-2 w-2" aria-hidden>
+        <div className="flex flex-col items-center gap-4">
+          <div className="inline-flex items-center gap-2 text-meta uppercase tracking-[0.18em] font-medium text-ink-secondary">
+            <span className="relative flex h-1.5 w-1.5" aria-hidden>
               <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70 animate-ping" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </span>
-            <span className="text-meta uppercase tracking-[0.18em] font-medium text-ink-secondary">
-              Live Sources
-            </span>
+            Live Sources
           </div>
-          <p className="mt-4 text-body text-ink-secondary leading-snug">
-            Every reading is cross-checked against public medical databases — nothing here is invented.
-          </p>
-        </div>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {sources.map((s) => (
-            <a
-              key={s.name}
-              href={s.url}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`${s.name} — ${s.org}. Opens in a new tab.`}
-              className="group relative flex flex-col glass rounded-card p-7 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cardHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sea-deep focus-visible:ring-offset-2"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <span className="inline-flex items-center rounded-chip bg-sea-foam/70 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] font-bold text-sea-deep">
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {sources.map((s) => (
+              <a
+                key={s.name}
+                href={s.url}
+                target="_blank"
+                rel="noreferrer"
+                title={s.org}
+                aria-label={`${s.name} — ${s.org}. Opens in a new tab.`}
+                className="group inline-flex items-center gap-2 rounded-chip glass px-3.5 py-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cardHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sea-deep focus-visible:ring-offset-2"
+              >
+                <span className="text-[10px] uppercase tracking-[0.12em] font-bold text-sea-deep">
                   {s.tag}
                 </span>
+                <span className="text-meta text-sea-ink font-medium">
+                  {s.name}
+                </span>
                 <ExternalLink
-                  className="h-3.5 w-3.5 text-ink-secondary/50 transition-all duration-200 group-hover:text-sea-deep group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  className="h-3 w-3 text-ink-secondary/50 transition-colors duration-200 group-hover:text-sea-deep"
                   aria-hidden
                 />
-              </div>
-
-              <div className="mt-5 text-card text-sea-ink leading-tight">
-                {s.name}
-              </div>
-              <div className="mt-1 text-meta text-ink-secondary">{s.org}</div>
-
-              <div className="mt-5 h-px w-full bg-gradient-to-r from-sea-mist/70 via-sea-mist/20 to-transparent" />
-
-              <p className="mt-4 text-meta text-ink-primary leading-relaxed">
-                {s.role}
-              </p>
-            </a>
-          ))}
+              </a>
+            ))}
+          </div>
         </div>
       </Container>
     </section>
