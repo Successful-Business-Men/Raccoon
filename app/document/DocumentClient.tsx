@@ -1,511 +1,265 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { forwardRef, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowUp, Download, Loader2, MapPin } from "lucide-react";
+import { Printer, AlertCircle } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
-import { cn } from "@/lib/cn";
-import type { IncidentPacket, ProtectionRecord, SeedIncident } from "@/types";
-import { getPlace } from "@/lib/score";
-import { appendIncident } from "@/lib/placeIncidents";
+import {
+  emptyProfile,
+  loadProfile,
+  type Profile,
+} from "@/lib/profile";
 
-type ChatMsg = { role: "user" | "assistant"; content: string };
-
-const OPENER: ChatMsg = {
-  role: "assistant",
-  content:
-    "What kind of incident are you documenting? You can type freely, or pick a category to start.",
-};
-
-const CATEGORY_CHIPS: Array<{ label: string; value: string }> = [
-  {
-    label: "Violence or threat to safety",
-    value: "I'd like to document a violent incident or threat to my safety.",
-  },
-  {
-    label: "Education (Title IX)",
-    value: "I'd like to document an incident at a school or university.",
-  },
-  { label: "Housing", value: "I'd like to document a housing incident." },
-  { label: "Employment", value: "I'd like to document an employment incident." },
-  { label: "Healthcare", value: "I'd like to document a healthcare incident." },
-  {
-    label: "Public accommodation",
-    value: "I'd like to document a public accommodation incident.",
-  },
-  { label: "Other", value: "I'd like to document another kind of incident." },
+const QUICK_REASONS = [
+  "My arm hurts.",
+  "I have a sore throat.",
+  "I'm here for a yearly physical.",
+  "I sprained my ankle.",
+  "I have a rash.",
+  "I'm having migraines.",
+  "I have chest pain.",
+  "Follow-up on a previous visit.",
 ];
 
 export function DocumentClient() {
-  const params = useSearchParams();
-  const placeId = params.get("place_id") || undefined;
-  const place = useMemo(() => (placeId ? getPlace(placeId) : undefined), [placeId]);
+  const [profile, setProfile] = useState<Profile>(emptyProfile());
+  const [reason, setReason] = useState("");
+  const [extraContext, setExtraContext] = useState("");
+  const [loaded, setLoaded] = useState(false);
 
-  const [messages, setMessages] = useState<ChatMsg[]>(() =>
-    place
-      ? [
-          {
-            role: "assistant",
-            content: `Documenting an incident at ${place.name} (${place.city}, ${place.state_code}). What kind of incident are you documenting? You can type freely, or pick a category.`,
-          },
-        ]
-      : [OPENER]
-  );
-  const [packet, setPacket] = useState<IncidentPacket>(() =>
-    place
-      ? {
-          incident_location_city: place.city,
-          incident_location_state: place.state_code,
-        }
-      : {}
-  );
-  const [busy, setBusy] = useState(false);
-  const [input, setInput] = useState("");
-  const [streamingText, setStreamingText] = useState("");
-  const [savedToPlace, setSavedToPlace] = useState(false);
-  const chatRef = useRef<HTMLDivElement>(null);
-
-  // When the packet hits "ready" and we have a place_id, write the
-  // incident to the local Safety Score feed so the score updates live.
   useEffect(() => {
-    if (!place || savedToPlace) return;
-    if (!isPacketReady(packet)) return;
-    const incident: SeedIncident = {
-      date: packet.incident_date || new Date().toISOString().slice(0, 10),
-      severity: "medium",
-      type: packet.incident_type || "other",
-      source: "user_report",
-      summary: (packet.summary || packet.what_happened || "User-reported incident").slice(0, 240),
-    };
-    appendIncident(place.place_id, incident);
-    setSavedToPlace(true);
-  }, [packet, place, savedToPlace]);
+    setProfile(loadProfile());
+    setLoaded(true);
+  }, []);
 
-  // Auto-scroll
-  useEffect(() => {
-    chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, streamingText]);
+  const hasProfile =
+    profile.medications.length > 0 ||
+    profile.surgeries.length > 0 ||
+    profile.hormone_regimen_summary.length > 0;
 
-  async function send(userText: string) {
-    if (!userText.trim() || busy) return;
-    setInput("");
-    const userMsg: ChatMsg = { role: "user", content: userText };
-    const nextMessages = [...messages, userMsg];
-    setMessages(nextMessages);
-    setBusy(true);
-    setStreamingText("");
-
-    try {
-      const res = await fetch("/api/document", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          // Drop the seeded opener from the wire — server uses its own system prompt.
-          messages: nextMessages
-            .slice(1)
-            .map((m) => ({ role: m.role, content: m.content })),
-        }),
-      });
-
-      if (!res.ok || !res.body) {
-        throw new Error(`Server error (${res.status})`);
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let assistantText = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const events = buffer.split("\n\n");
-        buffer = events.pop() || "";
-        for (const evt of events) {
-          if (!evt.startsWith("data: ")) continue;
-          const json = evt.slice(6);
-          try {
-            const data = JSON.parse(json);
-            if (data.type === "text") {
-              assistantText += data.delta;
-              setStreamingText(assistantText);
-            } else if (data.type === "packet_update") {
-              setPacket((p) => mergePacket(p, data.patch));
-            } else if (data.type === "error") {
-              assistantText +=
-                (assistantText ? "\n\n" : "") + "*An error occurred. Please try again.*";
-              setStreamingText(assistantText);
-            }
-          } catch {
-            // ignore malformed chunks
-          }
-        }
-      }
-
-      if (assistantText.trim()) {
-        setMessages((m) => [...m, { role: "assistant", content: assistantText }]);
-      }
-    } catch (e) {
-      setMessages((m) => [
-        ...m,
-        {
-          role: "assistant",
-          content:
-            "Something went wrong reaching the server. Please try again in a moment.",
-        },
-      ]);
-    } finally {
-      setStreamingText("");
-      setBusy(false);
-    }
+  function print() {
+    window.print();
   }
-
-  const showOpenerChips = messages.length === 1 && !busy;
-  const packetReady = isPacketReady(packet);
 
   return (
     <div className="page-ocean">
       <PageHero
-        eyebrow="Document an incident"
-        title="A structured record you can hand to a lawyer or filing agency."
-        description="A short conversation builds a packet: what happened, who was involved, what evidence exists, and which legal protections apply. Free, private, downloadable as PDF."
+        eyebrow="Pre-visit card"
+        title="Hand it to the front desk. The doctor reads it in 30 seconds."
+        description="Two boxes. Box 1: the thing that hurts. Box 2: I take hormones — and this is not why. Print it, screenshot it, or just show your phone."
       />
+
       <Container className="pb-16">
-      <div className="grid gap-8 lg:grid-cols-[3fr_2fr]">
-        {/* Chat column */}
-        <div className="flex flex-col min-h-[70vh] gap-4">
-          {place && (
-            <div className="rounded-card glass p-4 flex items-start gap-3">
-              <MapPin className="h-4 w-4 mt-1 shrink-0 text-ink-primary" />
-              <div className="flex-1 text-meta">
-                <div className="text-ink-primary font-bold">
-                  Filing at {place.name}
-                </div>
-                <div className="text-ink-secondary">
-                  {place.address} · {place.city}, {place.state_code} ·{" "}
-                  {savedToPlace ? (
-                    <Link
-                      href={`/places`}
-                      className="text-status-protected underline-offset-4 hover:underline"
-                    >
-                      Added to Safety Score ↗
-                    </Link>
-                  ) : (
-                    "will feed the Safety Score once the packet is filled"
-                  )}
-                </div>
+        {!loaded ? null : !hasProfile ? (
+          <div className="glass rounded-card p-7 flex items-start gap-4">
+            <AlertCircle className="h-5 w-5 mt-0.5 shrink-0 text-status-restricted" />
+            <div>
+              <h2 className="text-subsection">Set up your profile first</h2>
+              <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
+                The "this is not why I'm here" box pulls from your medications
+                and surgical history. Add at least one medication or a regimen
+                summary, then come back.
+              </p>
+              <div className="mt-4">
+                <Link href="/places">
+                  <Button size="sm">Go to your profile</Button>
+                </Link>
               </div>
             </div>
-          )}
-
-          {/* One bounded surface so the conversation has an unmistakable
-              start (titled header) and end (input footer). */}
-          <div className="glass rounded-card flex flex-1 flex-col overflow-hidden">
-            <div className="border-b divider-soft px-7 py-5">
-              <h2 className="text-subsection">Conversation</h2>
-              <p className="mt-1 text-meta text-ink-secondary">
-                Answer in your own words — your packet fills in on the right as we talk.
-              </p>
-            </div>
-
-            <div
-              ref={chatRef}
-              className="flex-1 overflow-y-auto px-7 py-6 space-y-4"
-            >
-              {messages.map((m, i) => (
-                <Bubble key={i} role={m.role} text={m.content} />
-              ))}
-              {streamingText && <Bubble role="assistant" text={streamingText} streaming />}
-              {busy && !streamingText && (
-                <div className="flex items-center gap-2 text-ink-secondary text-meta">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Thinking…
-                </div>
-              )}
-            </div>
-
-            <div className="border-t divider-soft px-7 py-5 space-y-3">
-              {showOpenerChips && (
-                <div className="flex flex-wrap gap-2">
-                  {CATEGORY_CHIPS.map((c) => (
-                    <Pill key={c.label} onClick={() => send(c.value)}>
-                      {c.label}
+          </div>
+        ) : (
+          <div className="grid gap-8 lg:grid-cols-[2fr_3fr]">
+            {/* Left: inputs */}
+            <div className="flex flex-col gap-6 print:hidden">
+              <div className="glass rounded-card p-7">
+                <h2 className="text-subsection">Today's reason</h2>
+                <p className="mt-1 text-meta text-ink-secondary">
+                  In your own words. Plain language is best.
+                </p>
+                <textarea
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  rows={4}
+                  placeholder="My arm has been hurting for three days after I fell off my bike."
+                  className="mt-4 w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
+                />
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {QUICK_REASONS.map((r) => (
+                    <Pill key={r} onClick={() => setReason(r)}>
+                      {r}
                     </Pill>
                   ))}
                 </div>
-              )}
+              </div>
 
-              <ChatInput
-                value={input}
-                onChange={setInput}
-                onSend={() => send(input)}
-                disabled={busy}
+              <div className="glass rounded-card p-7">
+                <h2 className="text-subsection">Anything else?</h2>
+                <p className="mt-1 text-meta text-ink-secondary">
+                  Allergies, recent injuries, anything you want the doctor to
+                  see at a glance. Optional.
+                </p>
+                <textarea
+                  value={extraContext}
+                  onChange={(e) => setExtraContext(e.target.value)}
+                  rows={3}
+                  placeholder="Allergic to penicillin. Currently 8 weeks post-op from top surgery."
+                  className="mt-4 w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
+                />
+              </div>
+
+              <div className="glass rounded-card p-7 flex items-center justify-between gap-4">
+                <div className="text-meta text-ink-secondary">
+                  The card updates as you type.
+                </div>
+                <Button onClick={print} disabled={!reason.trim()}>
+                  <Printer className="h-4 w-4" /> Print card
+                </Button>
+              </div>
+            </div>
+
+            {/* Right: printable card */}
+            <div className="lg:sticky lg:top-24 lg:self-start">
+              <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary mb-3 print:hidden">
+                Preview
+              </div>
+              <PrintableCard
+                profile={profile}
+                reason={reason}
+                extraContext={extraContext}
               />
             </div>
           </div>
+        )}
+      </Container>
+
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          .printable-card,
+          .printable-card * {
+            visibility: visible !important;
+          }
+          .printable-card {
+            position: absolute !important;
+            left: 0;
+            top: 0;
+            width: 100%;
+            box-shadow: none !important;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+const PrintableCard = forwardRef<
+  HTMLDivElement,
+  { profile: Profile; reason: string; extraContext: string }
+>(function PrintableCard({ profile, reason, extraContext }, ref) {
+  const name = profile.display_name.trim();
+  const pronouns = profile.pronouns.trim();
+  const meds = profile.medications;
+  const surgeries = profile.surgeries;
+  const regimen = profile.hormone_regimen_summary.trim();
+
+  return (
+    <div
+      ref={ref}
+      className="printable-card glass-strong rounded-card p-8 shadow-cardHover bg-white"
+    >
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 border-b divider-soft pb-4">
+          <div>
+            <div className="text-meta uppercase tracking-[0.18em] text-ink-secondary">
+              Pre-visit card
+            </div>
+            <div className="mt-1 text-card">
+              {name || "Patient"}
+              {pronouns && (
+                <span className="ml-2 text-meta text-ink-secondary font-normal">
+                  ({pronouns})
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="text-meta text-ink-secondary text-right">
+            {new Date().toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </div>
         </div>
 
-        {/* Packet preview column */}
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          <PacketPreview packet={packet} ready={packetReady} />
-        </aside>
-      </div>
-      </Container>
-    </div>
-  );
-}
+        {/* Box 1 */}
+        <div className="mt-5 rounded-card border-2 border-accent/70 p-5">
+          <div className="text-meta uppercase tracking-[0.12em] text-accent font-bold">
+            Box 1 — Today I am here because
+          </div>
+          <p className="mt-2 text-body text-ink-primary whitespace-pre-wrap leading-relaxed">
+            {reason || "—"}
+          </p>
+        </div>
 
-function Bubble({
-  role,
-  text,
-  streaming,
-}: {
-  role: "user" | "assistant";
-  text: string;
-  streaming?: boolean;
-}) {
-  const isUser = role === "user";
-  return (
-    <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
-      <div
-        className={cn(
-          "max-w-[85%] rounded-card px-5 py-3.5 text-body leading-relaxed whitespace-pre-wrap",
-          isUser
-            ? "bg-accent text-white"
-            : "glass-strong text-ink-primary"
-        )}
-      >
-        {text}
-        {streaming && <span className="inline-block w-2 h-4 ml-0.5 bg-ink-primary/40 animate-pulse align-middle" />}
-      </div>
-    </div>
-  );
-}
-
-function ChatInput({
-  value,
-  onChange,
-  onSend,
-  disabled,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  onSend: () => void;
-  disabled: boolean;
-}) {
-  return (
-    <div className="glass-inset rounded-btn p-2 flex items-end gap-2 border border-divider">
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            onSend();
-          }
-        }}
-        placeholder="Type a reply…"
-        rows={1}
-        className="flex-1 resize-none bg-transparent px-3 py-2 text-body placeholder:text-ink-secondary focus:outline-none"
-        style={{ minHeight: 40, maxHeight: 160 }}
-        disabled={disabled}
-      />
-      <Button
-        onClick={onSend}
-        disabled={disabled || !value.trim()}
-        size="sm"
-        aria-label="Send"
-        className="h-10 w-10 p-0"
-      >
-        <ArrowUp className="h-4 w-4" />
-      </Button>
-    </div>
-  );
-}
-
-function PacketPreview({ packet, ready }: { packet: IncidentPacket; ready: boolean }) {
-  const [downloading, setDownloading] = useState(false);
-  async function download() {
-    setDownloading(true);
-    try {
-      const res = await fetch("/api/document/pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ packet }),
-      });
-      if (!res.ok) throw new Error("PDF generation failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "seagull-incident-packet.pdf";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      alert("Couldn't generate PDF. Please try again.");
-    } finally {
-      setDownloading(false);
-    }
-  }
-
-  return (
-    <div className="glass rounded-card p-7">
-      <div className="flex items-center justify-between">
-        <h2 className="text-subsection">Your packet</h2>
-        {ready && (
-          <Button size="sm" onClick={download} disabled={downloading}>
-            {downloading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="h-4 w-4" />
+        {/* Box 2 */}
+        <div className="mt-4 rounded-card border-2 border-ink-secondary/40 p-5 bg-surface-inset/40">
+          <div className="text-meta uppercase tracking-[0.12em] text-ink-primary font-bold">
+            Box 2 — I am on hormones. This is NOT why I am here today.
+          </div>
+          <div className="mt-3 space-y-2 text-meta text-ink-primary leading-relaxed">
+            {regimen && <p>{regimen}</p>}
+            {meds.length > 0 && (
+              <div>
+                <div className="uppercase tracking-[0.1em] text-ink-secondary text-[11px]">
+                  Medications
+                </div>
+                <ul className="mt-1 list-disc pl-5 space-y-0.5">
+                  {meds.map((m) => (
+                    <li key={m.id}>{m.description || "—"}</li>
+                  ))}
+                </ul>
+              </div>
             )}
-            PDF
-          </Button>
+            {surgeries.length > 0 && (
+              <div>
+                <div className="uppercase tracking-[0.1em] text-ink-secondary text-[11px]">
+                  Surgical history
+                </div>
+                <ul className="mt-1 list-disc pl-5 space-y-0.5">
+                  {surgeries.map((s) => (
+                    <li key={s.id}>
+                      {s.description || "—"}
+                      {s.date && (
+                        <span className="text-ink-secondary"> · {s.date}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {extraContext.trim() && (
+          <div className="mt-4 rounded-card border border-divider p-5">
+            <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
+              Other context
+            </div>
+            <p className="mt-2 text-meta text-ink-primary whitespace-pre-wrap leading-relaxed">
+              {extraContext}
+            </p>
+          </div>
         )}
-      </div>
 
-      <div className="mt-5 divide-y divider-soft">
-        <Field label="Incident type" value={prettyIncidentType(packet.incident_type)} />
-        <Field
-          label="Date and location"
-          value={
-            [packet.incident_date, packet.incident_location_city, packet.incident_location_state]
-              .filter(Boolean)
-              .join(" · ") || null
-          }
-        />
-        <Field label="What happened" value={packet.what_happened} clamp />
-        <Field
-          label="Parties involved"
-          value={
-            packet.parties_involved && packet.parties_involved.length
-              ? packet.parties_involved
-                  .map((p) => `${p.name}${p.role ? ` (${p.role})` : ""}`)
-                  .join("\n")
-              : null
-          }
-        />
-        <Field
-          label="Witnesses"
-          value={
-            packet.witnesses && packet.witnesses.length
-              ? packet.witnesses
-                  .map((w) => `${w.name}${w.contact ? ` · ${w.contact}` : ""}`)
-                  .join("\n")
-              : null
-          }
-        />
-        <Field
-          label="Evidence"
-          value={
-            packet.evidence && packet.evidence.length
-              ? packet.evidence.map((e) => `${e.type}: ${e.description}`).join("\n")
-              : null
-          }
-        />
-        <Field
-          label="Applicable protections"
-          value={
-            packet.applicable_protections && packet.applicable_protections.length
-              ? packet.applicable_protections
-                  .map((p: ProtectionRecord) => p.title)
-                  .join("\n")
-              : null
-          }
-        />
-      </div>
-
-      {!ready && (
-        <p className="mt-6 text-meta text-ink-secondary">
-          Sections fill in as we go.
-        </p>
-      )}
-    </div>
-  );
-}
-
-function Field({
-  label,
-  value,
-  clamp,
-}: {
-  label: string;
-  value: string | null | undefined;
-  clamp?: boolean;
-}) {
-  return (
-    <div className="py-3">
-      <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
-        {label}
-      </div>
-      <div
-        className={cn(
-          "mt-1.5 text-body whitespace-pre-wrap",
-          value ? "text-ink-primary" : "text-ink-secondary",
-          clamp && "line-clamp-4"
-        )}
-      >
-        {value || "Not yet captured"}
+      <div className="mt-5 pt-4 border-t divider-soft text-meta text-ink-secondary leading-relaxed">
+        This card was made by the patient using Seagull. It is a
+        self-report, not a medical record.
       </div>
     </div>
   );
-}
-
-function isPacketReady(p: IncidentPacket): boolean {
-  return Boolean(
-    p.incident_type && p.what_happened && (p.parties_involved?.length || p.evidence?.length)
-  );
-}
-
-function prettyIncidentType(t: IncidentPacket["incident_type"]): string | null {
-  if (!t) return null;
-  return (
-    {
-      violence: "Violence or threat to safety",
-      education: "Education (Title IX)",
-      housing: "Housing",
-      employment: "Employment",
-      healthcare: "Healthcare",
-      public_accommodation: "Public accommodation",
-      other: "Other",
-    }[t] || null
-  );
-}
-
-function mergePacket(prev: IncidentPacket, patch: any): IncidentPacket {
-  return {
-    ...prev,
-    ...patch,
-    // Concatenate arrays rather than replace, so multiple updates accumulate.
-    parties_involved: dedupBy(
-      [...(prev.parties_involved || []), ...(patch.parties_involved || [])],
-      (p) => `${p.name}|${p.role}`
-    ),
-    witnesses: dedupBy(
-      [...(prev.witnesses || []), ...(patch.witnesses || [])],
-      (w) => `${w.name}|${w.contact || ""}`
-    ),
-    evidence: dedupBy(
-      [...(prev.evidence || []), ...(patch.evidence || [])],
-      (e) => `${e.type}|${e.description}`
-    ),
-    applicable_protections:
-      patch.applicable_protections || prev.applicable_protections,
-  };
-}
-
-function dedupBy<T>(arr: T[], key: (t: T) => string): T[] {
-  const seen = new Set<string>();
-  const out: T[] = [];
-  for (const item of arr) {
-    const k = key(item);
-    if (seen.has(k)) continue;
-    seen.add(k);
-    out.push(item);
-  }
-  return out;
-}
+});

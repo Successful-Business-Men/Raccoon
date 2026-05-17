@@ -2,10 +2,10 @@ import { Suspense } from "react";
 import { DocumentClient } from "./DocumentClient";
 
 export const metadata = {
-  title: "Document an incident — Seagull",
+  title: "Pre-visit Card — Seagull",
 };
 
-export default function DocumentPage() {
+export default function VisitCardPage() {
   return (
     <Suspense fallback={null}>
       <DocumentClient />

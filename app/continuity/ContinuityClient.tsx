@@ -1,1450 +1,715 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  AlertTriangle,
-  BookmarkPlus,
-  Download,
-  FileText,
-  Info,
+  AlertCircle,
+  CheckCircle2,
+  HelpCircle,
   Loader2,
-  MapPin,
-  RotateCcw,
-  Shield,
+  AlertTriangle,
+  Users,
   Sparkles,
-  Trash2,
+  Upload,
+  FileText,
+  Image as ImageIcon,
+  X,
+  BookOpen,
+  ExternalLink,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
 import { cn } from "@/lib/cn";
-import { STATE_OPTIONS } from "@/data/care_status";
-import { documentsForCareTypes } from "@/data/required_documents";
-import {
-  PHASE_LABELS,
-  PHASE_ORDER,
-  flattenPlan,
-  itemsByPhase,
-  phaseOf,
-  topNowItems,
-  type ChecklistSectionKey,
-  type FlatItem,
-} from "@/lib/continuity/phases";
-import {
-  clearLocal,
-  loadLocal,
-  saveLocal,
-  saveLocalImmediate,
-} from "@/lib/continuity/storage";
-import type {
-  CareType,
-  ContinuityIntake,
-  ContinuityPlan,
-  InsuranceType,
-  Phase,
-  RiskLevel,
-  TelehealthAvailability,
-  Timeline,
-} from "@/types";
-import { supabaseBrowser } from "@/lib/supabase/client";
+import { emptyProfile, loadProfile, type Profile } from "@/lib/profile";
 
-const CARE_TYPES: Array<{ id: CareType; label: string }> = [
-  { id: "hrt", label: "HRT" },
-  { id: "surgery_aftercare", label: "Surgery aftercare" },
-  { id: "mental_health", label: "Mental health" },
-  { id: "primary_care", label: "Primary care" },
-  { id: "reproductive_health", label: "Reproductive health" },
-  { id: "other", label: "Other" },
+type Verdict =
+  | "likely_normal_for_regimen"
+  | "borderline_ask_doctor"
+  | "outside_hrt_explanation"
+  | "unflagged";
+
+interface LabInterpretation {
+  verdict: Verdict;
+  headline: string;
+  explanation: string;
+  ask_doctor_about: string;
+}
+
+interface ParsedItem {
+  name: string;
+  value: string;
+  unit: string;
+  flag: string;
+  verdict: string;
+  note: string;
+}
+
+interface ParsedReport {
+  report_date: string;
+  summary: string;
+  items: ParsedItem[];
+}
+
+const COMMON_LABS = [
+  { name: "Hematocrit", unit: "%" },
+  { name: "Hemoglobin", unit: "g/dL" },
+  { name: "Estradiol", unit: "pg/mL" },
+  { name: "Testosterone (total)", unit: "ng/dL" },
+  { name: "Prolactin", unit: "ng/mL" },
+  { name: "ALT", unit: "U/L" },
+  { name: "Creatinine", unit: "mg/dL" },
+  { name: "Potassium", unit: "mEq/L" },
+  { name: "TSH", unit: "mIU/L" },
 ];
-
-const INSURANCE_TYPES: Array<{ id: InsuranceType; label: string }> = [
-  { id: "employer", label: "Employer" },
-  { id: "marketplace", label: "Marketplace (ACA)" },
-  { id: "medicaid", label: "Medicaid" },
-  { id: "medicare", label: "Medicare" },
-  { id: "uninsured", label: "Uninsured" },
-  { id: "other", label: "Other" },
-];
-
-const TIMELINES: Array<{ id: Timeline; label: string }> = [
-  { id: "immediate", label: "Immediate (within 30 days)" },
-  { id: "soon", label: "Soon (1–3 months)" },
-  { id: "planning", label: "Planning (3–6 months)" },
-  { id: "exploring", label: "Exploring (no firm timeline)" },
-];
-
-const TELEHEALTH: Array<{ id: TelehealthAvailability; label: string }> = [
-  { id: "yes", label: "Yes" },
-  { id: "no", label: "No" },
-  { id: "unsure", label: "Unsure" },
-  { id: "na", label: "Not applicable" },
-];
-
-const RISK_STYLES: Record<
-  RiskLevel,
-  { dot: string; bg: string; ring: string; label: string }
-> = {
-  low: {
-    dot: "bg-status-protected",
-    bg: "bg-status-protected/10",
-    ring: "ring-status-protected/30",
-    label: "Low risk",
-  },
-  moderate: {
-    dot: "bg-status-legal",
-    bg: "bg-status-legal/15",
-    ring: "ring-status-legal/40",
-    label: "Moderate risk",
-  },
-  high: {
-    dot: "bg-status-restricted",
-    bg: "bg-status-restricted/10",
-    ring: "ring-status-restricted/30",
-    label: "High risk",
-  },
-  critical: {
-    dot: "bg-status-banned",
-    bg: "bg-status-banned/10",
-    ring: "ring-status-banned/30",
-    label: "Critical risk",
-  },
-};
-
-const DEFAULT_INTAKE: ContinuityIntake = {
-  current_state: "",
-  destination_state: "",
-  care_types: [],
-  insurance_type: "employer",
-  timeline: "planning",
-  medication_supply_days: undefined,
-  telehealth_available: "unsure",
-};
 
 export function ContinuityClient() {
-  const [intake, setIntake] = useState<ContinuityIntake>(DEFAULT_INTAKE);
-  const [plan, setPlan] = useState<ContinuityPlan | null>(null);
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hydrated, setHydrated] = useState(false);
-  const [showRestored, setShowRestored] = useState(false);
-  const [panicOpen, setPanicOpen] = useState(false);
-  const [savePrompt, setSavePrompt] = useState(false);
+  const [profile, setProfile] = useState<Profile>(emptyProfile());
+  const [loaded, setLoaded] = useState(false);
 
-  // Hydrate from localStorage once on mount.
   useEffect(() => {
-    const saved = loadLocal();
-    if (saved) {
-      setIntake(saved.intake);
-      setPlan(saved.plan);
-      setChecked(saved.checked);
-      if (saved.plan) setShowRestored(true);
-    }
-    setHydrated(true);
+    setProfile(loadProfile());
+    setLoaded(true);
   }, []);
 
-  // Persist on any meaningful change (debounced inside saveLocal).
-  useEffect(() => {
-    if (!hydrated) return;
-    saveLocal({ intake, plan, checked });
-  }, [intake, plan, checked, hydrated]);
-
-  // Esc key opens panic confirm (but not when focus is in a form field).
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key !== "Escape") return;
-      const tag = (e.target as HTMLElement | null)?.tagName?.toLowerCase();
-      const isField =
-        tag === "input" ||
-        tag === "textarea" ||
-        tag === "select" ||
-        (e.target as HTMLElement | null)?.isContentEditable;
-      if (isField) return;
-      if (loadLocal()) setPanicOpen(true);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
-  function panicClear() {
-    clearLocal();
-    setIntake(DEFAULT_INTAKE);
-    setPlan(null);
-    setChecked({});
-    setError(null);
-    setShowRestored(false);
-    setPanicOpen(false);
-  }
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!intake.current_state) {
-      setError("Please pick your current state.");
-      return;
-    }
-    if (intake.care_types.length === 0) {
-      setError("Please choose at least one care type.");
-      return;
-    }
-    setError(null);
-    setSubmitting(true);
-    setPlan(null);
-    setChecked({});
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(intake),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Plan generation failed.");
-      }
-      const data = (await res.json()) as { plan: ContinuityPlan };
-      setPlan(data.plan);
-      setShowRestored(false);
-    } catch (e: any) {
-      setError(e?.message || "Something went wrong.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
+  const hasProfile =
+    profile.medications.length > 0 || profile.hormone_regimen_summary.length > 0;
 
   return (
     <div className="page-ocean">
       <PageHero
-        eyebrow="Continuity of care"
-        title="Plan a move without losing access to your care."
-        description="Tell us where you are and what you need. We'll generate a personalized checklist — records, insurance, medication risk, legal — with the most urgent steps surfaced first."
+        eyebrow="Lab check"
+        title="A weird number isn't always a problem."
+        description="Upload your full blood report, or type a single value. Either way you get a plain-language read against your hormones. Not medical advice — just translation."
       />
-      <Container size="plan" className="pb-16">
 
-      <div className="rounded-card bg-surface-inset p-5 mb-6 flex gap-3 items-start text-meta text-ink-secondary">
-        <Shield className="h-5 w-5 mt-0.5 shrink-0 text-ink-primary" />
-        <div>
-          <div>
-            Your plan lives in <strong className="text-ink-primary">this browser</strong>.
-            Seagull never sees it unless you choose to sync. Hit{" "}
-            <kbd className="rounded border border-divider bg-surface px-1.5 py-0.5 text-meta font-medium">
-              Esc
-            </kbd>{" "}
-            to wipe everything instantly.
-          </div>
-          <div className="mt-1">
-            Seagull does <strong className="text-ink-primary">not</strong>{" "}
-            recommend specific providers, bridge medications, or give clinical
-            advice. We help you organize your own plan.
-          </div>
-        </div>
-      </div>
+      <Container className="pb-16">
+        <div className="grid gap-8 lg:grid-cols-[3fr_2fr]">
+          <div className="flex flex-col gap-6">
+            {loaded && !hasProfile && (
+              <div className="glass rounded-card p-6 flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 mt-0.5 shrink-0 text-status-restricted" />
+                <div className="text-meta text-ink-secondary leading-relaxed">
+                  <span className="text-ink-primary font-bold">
+                    Heads up — we don't know your regimen yet.
+                  </span>{" "}
+                  We'll still answer, but it'll be generic. Add your hormones
+                  on the <Link href="/places" className="underline">profile page</Link>{" "}
+                  (smart-fill takes one sentence) for a tailored read.
+                </div>
+              </div>
+            )}
 
-      {showRestored && plan && (
-        <div className="rounded-btn bg-status-protected/10 border border-status-protected/30 px-4 py-3 mb-6 flex items-center justify-between gap-3 text-meta">
-          <span>
-            Restored your plan from this browser. Progress and edits saved.
-          </span>
-          <button
-            type="button"
-            onClick={() => setShowRestored(false)}
-            className="text-ink-secondary hover:text-ink-primary underline-offset-4 hover:underline"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
+            <UploadReport profile={profile} />
 
-      {!plan && (
-        <form onSubmit={submit} className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <FormCard label="Current state">
-              <StateSelect
-                value={intake.current_state}
-                onChange={(v) => setIntake({ ...intake, current_state: v })}
-                placeholder="Select your current state"
-              />
-            </FormCard>
-
-            <FormCard label="Destination" hint="Optional — pick 'exploring' if undecided.">
-              <StateSelect
-                value={intake.destination_state || ""}
-                onChange={(v) => setIntake({ ...intake, destination_state: v })}
-                placeholder="Select destination"
-                allowExploring
-              />
-            </FormCard>
+            <SingleValueCheck profile={profile} />
           </div>
 
-          <FormCard label="Current care types" hint="Select all that apply.">
-            <div className="flex flex-wrap gap-2">
-              {CARE_TYPES.map((c) => {
-                const selected = intake.care_types.includes(c.id);
-                return (
-                  <Pill
-                    key={c.id}
-                    selected={selected}
-                    onClick={() =>
-                      setIntake({
-                        ...intake,
-                        care_types: selected
-                          ? intake.care_types.filter((x) => x !== c.id)
-                          : [...intake.care_types, c.id],
-                      })
-                    }
+          <aside className="lg:sticky lg:top-24 lg:self-start flex flex-col gap-6">
+            <div className="glass rounded-card p-7">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-ink-primary" />
+                <h2 className="text-subsection">The missing book</h2>
+              </div>
+              <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
+                Medical textbooks have ranges for "men" and "women" — not
+                "person on estradiol for 4 years." Doctors are guessing at
+                your normal because nobody collected the data.
+              </p>
+              <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
+                Every person who opts in on their profile drops one anonymous
+                puzzle piece into the box. The interpretations here get
+                sharper as that pile grows. The book that should exist —
+                you're helping build it.
+              </p>
+              <div className="mt-5">
+                <Link href="/places">
+                  <Button variant="secondary" size="sm">
+                    Open my profile
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="glass rounded-card p-7">
+              <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary mb-3">
+                Data sources
+              </div>
+              <ul className="space-y-2 text-meta text-ink-primary">
+                <li className="inline-flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                  <a
+                    href="https://eutils.ncbi.nlm.nih.gov/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:underline underline-offset-4"
                   >
-                    {c.label}
-                  </Pill>
-                );
-              })}
+                    PubMed E-utilities — research citations
+                  </a>
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                  <a
+                    href="https://open.fda.gov/apis/drug/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:underline underline-offset-4"
+                  >
+                    openFDA — drug recalls & adverse events
+                  </a>
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                  <a
+                    href="https://rxnav.nlm.nih.gov/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:underline underline-offset-4"
+                  >
+                    NLM RxNorm — medication normalization
+                  </a>
+                </li>
+              </ul>
             </div>
-          </FormCard>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <FormCard label="Current insurance">
-              <RadioGroup
-                options={INSURANCE_TYPES}
-                value={intake.insurance_type}
-                onChange={(v) =>
-                  setIntake({ ...intake, insurance_type: v as InsuranceType })
-                }
-              />
-            </FormCard>
-
-            <FormCard label="Timeline">
-              <RadioGroup
-                options={TIMELINES}
-                value={intake.timeline}
-                onChange={(v) => setIntake({ ...intake, timeline: v as Timeline })}
-              />
-            </FormCard>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <FormCard label="Medication supply" hint="In days. Leave blank if you don't know.">
-              <input
-                type="number"
-                min={0}
-                value={intake.medication_supply_days ?? ""}
-                onChange={(e) =>
-                  setIntake({
-                    ...intake,
-                    medication_supply_days: e.target.value
-                      ? Number(e.target.value)
-                      : undefined,
-                  })
-                }
-                className="w-full rounded-btn border border-divider bg-surface px-4 py-3 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
-                placeholder="e.g. 60"
-              />
-            </FormCard>
-
-            <FormCard label="Telehealth across state lines" hint="Will your current provider continue care?">
-              <RadioGroup
-                options={TELEHEALTH}
-                value={intake.telehealth_available}
-                onChange={(v) =>
-                  setIntake({
-                    ...intake,
-                    telehealth_available: v as TelehealthAvailability,
-                  })
-                }
-              />
-            </FormCard>
-          </div>
-
-          {error && (
-            <div className="rounded-btn bg-status-banned/10 px-4 py-3 text-meta text-status-banned">
-              {error}
+            <div className="rounded-card bg-surface-inset p-6">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 mt-0.5 shrink-0 text-ink-primary" />
+                <div className="text-meta text-ink-secondary leading-relaxed">
+                  <div className="text-ink-primary text-meta font-bold mb-1">
+                    This is not medical advice.
+                  </div>
+                  Seagull translates "is this number weird?" into context.
+                  Diagnosis and treatment decisions belong with your
+                  clinician. For an emergency, call 911 or{" "}
+                  <span className="text-ink-primary font-bold">Trans Lifeline 877-565-8860</span>.
+                </div>
+              </div>
             </div>
-          )}
-
-          <div className="flex justify-end">
-            <Button type="submit" disabled={submitting} size="lg">
-              {submitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Generating…
-                </>
-              ) : (
-                "Generate my migration plan"
-              )}
-            </Button>
-          </div>
-        </form>
-      )}
-
-      {plan && (
-        <PlanView
-          plan={plan}
-          intake={intake}
-          checked={checked}
-          onToggle={(k) => setChecked((c) => ({ ...c, [k]: !c[k] }))}
-          onPlanUpdate={(p, i) => {
-            setPlan(p);
-            if (i) setIntake(i);
-            setShowRestored(false);
-          }}
-          onLetterChange={(letter) =>
-            setPlan({
-              ...plan,
-              records_transfer: { ...plan.records_transfer, template_letter: letter },
-            })
-          }
-          onEdit={() => {
-            setPlan(null);
-            setChecked({});
-          }}
-          onOpenSave={() => setSavePrompt(true)}
-          onOpenPanic={() => setPanicOpen(true)}
-        />
-      )}
-
-      {savePrompt && plan && (
-        <SaveDialog
-          plan={plan}
-          intake={intake}
-          onClose={() => setSavePrompt(false)}
-        />
-      )}
-
-      {panicOpen && (
-        <PanicConfirm
-          onCancel={() => setPanicOpen(false)}
-          onConfirm={panicClear}
-        />
-      )}
+          </aside>
+        </div>
       </Container>
     </div>
   );
 }
 
-// ─── Plan view ───────────────────────────────────────────────────────────
+function UploadReport({ profile }: { profile: Profile }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [report, setReport] = useState<ParsedReport | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-function PlanView({
-  plan,
-  intake,
-  checked,
-  onToggle,
-  onPlanUpdate,
-  onLetterChange,
-  onEdit,
-  onOpenSave,
-  onOpenPanic,
-}: {
-  plan: ContinuityPlan;
-  intake: ContinuityIntake;
-  checked: Record<string, boolean>;
-  onToggle: (key: string) => void;
-  onPlanUpdate: (plan: ContinuityPlan, intake?: ContinuityIntake) => void;
-  onLetterChange: (letter: string) => void;
-  onEdit: () => void;
-  onOpenSave: () => void;
-  onOpenPanic: () => void;
-}) {
-  const [downloading, setDownloading] = useState(false);
-  const [phaseFilter, setPhaseFilter] = useState<"all" | Phase>("all");
+  function pickFile(f: File | null) {
+    setError(null);
+    setReport(null);
+    setFile(f);
+  }
 
-  const next3 = useMemo(() => topNowItems(plan, 3), [plan]);
-  const byPhase = useMemo(() => itemsByPhase(plan), [plan]);
-  const counts = useMemo(() => {
-    const c: Record<Phase, number> = {
-      now: byPhase.now.length,
-      this_week: byPhase.this_week.length,
-      this_month: byPhase.this_month.length,
-      before_move: byPhase.before_move.length,
-    };
-    return c;
-  }, [byPhase]);
-
-  async function downloadPDF() {
-    setDownloading(true);
+  async function submit() {
+    if (!file || busy) return;
+    setBusy(true);
+    setError(null);
+    setReport(null);
     try {
-      const res = await fetch("/api/continuity/pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, intake }),
-      });
-      if (!res.ok) throw new Error("PDF generation failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "seagull-continuity-plan.pdf";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Couldn't generate PDF. Please try again.");
+      const form = new FormData();
+      form.append("file", file);
+      form.append("profile", JSON.stringify(profile));
+      const res = await fetch("/api/labs/parse", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok || data?.error) {
+        setError(data?.error || "Couldn't read that report.");
+      } else {
+        setReport(data as ParsedReport);
+      }
+    } catch (e: any) {
+      setError(e?.message || "Network error.");
     } finally {
-      setDownloading(false);
+      setBusy(false);
     }
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap gap-3 justify-between items-center">
-        <h2 className="text-section">Your migration plan</h2>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" size="sm" onClick={onEdit}>
-            Edit answers
-          </Button>
-          <Button size="sm" onClick={downloadPDF} disabled={downloading}>
-            {downloading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="h-4 w-4" />
-            )}
-            Download PDF
-          </Button>
-          <Button size="sm" variant="secondary" onClick={onOpenSave}>
-            <BookmarkPlus className="h-4 w-4" />
-            Sync to cloud
-          </Button>
-          <Button size="sm" variant="ghost" onClick={onOpenPanic}>
-            <Trash2 className="h-4 w-4" />
-            Clear
-          </Button>
-        </div>
+    <div className="glass rounded-card p-7">
+      <div className="flex items-center gap-2">
+        <Upload className="h-5 w-5 text-accent" />
+        <h2 className="text-subsection">Upload your blood report</h2>
       </div>
+      <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
+        Drop a PDF or a phone photo. We'll read every value and tell you which
+        ones look expected for your regimen — and which to bring up.
+      </p>
 
-      <RiskHero plan={plan} />
-
-      {next3.length > 0 && (
-        <NextThree items={next3} checked={checked} onToggle={onToggle} />
-      )}
-
-      <PhaseTabs
-        value={phaseFilter}
-        onChange={setPhaseFilter}
-        counts={counts}
-      />
-
-      <Sections
-        plan={plan}
-        intake={intake}
-        phaseFilter={phaseFilter}
-        checked={checked}
-        onToggle={onToggle}
-        onLetterChange={onLetterChange}
-      />
-
-      <RefineBox
-        intake={intake}
-        plan={plan}
-        onSuccess={(p, i) => onPlanUpdate(p, i)}
-      />
-    </div>
-  );
-}
-
-// ─── Risk hero with shown math ───────────────────────────────────────────
-
-function RiskHero({ plan }: { plan: ContinuityPlan }) {
-  const [open, setOpen] = useState(false);
-  const risk = plan.medication_gap_risk;
-  const styles = RISK_STYLES[risk.level];
-  const assessment = risk.assessment;
-
-  return (
-    <div
-      className={cn(
-        "rounded-card p-7 ring-1 transition-colors",
-        styles.bg,
-        styles.ring
-      )}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="text-meta text-ink-secondary uppercase tracking-wide">
-            Medication gap risk
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          const f = e.dataTransfer.files?.[0];
+          if (f) pickFile(f);
+        }}
+        onClick={() => inputRef.current?.click()}
+        className={cn(
+          "mt-4 rounded-card border-2 border-dashed transition-colors cursor-pointer",
+          "px-6 py-8 text-center",
+          dragging
+            ? "border-accent bg-accent/5"
+            : "border-divider hover:border-accent/60 bg-surface-inset/30"
+        )}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+          className="hidden"
+          onChange={(e) => pickFile(e.target.files?.[0] || null)}
+        />
+        {!file ? (
+          <>
+            <div className="flex items-center justify-center gap-3 text-ink-secondary">
+              <FileText className="h-5 w-5" />
+              <ImageIcon className="h-5 w-5" />
+            </div>
+            <div className="mt-3 text-body text-ink-primary font-medium">
+              Drop a PDF or photo here
+            </div>
+            <div className="mt-1 text-meta text-ink-secondary">
+              or click to choose · max 8 MB
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-center gap-3">
+            <FileText className="h-5 w-5 text-ink-primary" />
+            <div className="text-body text-ink-primary font-medium truncate max-w-[280px]">
+              {file.name}
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                pickFile(null);
+              }}
+              className="text-ink-secondary hover:text-status-banned p-1"
+              aria-label="Remove file"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
-          <div className="mt-2 flex items-center gap-3">
-            <span className={cn("h-3 w-3 rounded-full", styles.dot)} />
-            <span className="text-subsection leading-none">
-              {styles.label}
-            </span>
-          </div>
-          <p className="mt-3 text-body leading-relaxed max-w-xl">
-            {risk.rationale}
-          </p>
-        </div>
-        {assessment && (
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            className="inline-flex items-center gap-1.5 text-meta text-ink-secondary hover:text-ink-primary underline-offset-4 hover:underline"
-          >
-            <Info className="h-3.5 w-3.5" />
-            {open ? "Hide the math" : "How was this computed?"}
-          </button>
         )}
       </div>
 
-      {assessment && open && (
-        <div className="mt-5 rounded-btn bg-surface p-4 text-meta space-y-3">
-          <div className="text-ink-secondary">
-            Risk is computed from your inputs, <em>not</em> by AI.
-          </div>
-          <div className="font-mono text-meta leading-relaxed text-ink-primary">
-            supplyDays:{" "}
-            <span className="font-semibold">
-              {typeof assessment.inputs.supplyDays === "number"
-                ? `${assessment.inputs.supplyDays}d`
-                : "unknown"}
-            </span>
-            {"  ·  "}
-            moveWindow:{" "}
-            <span className="font-semibold">
-              {assessment.inputs.moveWindowDays}d
-            </span>
-            {"  ·  "}
-            telehealth:{" "}
-            <span className="font-semibold">
-              {assessment.inputs.telehealthCounts ? "yes" : "no"}
-            </span>
-            {"  ·  "}
-            medDependent:{" "}
-            <span className="font-semibold">
-              {assessment.inputs.medDependentCare ? "yes" : "no"}
-            </span>
-          </div>
-          <ul className="space-y-1.5 list-disc pl-5 text-ink-primary">
-            {assessment.reasons.map((r, i) => (
-              <li key={i}>{r}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Next 3 Actions hero ─────────────────────────────────────────────────
-
-function NextThree({
-  items,
-  checked,
-  onToggle,
-}: {
-  items: FlatItem[];
-  checked: Record<string, boolean>;
-  onToggle: (k: string) => void;
-}) {
-  return (
-    <div className="glass rounded-card p-7 border-l-4 border-accent">
-      <div className="flex items-center gap-2 mb-1">
-        <Sparkles className="h-4 w-4 text-ink-primary" />
-        <h3 className="text-subsection">
-          Next {items.length === 1 ? "action" : `${items.length} actions`}
-        </h3>
-      </div>
-      <p className="text-meta text-ink-secondary mb-5">
-        If you do nothing else today, do these.
-      </p>
-      <ul className="space-y-4">
-        {items.map((it) => (
-          <NextItem
-            key={it.key}
-            item={it}
-            done={!!checked[it.key]}
-            onToggle={() => onToggle(it.key)}
-          />
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function NextItem({
-  item,
-  done,
-  onToggle,
-}: {
-  item: FlatItem;
-  done: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <li>
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full text-left flex gap-3 items-start group"
-      >
-        <span
-          className={cn(
-            "mt-1 h-5 w-5 shrink-0 rounded border transition-colors flex items-center justify-center",
-            done
-              ? "bg-accent border-accent"
-              : "border-divider group-hover:border-ink-primary"
-          )}
-        >
-          {done && (
-            <svg viewBox="0 0 16 16" className="h-3 w-3 text-white" fill="none">
-              <path
-                d="M3 8.5l3 3 7-7"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          )}
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <span className="text-meta text-ink-secondary">
+          The file is sent once for parsing, then discarded.
         </span>
-        <span className={cn("flex-1", done && "text-ink-secondary line-through")}>
-          <span className="flex items-center gap-2">
-            <span className="text-card">{item.title}</span>
-            <span className="rounded-chip bg-surface-inset px-2 py-0.5 text-meta text-ink-secondary uppercase tracking-wide">
-              {item.sectionLabel}
-            </span>
-          </span>
-          <span className="block text-meta text-ink-secondary mt-1">
-            {item.detail}
-          </span>
-        </span>
-      </button>
-    </li>
-  );
-}
-
-// ─── Phase tabs ──────────────────────────────────────────────────────────
-
-function PhaseTabs({
-  value,
-  onChange,
-  counts,
-}: {
-  value: "all" | Phase;
-  onChange: (v: "all" | Phase) => void;
-  counts: Record<Phase, number>;
-}) {
-  const total =
-    counts.now + counts.this_week + counts.this_month + counts.before_move;
-  const tabs: Array<{ id: "all" | Phase; label: string; count: number }> = [
-    { id: "all", label: "All", count: total },
-    ...PHASE_ORDER.map((p) => ({
-      id: p,
-      label: PHASE_LABELS[p],
-      count: counts[p],
-    })),
-  ];
-  return (
-    <div className="flex flex-wrap gap-2">
-      {tabs.map((t) => (
-        <button
-          key={t.id}
-          type="button"
-          onClick={() => onChange(t.id)}
-          className={cn(
-            "inline-flex items-center gap-2 rounded-chip px-3 py-1.5 text-meta transition-colors",
-            value === t.id
-              ? "bg-accent text-white"
-              : "bg-surface-inset text-ink-primary hover:bg-[#F0F0F2]"
-          )}
-        >
-          <span>{t.label}</span>
-          <span
-            className={cn(
-              "rounded-full px-1.5 text-meta",
-              value === t.id ? "bg-white/20" : "bg-surface text-ink-secondary"
-            )}
-          >
-            {t.count}
-          </span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-// ─── Sections (filterable by phase) ──────────────────────────────────────
-
-function Sections({
-  plan,
-  intake,
-  phaseFilter,
-  checked,
-  onToggle,
-  onLetterChange,
-}: {
-  plan: ContinuityPlan;
-  intake: ContinuityIntake;
-  phaseFilter: "all" | Phase;
-  checked: Record<string, boolean>;
-  onToggle: (key: string) => void;
-  onLetterChange: (letter: string) => void;
-}) {
-  const all = useMemo(() => flattenPlan(plan), [plan]);
-
-  function filterFor(section: ChecklistSectionKey): FlatItem[] {
-    return all
-      .filter((i) => i.section === section)
-      .filter((i) => phaseFilter === "all" || phaseOf(i) === phaseFilter);
-  }
-
-  const sections = [
-    {
-      key: "records_transfer" as const,
-      title: "1. Records transfer",
-      body: (
-        <>
-          <FilteredChecklist
-            items={filterFor("records_transfer")}
-            checked={checked}
-            onToggle={onToggle}
-          />
-          {phaseFilter === "all" && (
-            <div className="mt-6">
-              <div className="text-body font-medium mb-2">Template letter</div>
-              <textarea
-                value={plan.records_transfer.template_letter}
-                onChange={(e) => onLetterChange(e.target.value)}
-                rows={8}
-                className="w-full rounded-btn border border-divider bg-surface p-4 text-meta leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/30 font-mono"
-              />
-            </div>
-          )}
-        </>
-      ),
-    },
-    {
-      key: "insurance_continuity" as const,
-      title: "2. Insurance continuity",
-      body: (
-        <>
-          <FilteredChecklist
-            items={filterFor("insurance_continuity")}
-            checked={checked}
-            onToggle={onToggle}
-          />
-          {phaseFilter === "all" && (
+        <Button onClick={submit} disabled={!file || busy}>
+          {busy ? (
             <>
-              <p className="mt-4 text-meta text-ink-secondary leading-relaxed">
-                {plan.insurance_continuity.state_notes}
-              </p>
-              {intake.destination_state &&
-                intake.destination_state !== "exploring" && (
-                  <Link
-                    href={`/map?state=${intake.destination_state}`}
-                    className="mt-4 inline-flex items-center gap-2 text-meta text-ink-primary underline-offset-4 hover:underline"
-                  >
-                    <MapPin className="h-4 w-4" />
-                    Check {intake.destination_state}&apos;s current care status
-                  </Link>
-                )}
-            </>
-          )}
-        </>
-      ),
-    },
-    {
-      key: "medication_gap_risk" as const,
-      title: "3. Medication gap items",
-      body: (
-        <FilteredChecklist
-          items={filterFor("medication_gap_risk")}
-          checked={checked}
-          onToggle={onToggle}
-        />
-      ),
-    },
-    {
-      key: "finding_new_care" as const,
-      title: "5. Finding new care",
-      body: (
-        <>
-          {phaseFilter === "all" && (
-            <>
-              <div className="text-body font-medium mb-2">Questions to ask</div>
-              <ul className="list-disc pl-5 space-y-1.5 mb-4 text-ink-primary">
-                {plan.finding_new_care.questions_to_ask.map((q, i) => (
-                  <li key={i}>{q}</li>
-                ))}
-              </ul>
-              <div className="text-body font-medium mb-2">Red flags</div>
-              <ul className="list-disc pl-5 space-y-1.5 mb-4 text-ink-primary">
-                {plan.finding_new_care.red_flags.map((q, i) => (
-                  <li key={i}>{q}</li>
-                ))}
-              </ul>
-            </>
-          )}
-          <FilteredChecklist
-            items={filterFor("finding_new_care")}
-            checked={checked}
-            onToggle={onToggle}
-          />
-        </>
-      ),
-    },
-    {
-      key: "legal_and_id" as const,
-      title: "6. Legal and ID",
-      body: (
-        <FilteredChecklist
-          items={filterFor("legal_and_id")}
-          checked={checked}
-          onToggle={onToggle}
-        />
-      ),
-    },
-  ];
-
-  // Documents section slots between "3. Medication gap items" (sections[2])
-  // and "5. Finding new care". Always renders in the "all" view as reference
-  // material; hidden when filtering by phase (the phase tabs are for
-  // time-sensitive checklist items, not static docs).
-  const docsSlotIndex = sections.findIndex((s) => s.key === "finding_new_care");
-
-  return (
-    <div className="space-y-8">
-      {sections.map((s, i) => {
-        const items = filterFor(s.key);
-        const node =
-          phaseFilter !== "all" && items.length === 0 ? null : (
-            <PlanSection title={s.title}>{s.body}</PlanSection>
-          );
-        const docsHere =
-          i === docsSlotIndex && phaseFilter === "all" ? (
-            <DocumentsSection careTypes={intake.care_types} />
-          ) : null;
-        return (
-          <Fragment key={s.key}>
-            {docsHere}
-            {node}
-          </Fragment>
-        );
-      })}
-
-      {phaseFilter === "all" && (
-        <PlanSection title="7. Community resources">
-          <div className="space-y-4">
-            {plan.community_resources.items.map((r, i) => (
-              <div key={i} className="rounded-btn bg-surface-inset p-4">
-                <div className="font-medium">{r.name}</div>
-                {r.note && (
-                  <div className="text-meta text-ink-secondary mt-1">{r.note}</div>
-                )}
-                <a
-                  href={r.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-meta text-ink-primary underline-offset-4 hover:underline mt-1 inline-block"
-                >
-                  {r.url}
-                </a>
-              </div>
-            ))}
-          </div>
-        </PlanSection>
-      )}
-    </div>
-  );
-}
-
-function FilteredChecklist({
-  items,
-  checked,
-  onToggle,
-}: {
-  items: FlatItem[];
-  checked: Record<string, boolean>;
-  onToggle: (key: string) => void;
-}) {
-  if (items.length === 0) {
-    return (
-      <div className="text-meta text-ink-secondary italic">
-        No items in this phase for this section.
-      </div>
-    );
-  }
-  return (
-    <ul className="space-y-3">
-      {items.map((it) => {
-        const isDone = !!checked[it.key];
-        return (
-          <li key={it.key}>
-            <button
-              type="button"
-              onClick={() => onToggle(it.key)}
-              className="w-full text-left flex gap-3 items-start group"
-            >
-              <span
-                className={cn(
-                  "mt-1 h-5 w-5 shrink-0 rounded border transition-colors flex items-center justify-center",
-                  isDone
-                    ? "bg-accent border-accent"
-                    : "border-divider group-hover:border-ink-primary"
-                )}
-              >
-                {isDone && (
-                  <svg
-                    viewBox="0 0 16 16"
-                    className="h-3 w-3 text-white"
-                    fill="none"
-                  >
-                    <path
-                      d="M3 8.5l3 3 7-7"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
-              </span>
-              <span
-                className={cn(
-                  "flex-1",
-                  isDone && "text-ink-secondary line-through"
-                )}
-              >
-                <span className="flex items-center gap-2 flex-wrap">
-                  <span className="text-body font-medium">{it.title}</span>
-                  <PhaseChip phase={phaseOf(it)} />
-                </span>
-                <span className="block text-meta text-ink-secondary mt-0.5">
-                  {it.detail}
-                </span>
-              </span>
-            </button>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-function PhaseChip({ phase }: { phase: Phase }) {
-  const tone: Record<Phase, string> = {
-    now: "bg-status-banned/10 text-status-banned",
-    this_week: "bg-status-restricted/10 text-status-restricted",
-    this_month: "bg-status-legal/15 text-ink-primary",
-    before_move: "bg-surface-inset text-ink-secondary",
-  };
-  return (
-    <span
-      className={cn(
-        "rounded-chip px-2 py-0.5 text-meta uppercase tracking-wide",
-        tone[phase]
-      )}
-    >
-      {PHASE_LABELS[phase]}
-    </span>
-  );
-}
-
-function PlanSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="glass rounded-card p-7">
-      <h3 className="text-subsection mb-4">{title}</h3>
-      {children}
-    </div>
-  );
-}
-
-// ─── Refinement box ──────────────────────────────────────────────────────
-
-function RefineBox({
-  intake,
-  plan,
-  onSuccess,
-}: {
-  intake: ContinuityIntake;
-  plan: ContinuityPlan;
-  onSuccess: (plan: ContinuityPlan, intake?: ContinuityIntake) => void;
-}) {
-  const [delta, setDelta] = useState("");
-  const [refining, setRefining] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [applied, setApplied] = useState<string[]>([]);
-  const previousPlanRef = useRef<ContinuityPlan | null>(null);
-
-  async function refine() {
-    if (!delta.trim()) return;
-    setError(null);
-    setRefining(true);
-    previousPlanRef.current = plan;
-    try {
-      const res = await fetch("/api/continuity/refine", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ intake, plan, delta }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Refinement failed.");
-      }
-      const data = (await res.json()) as {
-        plan: ContinuityPlan;
-        intake: ContinuityIntake;
-        applied: string[];
-      };
-      setApplied(data.applied || []);
-      onSuccess(data.plan, data.intake);
-      setDelta("");
-    } catch (e: any) {
-      setError(e?.message || "Refinement failed.");
-    } finally {
-      setRefining(false);
-    }
-  }
-
-  function revert() {
-    if (previousPlanRef.current) {
-      onSuccess(previousPlanRef.current);
-      previousPlanRef.current = null;
-      setApplied([]);
-    }
-  }
-
-  return (
-    <div className="rounded-card bg-surface-inset p-6 border border-divider">
-      <div className="flex items-center gap-2 mb-1">
-        <RotateCcw className="h-4 w-4 text-ink-primary" />
-        <h3 className="text-card">
-          Update my plan
-        </h3>
-      </div>
-      <p className="text-meta text-ink-secondary mb-4">
-        Situation changed? Type the update — e.g.{" "}
-        <em>&quot;My move is now in 2 weeks not 3 months&quot;</em>,{" "}
-        <em>&quot;I got 90 days of supply&quot;</em>,{" "}
-        <em>&quot;I lost my insurance&quot;</em>.
-      </p>
-      <textarea
-        value={delta}
-        onChange={(e) => setDelta(e.target.value)}
-        rows={3}
-        placeholder="Describe what changed…"
-        className="w-full rounded-btn border border-divider bg-surface p-4 text-body leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/30"
-      />
-      {applied.length > 0 && (
-        <div className="mt-3 text-meta text-ink-secondary">
-          Applied automatically: {applied.join("; ")}.{" "}
-          {previousPlanRef.current && (
-            <button
-              type="button"
-              onClick={revert}
-              className="text-ink-primary underline-offset-4 hover:underline"
-            >
-              Use previous version
-            </button>
-          )}
-        </div>
-      )}
-      {error && (
-        <div className="mt-3 rounded-btn bg-status-banned/10 px-4 py-2 text-meta text-status-banned">
-          {error}
-        </div>
-      )}
-      <div className="mt-4 flex justify-end">
-        <Button
-          size="sm"
-          onClick={refine}
-          disabled={refining || !delta.trim()}
-        >
-          {refining ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" /> Updating…
+              <Loader2 className="h-4 w-4 animate-spin" /> Reading…
             </>
           ) : (
-            "Update my plan"
+            <>
+              <Sparkles className="h-4 w-4" /> Read & interpret
+            </>
           )}
         </Button>
       </div>
-    </div>
-  );
-}
 
-// ─── Panic clear confirm ─────────────────────────────────────────────────
-
-function PanicConfirm({
-  onCancel,
-  onConfirm,
-}: {
-  onCancel: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      onClick={onCancel}
-    >
-      <div
-        className="glass rounded-card p-7 max-w-sm w-full"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center gap-2 mb-2">
-          <Trash2 className="h-5 w-5 text-status-banned" />
-          <h3 className="text-card">
-            Clear everything?
-          </h3>
+      {error && (
+        <div className="mt-5 rounded-card bg-status-banned/10 px-4 py-3 text-meta text-status-banned">
+          {error}
         </div>
-        <p className="text-meta text-ink-secondary leading-relaxed">
-          Your plan, intake, and progress will be erased from this browser. This
-          can&apos;t be undone — but if you&apos;ve synced to cloud, your saved
-          copy stays safe.
-        </p>
-        <div className="mt-6 flex justify-end gap-2">
-          <Button variant="secondary" size="sm" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button size="sm" onClick={onConfirm}>
-            <Trash2 className="h-4 w-4" />
-            Clear everything
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Form primitives (unchanged from prior version) ──────────────────────
-
-function FormCard({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="glass rounded-card p-7">
-      <div className="text-body font-medium">{label}</div>
-      {hint && <div className="text-meta text-ink-secondary mt-1">{hint}</div>}
-      <div className="mt-4">{children}</div>
-    </div>
-  );
-}
-
-function StateSelect({
-  value,
-  onChange,
-  placeholder,
-  allowExploring = false,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  allowExploring?: boolean;
-}) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-btn border border-divider bg-surface px-4 py-3 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
-    >
-      <option value="">{placeholder || "Select"}</option>
-      {allowExploring && (
-        <option value="exploring">Exploring (no specific state)</option>
       )}
-      {STATE_OPTIONS.map((s) => (
-        <option key={s.code} value={s.code}>
-          {s.name}
-        </option>
-      ))}
-    </select>
-  );
-}
 
-function RadioGroup<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: Array<{ id: T; label: string }>;
-  value: T;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="grid gap-2">
-      {options.map((o) => (
-        <label
-          key={o.id}
-          className={cn(
-            "flex items-center gap-3 rounded-btn px-4 py-3 border cursor-pointer transition-colors",
-            value === o.id
-              ? "bg-surface-inset border-accent/30"
-              : "bg-surface border-divider hover:bg-surface-inset"
-          )}
-        >
-          <input
-            type="radio"
-            checked={value === o.id}
-            onChange={() => onChange(o.id)}
-            className="h-4 w-4 accent-accent"
-          />
-          <span className="text-body">{o.label}</span>
-        </label>
-      ))}
+      {report && (
+        <ReportResults
+          report={report}
+          regimen={profile.hormone_regimen_summary || ""}
+        />
+      )}
     </div>
   );
 }
 
-// ─── Documents to bring ──────────────────────────────────────────────────
-
-function DocumentsSection({ careTypes }: { careTypes: CareType[] }) {
-  const groups = documentsForCareTypes(careTypes);
-  if (groups.length === 0) return null;
+function ReportResults({
+  report,
+  regimen,
+}: {
+  report: ParsedReport;
+  regimen: string;
+}) {
   return (
-    <PlanSection title="4. Documents to bring">
-      <p className="text-meta text-ink-secondary leading-relaxed mb-5">
-        Exactly what to walk into the pharmacy or your new clinic with. Static
-        reference — verify locally before relying on it.
-      </p>
-      <div className="space-y-6">
-        {groups.map((g) => (
-          <div key={g.care_type}>
-            <div className="text-card">
-              {g.label}
-            </div>
-            {g.intro && (
-              <p className="text-meta text-ink-secondary mt-1 leading-relaxed">
-                {g.intro}
-              </p>
-            )}
-            <ul className="mt-3 space-y-3">
-              {g.documents.map((d, i) => (
-                <li key={i} className="flex gap-3 items-start">
-                  <span
-                    className={cn(
-                      "mt-0.5 h-5 w-5 shrink-0 rounded flex items-center justify-center",
-                      d.flag === "critical"
-                        ? "bg-status-banned/15 text-status-banned"
-                        : d.flag === "controlled_substance"
-                        ? "bg-status-restricted/15 text-status-restricted"
-                        : "bg-surface-inset text-ink-secondary"
-                    )}
-                  >
-                    {d.flag ? (
-                      <AlertTriangle className="h-3.5 w-3.5" />
-                    ) : (
-                      <FileText className="h-3.5 w-3.5" />
-                    )}
-                  </span>
-                  <span className="flex-1">
-                    <span className="block text-body font-medium">
-                      {d.title}
-                    </span>
-                    <span className="block text-meta text-ink-secondary mt-0.5 leading-relaxed">
-                      {d.detail}
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
+    <div className="mt-6 space-y-4">
+      <div className="rounded-card border border-divider bg-surface-inset/30 px-5 py-4">
+        <div className="flex items-center justify-between">
+          <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
+            Overall
           </div>
-        ))}
+          {report.report_date && (
+            <div className="text-meta text-ink-secondary">
+              {report.report_date}
+            </div>
+          )}
+        </div>
+        <p className="mt-2 text-body text-ink-primary leading-relaxed">
+          {report.summary || "—"}
+        </p>
       </div>
-    </PlanSection>
+
+      {report.items.length === 0 ? (
+        <div className="rounded-card bg-surface-inset px-5 py-4 text-meta text-ink-secondary">
+          No lab values could be read from this file. Try a clearer photo or
+          send the PDF directly.
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {report.items.map((it, i) => (
+            <ResultLine key={i} item={it} regimen={regimen} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
-// ─── Save / cloud sync dialog ────────────────────────────────────────────
+const VERDICT_META: Record<
+  Verdict,
+  { label: string; icon: typeof CheckCircle2; color: string; dot: string }
+> = {
+  likely_normal_for_regimen: {
+    label: "Likely normal for your regimen",
+    icon: CheckCircle2,
+    color: "text-status-protected",
+    dot: "bg-status-protected",
+  },
+  borderline_ask_doctor: {
+    label: "Borderline — worth a quick ask",
+    icon: HelpCircle,
+    color: "text-status-restricted",
+    dot: "bg-status-restricted",
+  },
+  outside_hrt_explanation: {
+    label: "Hormones don't explain this — ask your doctor",
+    icon: AlertTriangle,
+    color: "text-status-banned",
+    dot: "bg-status-banned",
+  },
+  unflagged: {
+    label: "In range",
+    icon: CheckCircle2,
+    color: "text-ink-secondary",
+    dot: "bg-ink-secondary",
+  },
+};
 
-function SaveDialog({
-  plan,
-  intake,
-  onClose,
+function ResultLine({ item, regimen }: { item: ParsedItem; regimen: string }) {
+  const verdict = (item.verdict as Verdict) || "unflagged";
+  const meta = VERDICT_META[verdict] || VERDICT_META.unflagged;
+  const [open, setOpen] = useState(false);
+  const flagged = verdict !== "unflagged" && verdict !== "likely_normal_for_regimen";
+  return (
+    <div className="rounded-card border border-divider bg-surface px-5 py-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-body text-ink-primary font-bold">{item.name}</span>
+            <span className="text-meta text-ink-secondary tabular-nums">
+              {item.value}
+              {item.unit ? " " + item.unit : ""}
+            </span>
+            {item.flag && item.flag !== "" && (
+              <span
+                className={cn(
+                  "text-meta uppercase tracking-[0.1em] font-bold px-2 py-0.5 rounded-chip",
+                  item.flag === "critical"
+                    ? "bg-status-banned/15 text-status-banned"
+                    : "bg-status-restricted/15 text-status-restricted"
+                )}
+              >
+                {item.flag}
+              </span>
+            )}
+          </div>
+          {item.note && (
+            <p className="mt-2 text-meta text-ink-primary leading-relaxed">
+              {item.note}
+            </p>
+          )}
+          {flagged && (
+            <button
+              onClick={() => setOpen((v) => !v)}
+              className="mt-2 inline-flex items-center gap-1.5 text-meta text-ink-primary hover:underline underline-offset-4"
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              {open ? "Hide research" : "Find PubMed evidence"}
+            </button>
+          )}
+          {open && <Citations labName={item.name} regimen={regimen} />}
+        </div>
+        <div className={cn("flex items-center gap-2 shrink-0", meta.color)}>
+          <span className={cn("h-2 w-2 rounded-full", meta.dot)} />
+          <span className="text-meta font-bold uppercase tracking-[0.1em] hidden sm:inline">
+            {shortVerdict(verdict)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function shortVerdict(v: Verdict): string {
+  switch (v) {
+    case "likely_normal_for_regimen":
+      return "Expected";
+    case "borderline_ask_doctor":
+      return "Borderline";
+    case "outside_hrt_explanation":
+      return "Ask doctor";
+    default:
+      return "In range";
+  }
+}
+
+interface Citation {
+  pmid: string;
+  title: string;
+  authors: string[];
+  source: string;
+  year: string;
+  url: string;
+}
+
+function Citations({
+  labName,
+  regimen,
 }: {
-  plan: ContinuityPlan;
-  intake: ContinuityIntake;
-  onClose: () => void;
+  labName: string;
+  regimen: string;
 }) {
-  const [email, setEmail] = useState("");
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [citations, setCitations] = useState<Citation[] | null>(null);
+  const [busy, setBusy] = useState(false);
+  const fetchedFor = useRef<string>("");
+
+  useEffect(() => {
+    const key = `${labName}|${regimen}`;
+    if (!labName || fetchedFor.current === key) return;
+    fetchedFor.current = key;
+    setBusy(true);
+    fetch("/api/labs/evidence", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lab_name: labName, regimen }),
+    })
+      .then((r) => r.json())
+      .then((d) => setCitations(Array.isArray(d?.citations) ? d.citations : []))
+      .catch(() => setCitations([]))
+      .finally(() => setBusy(false));
+  }, [labName, regimen]);
+
+  if (!labName) return null;
+
+  return (
+    <div className="mt-5 rounded-card border border-divider bg-surface px-5 py-4">
+      <div className="flex items-center gap-2">
+        <BookOpen className="h-4 w-4 text-ink-primary" />
+        <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
+          Recent research
+        </div>
+      </div>
+      {busy && !citations ? (
+        <div className="mt-3 text-meta text-ink-secondary inline-flex items-center gap-2">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching PubMed…
+        </div>
+      ) : citations && citations.length > 0 ? (
+        <ul className="mt-3 space-y-2">
+          {citations.map((c) => (
+            <li key={c.pmid}>
+              <a
+                href={c.url}
+                target="_blank"
+                rel="noreferrer"
+                className="block group"
+              >
+                <div className="text-meta text-ink-primary leading-snug group-hover:underline underline-offset-4">
+                  {c.title}
+                </div>
+                <div className="mt-0.5 text-meta text-ink-secondary">
+                  {[
+                    c.authors.slice(0, 2).join(", ") + (c.authors.length > 2 ? " et al." : ""),
+                    c.source,
+                    c.year,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  <span className="ml-1 text-ink-primary inline-flex items-center gap-1">
+                    PubMed <ExternalLink className="h-3 w-3" />
+                  </span>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="mt-3 text-meta text-ink-secondary">
+          No matching studies on PubMed for this lab in the trans-HRT literature.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SingleValueCheck({ profile }: { profile: Profile }) {
+  const [labName, setLabName] = useState("");
+  const [value, setValue] = useState("");
+  const [unit, setUnit] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<LabInterpretation | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function send() {
+  function pickLab(l: { name: string; unit: string }) {
+    setLabName(l.name);
+    setUnit(l.unit);
+    setResult(null);
     setError(null);
-    setSending(true);
+  }
+
+  async function check() {
+    if (!labName.trim() || !value.trim() || busy) return;
+    setBusy(true);
+    setError(null);
+    setResult(null);
     try {
-      const supabase = supabaseBrowser();
-      if (!supabase) {
-        throw new Error(
-          "Sign-in isn't configured yet. You can still download the PDF."
-        );
-      }
-      saveLocalImmediate({ intake, plan, checked: {} });
-      window.localStorage.setItem(
-        "seagull_pending_plan",
-        JSON.stringify({ plan, intake })
-      );
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/continuity`,
-        },
+      const res = await fetch("/api/labs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lab_name: labName.trim(),
+          value: value.trim(),
+          unit: unit.trim(),
+          profile,
+        }),
       });
-      if (error) throw error;
-      setSent(true);
+      const data = await res.json();
+      if (!res.ok) setError(data?.error || "Couldn't get an answer right now.");
+      else setResult(data as LabInterpretation);
     } catch (e: any) {
-      setError(e?.message || "Couldn't send magic link.");
+      setError(e?.message || "Network error.");
     } finally {
-      setSending(false);
+      setBusy(false);
     }
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="glass rounded-card p-8 max-w-md w-full"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-subsection">
-          Sync to cloud
-        </h3>
-        <p className="text-meta text-ink-secondary mt-2">
-          Encrypted backup so you can pick up this plan on another device.
-          We&apos;ll email a magic link. Your local copy stays even if you
-          don&apos;t sync.
-        </p>
-        {sent ? (
-          <p className="mt-6 text-body">
-            Check your email for a sign-in link. You can close this dialog.
-          </p>
-        ) : (
-          <>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="mt-4 w-full rounded-btn border border-divider bg-surface px-4 py-3 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
-            />
-            {error && (
-              <div className="mt-3 text-meta text-status-banned">{error}</div>
-            )}
-          </>
-        )}
-        <div className="mt-6 flex justify-end gap-2">
-          <Button variant="secondary" size="sm" onClick={onClose}>
-            Close
-          </Button>
-          {!sent && (
-            <Button
-              size="sm"
-              onClick={send}
-              disabled={sending || !email.includes("@")}
-            >
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Send link
-            </Button>
+    <div className="glass rounded-card p-7">
+      <h2 className="text-subsection">Or check a single value</h2>
+      <p className="mt-1 text-meta text-ink-secondary">
+        Faster if you just want to look up one number.
+      </p>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {COMMON_LABS.map((l) => (
+          <Pill key={l.name} selected={labName === l.name} onClick={() => pickLab(l)}>
+            {l.name}
+          </Pill>
+        ))}
+      </div>
+
+      <div className="mt-5 grid sm:grid-cols-[2fr_1fr_1fr] gap-3">
+        <input
+          value={labName}
+          onChange={(e) => setLabName(e.target.value)}
+          placeholder="Test"
+          className="w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
+        />
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Value"
+          inputMode="decimal"
+          className="w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
+        />
+        <input
+          value={unit}
+          onChange={(e) => setUnit(e.target.value)}
+          placeholder="Unit"
+          className="w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
+        />
+      </div>
+
+      <div className="mt-4 flex items-center justify-end gap-3">
+        <Button onClick={check} disabled={!labName.trim() || !value.trim() || busy}>
+          {busy ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" /> Checking…
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4" /> Check this value
+            </>
           )}
+        </Button>
+      </div>
+
+      {error && (
+        <div className="mt-5 rounded-card bg-status-banned/10 px-4 py-3 text-meta text-status-banned">
+          {error}
+        </div>
+      )}
+
+      {result && (
+        <SingleResult
+          result={result}
+          labName={labName}
+          regimen={profile.hormone_regimen_summary || ""}
+        />
+      )}
+    </div>
+  );
+}
+
+function SingleResult({
+  result,
+  labName,
+  regimen,
+}: {
+  result: LabInterpretation;
+  labName: string;
+  regimen: string;
+}) {
+  const meta =
+    VERDICT_META[result.verdict as Verdict] || VERDICT_META.borderline_ask_doctor;
+  const Icon = meta.icon;
+  return (
+    <div className="mt-6 rounded-card border border-divider bg-surface-inset/30 p-6">
+      <div className="flex items-center gap-3">
+        <span className={cn("h-2.5 w-2.5 rounded-full", meta.dot)} />
+        <span className={cn("text-meta font-bold uppercase tracking-[0.12em]", meta.color)}>
+          {meta.label}
+        </span>
+      </div>
+      <div className="mt-3 flex items-start gap-3">
+        <Icon className={cn("h-5 w-5 mt-0.5 shrink-0", meta.color)} />
+        <div className="text-body text-ink-primary font-bold leading-snug">
+          {result.headline}
         </div>
       </div>
+      <p className="mt-3 text-meta text-ink-primary leading-relaxed">
+        {result.explanation}
+      </p>
+      {result.ask_doctor_about && (
+        <div className="mt-4 rounded-btn border border-divider bg-surface px-4 py-3">
+          <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
+            Bring this up
+          </div>
+          <p className="mt-1 text-meta text-ink-primary">{result.ask_doctor_about}</p>
+        </div>
+      )}
+      <Citations labName={labName} regimen={regimen} />
     </div>
   );
 }

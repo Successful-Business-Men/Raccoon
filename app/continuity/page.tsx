@@ -1,9 +1,9 @@
 import { ContinuityClient } from "./ContinuityClient";
 
 export const metadata = {
-  title: "Plan continuity of care — Seagull",
+  title: "Lab Check — Seagull",
 };
 
-export default function ContinuityPage() {
+export default function LabCheckPage() {
   return <ContinuityClient />;
 }

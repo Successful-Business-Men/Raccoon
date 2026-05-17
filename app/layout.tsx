@@ -18,15 +18,15 @@ const fredoka = Fredoka({
 });
 
 export const metadata: Metadata = {
-  title: "Seagull — A toolkit for trans Americans",
+  title: "Seagull — A translator between you and doctors",
   description:
-    "Document an incident for a lawyer or filing agency, score a business before you walk in, see where your state stands on gender-affirming care, and plan a move without losing access.",
+    "Type your meds and surgeries once. Hand the doctor a card that explains your transition in 30 seconds. Check if a weird blood test is actually a problem — or just normal for your hormones.",
   metadataBase: new URL("https://seagull.app"),
   icons: { icon: "/seagull.png" },
   openGraph: {
-    title: "Seagull — A toolkit for trans Americans",
+    title: "Seagull — A translator between you and doctors",
     description:
-      "Document discrimination, score a business before you walk in, track state laws on gender-affirming care, and plan a move without losing access.",
+      "A pre-visit card so doctors look at the thing that hurts. A lab checker so a weird number doesn't waste a month of your life. Built by trans people, for trans people.",
     type: "website",
   },
 };
