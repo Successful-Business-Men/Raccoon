@@ -39,23 +39,21 @@ function Hero() {
             A Translator Between You And Your Doctor
           </h1>
           <p className="mt-6 text-lede text-sea-ink text-balance max-w-[560px] mx-auto">
-            Type your meds once. Hand the doctor a card that keeps today&apos;s
-            complaint separate from your hormone context, in 30 seconds.
-            Tell whether a weird lab number is from HRT, or from something
-            else worth asking about. Backed by live data from
-            <span className="font-bold"> RxNorm</span>,
-            <span className="font-bold"> openFDA</span>, and
+            Log meds once. Hand your doctor a 30-second card that separates
+            your HRT from today&rsquo;s visit, and decode your lab results
+            using live medical data using
+            <span className="font-bold"> openFDA</span> and
             <span className="font-bold"> PubMed</span>.
           </p>
 
           <div className="mt-10 flex items-center justify-center">
             <GlassButton
               href="#tools"
-              ariaLabel="See the tools. Jump to all four."
+              ariaLabel="See The Tools. Jump to all four."
             >
               <span className="inline-flex items-center gap-2 text-body font-medium text-sea-ink">
-                See the tools
-                <ArrowDown className="h-4 w-4" strokeWidth={2} />
+                See The Tools
+                <ArrowDown className="h-6 w-6" strokeWidth={2} />
               </span>
             </GlassButton>
           </div>
