@@ -89,7 +89,7 @@ export function ContinuityClient() {
           <div className="flex flex-col gap-6">
             {loaded && !hasProfile && (
               <div className="glass rounded-card p-6 flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 mt-0.5 shrink-0 text-status-restricted" />
+                <AlertCircle className="h-7 w-7 shrink-0 text-status-restricted" />
                 <div className="text-meta text-ink-secondary leading-relaxed">
                   <span className="text-ink-primary font-bold">
                     Heads up. We don't know your regimen yet.

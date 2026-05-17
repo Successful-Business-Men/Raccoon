@@ -49,13 +49,13 @@ export function DocumentClient() {
       <PageHero
         eyebrow="Previsit Card"
         title="Hand It To The Front Desk. The Doctor Reads It In 30 Seconds."
-        description="Two boxes. Box 1: the thing that hurts. Box 2: I take hormones, and that is not why I'm here. Print it, screenshot it, or show it on your phone."
+        description="One box for today's reason. One box for your hormones. Print it, screenshot it, or show it on your phone."
       />
 
       <Container className="pb-16">
         {!loaded ? null : !hasProfile ? (
           <div className="glass rounded-card p-7 flex items-start gap-4">
-            <AlertCircle className="h-5 w-5 mt-0.5 shrink-0 text-status-restricted" />
+            <AlertCircle className="h-7 w-7 shrink-0 text-status-restricted" />
             <div>
               <h2 className="text-subsection">Set Up Your Profile First</h2>
               <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
