@@ -19,12 +19,15 @@ function Hero() {
   return (
     <section className="relative isolate -mt-16 pt-16 overflow-hidden ocean-hero">
       <WaveBackground />
+      {/* Long, gentle fade to white at the bottom of the hero so it doesn't
+          terminate on a hard line. The next section picks up where this leaves
+          off with a matching ocean tint that fades the rest of the way down. */}
       <div
         aria-hidden
-        className="absolute inset-x-0 bottom-0 h-64 pointer-events-none"
+        className="absolute inset-x-0 bottom-0 h-96 pointer-events-none"
         style={{
           background:
-            "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 45%, rgba(255,255,255,0.95) 100%)",
+            "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 35%, rgba(255,255,255,0.7) 70%, rgba(255,255,255,0.98) 100%)",
         }}
       />
       <GlassFilter />
@@ -89,8 +92,18 @@ function ToolCards() {
     },
   ];
   return (
-    <section id="tools" className="scroll-mt-24 pb-section">
-      <Container>
+    <section id="tools" className="relative scroll-mt-24 pb-section">
+      {/* Ocean wash that picks up where the hero's white fade leaves off and
+          carries the blue tint behind the cards before settling to white. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(186,230,253,0.55) 0%, rgba(224,242,254,0.35) 30%, rgba(240,249,255,0.2) 55%, rgba(255,255,255,0) 100%)",
+        }}
+      />
+      <Container className="relative">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 items-stretch">
           {tools.map((t) => (
             <Link
