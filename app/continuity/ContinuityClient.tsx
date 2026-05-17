@@ -14,6 +14,8 @@ import {
   FileText,
   Image as ImageIcon,
   X,
+  BookOpen,
+  ExternalLink,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
@@ -128,6 +130,47 @@ export function ContinuityClient() {
                   </Button>
                 </Link>
               </div>
+            </div>
+
+            <div className="glass rounded-card p-7">
+              <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary mb-3">
+                Data sources
+              </div>
+              <ul className="space-y-2 text-meta text-ink-primary">
+                <li className="inline-flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                  <a
+                    href="https://eutils.ncbi.nlm.nih.gov/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:underline underline-offset-4"
+                  >
+                    PubMed E-utilities — research citations
+                  </a>
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                  <a
+                    href="https://open.fda.gov/apis/drug/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:underline underline-offset-4"
+                  >
+                    openFDA — drug recalls & adverse events
+                  </a>
+                </li>
+                <li className="inline-flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                  <a
+                    href="https://rxnav.nlm.nih.gov/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:underline underline-offset-4"
+                  >
+                    NLM RxNorm — medication normalization
+                  </a>
+                </li>
+              </ul>
             </div>
 
             <div className="rounded-card bg-surface-inset p-6">
@@ -283,12 +326,23 @@ function UploadReport({ profile }: { profile: Profile }) {
         </div>
       )}
 
-      {report && <ReportResults report={report} />}
+      {report && (
+        <ReportResults
+          report={report}
+          regimen={profile.hormone_regimen_summary || ""}
+        />
+      )}
     </div>
   );
 }
 
-function ReportResults({ report }: { report: ParsedReport }) {
+function ReportResults({
+  report,
+  regimen,
+}: {
+  report: ParsedReport;
+  regimen: string;
+}) {
   return (
     <div className="mt-6 space-y-4">
       <div className="rounded-card border border-divider bg-surface-inset/30 px-5 py-4">
@@ -315,7 +369,7 @@ function ReportResults({ report }: { report: ParsedReport }) {
       ) : (
         <div className="space-y-2">
           {report.items.map((it, i) => (
-            <ResultLine key={i} item={it} />
+            <ResultLine key={i} item={it} regimen={regimen} />
           ))}
         </div>
       )}
@@ -353,9 +407,11 @@ const VERDICT_META: Record<
   },
 };
 
-function ResultLine({ item }: { item: ParsedItem }) {
+function ResultLine({ item, regimen }: { item: ParsedItem; regimen: string }) {
   const verdict = (item.verdict as Verdict) || "unflagged";
   const meta = VERDICT_META[verdict] || VERDICT_META.unflagged;
+  const [open, setOpen] = useState(false);
+  const flagged = verdict !== "unflagged" && verdict !== "likely_normal_for_regimen";
   return (
     <div className="rounded-card border border-divider bg-surface px-5 py-4">
       <div className="flex items-start justify-between gap-4">
@@ -384,6 +440,16 @@ function ResultLine({ item }: { item: ParsedItem }) {
               {item.note}
             </p>
           )}
+          {flagged && (
+            <button
+              onClick={() => setOpen((v) => !v)}
+              className="mt-2 inline-flex items-center gap-1.5 text-meta text-ink-primary hover:underline underline-offset-4"
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              {open ? "Hide research" : "Find PubMed evidence"}
+            </button>
+          )}
+          {open && <Citations labName={item.name} regimen={regimen} />}
         </div>
         <div className={cn("flex items-center gap-2 shrink-0", meta.color)}>
           <span className={cn("h-2 w-2 rounded-full", meta.dot)} />
@@ -407,6 +473,94 @@ function shortVerdict(v: Verdict): string {
     default:
       return "In range";
   }
+}
+
+interface Citation {
+  pmid: string;
+  title: string;
+  authors: string[];
+  source: string;
+  year: string;
+  url: string;
+}
+
+function Citations({
+  labName,
+  regimen,
+}: {
+  labName: string;
+  regimen: string;
+}) {
+  const [citations, setCitations] = useState<Citation[] | null>(null);
+  const [busy, setBusy] = useState(false);
+  const fetchedFor = useRef<string>("");
+
+  useEffect(() => {
+    const key = `${labName}|${regimen}`;
+    if (!labName || fetchedFor.current === key) return;
+    fetchedFor.current = key;
+    setBusy(true);
+    fetch("/api/labs/evidence", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lab_name: labName, regimen }),
+    })
+      .then((r) => r.json())
+      .then((d) => setCitations(Array.isArray(d?.citations) ? d.citations : []))
+      .catch(() => setCitations([]))
+      .finally(() => setBusy(false));
+  }, [labName, regimen]);
+
+  if (!labName) return null;
+
+  return (
+    <div className="mt-5 rounded-card border border-divider bg-surface px-5 py-4">
+      <div className="flex items-center gap-2">
+        <BookOpen className="h-4 w-4 text-ink-primary" />
+        <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
+          Recent research
+        </div>
+      </div>
+      {busy && !citations ? (
+        <div className="mt-3 text-meta text-ink-secondary inline-flex items-center gap-2">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching PubMed…
+        </div>
+      ) : citations && citations.length > 0 ? (
+        <ul className="mt-3 space-y-2">
+          {citations.map((c) => (
+            <li key={c.pmid}>
+              <a
+                href={c.url}
+                target="_blank"
+                rel="noreferrer"
+                className="block group"
+              >
+                <div className="text-meta text-ink-primary leading-snug group-hover:underline underline-offset-4">
+                  {c.title}
+                </div>
+                <div className="mt-0.5 text-meta text-ink-secondary">
+                  {[
+                    c.authors.slice(0, 2).join(", ") + (c.authors.length > 2 ? " et al." : ""),
+                    c.source,
+                    c.year,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  <span className="ml-1 text-ink-primary inline-flex items-center gap-1">
+                    PubMed <ExternalLink className="h-3 w-3" />
+                  </span>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="mt-3 text-meta text-ink-secondary">
+          No matching studies on PubMed for this lab in the trans-HRT literature.
+        </div>
+      )}
+    </div>
+  );
 }
 
 function SingleValueCheck({ profile }: { profile: Profile }) {
@@ -507,12 +661,26 @@ function SingleValueCheck({ profile }: { profile: Profile }) {
         </div>
       )}
 
-      {result && <SingleResult result={result} />}
+      {result && (
+        <SingleResult
+          result={result}
+          labName={labName}
+          regimen={profile.hormone_regimen_summary || ""}
+        />
+      )}
     </div>
   );
 }
 
-function SingleResult({ result }: { result: LabInterpretation }) {
+function SingleResult({
+  result,
+  labName,
+  regimen,
+}: {
+  result: LabInterpretation;
+  labName: string;
+  regimen: string;
+}) {
   const meta =
     VERDICT_META[result.verdict as Verdict] || VERDICT_META.borderline_ask_doctor;
   const Icon = meta.icon;
@@ -541,6 +709,7 @@ function SingleResult({ result }: { result: LabInterpretation }) {
           <p className="mt-1 text-meta text-ink-primary">{result.ask_doctor_about}</p>
         </div>
       )}
+      <Citations labName={labName} regimen={regimen} />
     </div>
   );
 }

@@ -37,7 +37,10 @@ function Hero() {
           <p className="mt-6 text-lede text-sea-ink text-balance max-w-[560px] mx-auto">
             Type your meds and surgeries once. Hand over a card that
             explains everything in 30 seconds. Find out if a weird
-            blood test is actually a problem.
+            blood test is actually a problem — backed by live data from
+            <span className="font-bold"> RxNorm</span>,
+            <span className="font-bold"> openFDA</span>, and
+            <span className="font-bold"> PubMed</span>.
           </p>
 
           <div className="mt-10 flex items-center justify-center">
@@ -141,56 +144,58 @@ function ToolCards() {
 }
 
 function TrustSection() {
-  // MAP's source PNG embeds a "movement advancement project" subtitle row, so
-  // the main wordmark only fills ~60% of its bounding box. A small scale nudge
-  // brings its visual height in line with the other marks.
-  const orgs = [
-    { name: "Movement Advancement Project", src: "/logos/map.png", scale: 1.2 },
-    { name: "Lambda Legal", src: "/logos/lambda-legal.png", scale: 1 },
-    { name: "KFF", src: "/logos/kff.png", scale: 1 },
-    { name: "Trans Legal Defense and Education Fund", src: "/logos/tldef.png", scale: 1 },
+  const sources = [
+    {
+      name: "RxNorm",
+      org: "U.S. National Library of Medicine",
+      role: "Standardized drug names + autocomplete",
+      url: "https://rxnav.nlm.nih.gov/",
+    },
+    {
+      name: "openFDA",
+      org: "U.S. Food & Drug Administration",
+      role: "Live drug recalls & adverse-event reports",
+      url: "https://open.fda.gov/apis/drug/",
+    },
+    {
+      name: "PubMed E-utils",
+      org: "National Center for Biotechnology Information",
+      role: "Trans-HRT research citations on demand",
+      url: "https://eutils.ncbi.nlm.nih.gov/",
+    },
+    {
+      name: "Claude",
+      org: "Anthropic",
+      role: "Vision-based lab-report parsing & interpretation",
+      url: "https://www.anthropic.com/",
+    },
   ];
-  const track = [...orgs, ...orgs, ...orgs, ...orgs];
   return (
     <section className="pb-section">
       <Container>
         <div className="text-center">
           <div className="text-meta uppercase tracking-[0.18em] text-ink-secondary">
-            Built with data from
+            Live data from
           </div>
         </div>
-      </Container>
-      <div
-        className="mt-8 overflow-hidden w-full"
-        style={{
-          maskImage:
-            "linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%)",
-        }}
-      >
-        <div className="flex w-max items-center animate-marquee">
-          {track.map((o, i) => (
-            <div
-              key={`${o.name}-${i}`}
-              className="relative h-16 w-48 shrink-0 mr-24"
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {sources.map((s) => (
+            <a
+              key={s.name}
+              href={s.url}
+              target="_blank"
+              rel="noreferrer"
+              className="glass rounded-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cardHover"
             >
-              <Image
-                src={o.src}
-                alt={o.name}
-                fill
-                sizes="192px"
-                className="object-contain"
-                style={
-                  o.scale !== 1
-                    ? { transform: `scale(${o.scale})` }
-                    : undefined
-                }
-              />
-            </div>
+              <div className="text-card text-sea-ink">{s.name}</div>
+              <div className="mt-1 text-meta text-ink-secondary">{s.org}</div>
+              <div className="mt-3 text-meta text-ink-primary leading-snug">
+                {s.role}
+              </div>
+            </a>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Trash2, Save, ShieldCheck, Sparkles, ChevronDown, Loader2, Wand2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Plus, Trash2, Save, ShieldCheck, Sparkles, ChevronDown, Loader2, Wand2, AlertTriangle, CheckCircle2, ExternalLink, FlaskConical } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
@@ -166,6 +166,8 @@ export function PlacesClient() {
                 </div>
               )}
             </Section>
+
+            <DrugSafety medications={profile.medications} />
 
             <Section
               title="Surgical history"
@@ -421,22 +423,284 @@ function MedRow({
   onCommit: () => void;
   onRemove: () => void;
 }) {
+  const [suggestions, setSuggestions] = useState<Array<{ rxcui: string; name: string }>>([]);
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  // Pull the searchable head off the description (first word or two).
+  const head = useMemo(() => med.description.split(/[\s,·]+/)[0] || "", [med.description]);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (abortRef.current) abortRef.current.abort();
+    if (!head || head.length < 2 || !open) {
+      setSuggestions([]);
+      return;
+    }
+    debounceRef.current = setTimeout(async () => {
+      const ctrl = new AbortController();
+      abortRef.current = ctrl;
+      try {
+        const res = await fetch(`/api/meds/search?q=${encodeURIComponent(head)}`, {
+          signal: ctrl.signal,
+        });
+        const data = await res.json();
+        setSuggestions(Array.isArray(data?.candidates) ? data.candidates : []);
+      } catch {
+        /* ignore aborts */
+      }
+    }, 180);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [head, open]);
+
+  function applySuggestion(name: string) {
+    const rest = med.description.slice(head.length);
+    onChange(`${name}${rest}`);
+    setOpen(false);
+    setActive(-1);
+    onCommit();
+  }
+
   return (
-    <div className="flex items-center gap-2 rounded-btn border border-divider bg-surface px-3 py-2">
-      <input
-        value={med.description}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onCommit}
-        placeholder="e.g. Estradiol 4 mg IM weekly since Jan 2022"
-        className="flex-1 bg-transparent text-body focus:outline-none"
-      />
-      <button
-        onClick={onRemove}
-        className="text-ink-secondary hover:text-status-banned p-1"
-        aria-label="Remove medication"
-      >
-        <Trash2 className="h-4 w-4" />
-      </button>
+    <div className="relative">
+      <div className="flex items-center gap-2 rounded-btn border border-divider bg-surface px-3 py-2">
+        <FlaskConical className="h-4 w-4 text-ink-secondary shrink-0" />
+        <input
+          value={med.description}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setOpen(true);
+            setActive(-1);
+          }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => {
+            // Delay so click on a suggestion can register first.
+            setTimeout(() => setOpen(false), 120);
+            onCommit();
+          }}
+          onKeyDown={(e) => {
+            if (!open || suggestions.length === 0) return;
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              setActive((a) => Math.min(a + 1, suggestions.length - 1));
+            } else if (e.key === "ArrowUp") {
+              e.preventDefault();
+              setActive((a) => Math.max(a - 1, -1));
+            } else if (e.key === "Enter" && active >= 0) {
+              e.preventDefault();
+              applySuggestion(suggestions[active].name);
+            } else if (e.key === "Escape") {
+              setOpen(false);
+            }
+          }}
+          placeholder="e.g. Estradiol 4 mg IM weekly since Jan 2022"
+          className="flex-1 bg-transparent text-body focus:outline-none"
+        />
+        <button
+          onClick={onRemove}
+          className="text-ink-secondary hover:text-status-banned p-1"
+          aria-label="Remove medication"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      </div>
+      {open && suggestions.length > 0 && (
+        <div className="absolute left-0 right-0 mt-1 z-20 glass-strong rounded-btn border border-divider shadow-cardHover overflow-hidden">
+          <div className="px-3 py-1.5 text-meta uppercase tracking-[0.12em] text-ink-secondary border-b divider-soft">
+            RxNorm matches
+          </div>
+          {suggestions.map((s, i) => (
+            <button
+              key={s.rxcui}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => applySuggestion(s.name)}
+              className={cn(
+                "w-full text-left px-3 py-2 text-body hover:bg-surface-inset transition-colors",
+                i === active && "bg-surface-inset"
+              )}
+            >
+              <span className="text-ink-primary">{s.name}</span>
+              <span className="ml-2 text-meta text-ink-secondary">RxCUI {s.rxcui}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DrugSafety({ medications }: { medications: Medication[] }) {
+  const drugs = useMemo(
+    () => medications.map((m) => m.description.split(/[\s,·]+/)[0]).filter(Boolean),
+    [medications]
+  );
+  const [items, setItems] = useState<Array<{
+    drug: string;
+    recalls: Array<{
+      recall_number: string;
+      recall_initiation_date: string;
+      classification: string;
+      reason_for_recall: string;
+      recalling_firm: string;
+      product_description: string;
+    }>;
+    adverse: { total_reports: number; top_reactions: Array<{ term: string; count: number }> } | null;
+  }>>([]);
+  const [busy, setBusy] = useState(false);
+  const [checkedAt, setCheckedAt] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function run() {
+    if (!drugs.length || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/meds/safety", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ drugs }),
+      });
+      const data = await res.json();
+      if (!res.ok) setError(data?.error || "Couldn't check the FDA.");
+      else {
+        setItems(data.items || []);
+        setCheckedAt(new Date().toLocaleString());
+      }
+    } catch (e: any) {
+      setError(e?.message || "Network error.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (drugs.length === 0) return null;
+
+  const recallCount = items.reduce((acc, it) => acc + it.recalls.length, 0);
+
+  return (
+    <div className="glass rounded-card p-7">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-accent" />
+            <h2 className="text-subsection">Drug safety check</h2>
+          </div>
+          <p className="mt-1 text-meta text-ink-secondary">
+            Live lookup against the FDA's drug recall & adverse-event databases.
+          </p>
+        </div>
+        <Button size="sm" variant="secondary" onClick={run} disabled={busy}>
+          {busy ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" /> Checking…
+            </>
+          ) : (
+            <>Check now</>
+          )}
+        </Button>
+      </div>
+
+      {error && (
+        <div className="mt-4 rounded-card bg-status-banned/10 px-4 py-3 text-meta text-status-banned">
+          {error}
+        </div>
+      )}
+
+      {items.length > 0 && (
+        <div className="mt-5 space-y-3">
+          <div className="text-meta text-ink-secondary">
+            Last checked {checkedAt} ·{" "}
+            {recallCount === 0 ? (
+              <span className="text-status-protected font-bold">No active recalls</span>
+            ) : (
+              <span className="text-status-restricted font-bold">
+                {recallCount} recall{recallCount === 1 ? "" : "s"} found
+              </span>
+            )}
+          </div>
+          {items.map((it) => (
+            <div key={it.drug} className="rounded-card border border-divider bg-surface-inset/30 p-4">
+              <div className="flex items-center gap-2">
+                {it.recalls.length === 0 ? (
+                  <CheckCircle2 className="h-4 w-4 text-status-protected" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4 text-status-restricted" />
+                )}
+                <span className="text-body text-ink-primary font-bold capitalize">
+                  {it.drug}
+                </span>
+                {it.adverse && (
+                  <span className="ml-auto text-meta text-ink-secondary">
+                    {it.adverse.total_reports.toLocaleString()} adverse-event reports on file
+                  </span>
+                )}
+              </div>
+              {it.recalls.length === 0 ? (
+                <div className="mt-2 text-meta text-ink-secondary">
+                  No recent FDA recalls for this drug.
+                </div>
+              ) : (
+                <ul className="mt-3 space-y-2">
+                  {it.recalls.map((r) => (
+                    <li
+                      key={r.recall_number}
+                      className="rounded-btn border border-divider bg-surface px-3 py-2"
+                    >
+                      <div className="flex items-center gap-2 text-meta">
+                        <span className="uppercase tracking-[0.1em] font-bold text-status-restricted">
+                          {r.classification || "recall"}
+                        </span>
+                        <span className="text-ink-secondary">
+                          {r.recall_initiation_date}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-meta text-ink-primary leading-snug">
+                        {r.reason_for_recall}
+                      </div>
+                      <div className="mt-1 text-meta text-ink-secondary">
+                        {r.recalling_firm}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {it.adverse?.top_reactions?.length ? (
+                <div className="mt-3">
+                  <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
+                    Top reported reactions
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {it.adverse.top_reactions.map((r) => (
+                      <span
+                        key={r.term}
+                        className="text-meta px-2 py-0.5 rounded-chip bg-surface text-ink-primary"
+                      >
+                        {r.term.toLowerCase()}{" "}
+                        <span className="text-ink-secondary">({r.count})</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ))}
+          <div className="text-meta text-ink-secondary">
+            Source: openFDA.{" "}
+            <a
+              href="https://open.fda.gov/apis/drug/"
+              target="_blank"
+              rel="noreferrer"
+              className="underline-offset-4 hover:underline inline-flex items-center gap-1"
+            >
+              About this data <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
