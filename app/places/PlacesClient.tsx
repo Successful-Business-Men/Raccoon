@@ -390,14 +390,18 @@ function SmartFill({
         <span className="text-meta text-ink-secondary">
           Adds to your profile. Won't overwrite what's already there.
         </span>
-        <Button onClick={run} disabled={!text.trim() || busy}>
+        <Button
+          onClick={run}
+          disabled={!text.trim() || busy}
+          className="btn-glow-blue"
+        >
           {busy ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" /> Parsing…
             </>
           ) : (
             <>
-              <Wand2 className="h-4 w-4" /> Fill from this
+              <Wand2 className="h-4 w-4" /> Fill From This
             </>
           )}
         </Button>

@@ -305,14 +305,18 @@ function UploadReport({ profile }: { profile: Profile }) {
         <span className="text-meta text-ink-secondary">
           Sent once for parsing, then discarded.
         </span>
-        <Button onClick={submit} disabled={!file || busy}>
+        <Button
+          onClick={submit}
+          disabled={!file || busy}
+          className="btn-glow-blue"
+        >
           {busy ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" /> Reading…
             </>
           ) : (
             <>
-              <Sparkles className="h-4 w-4" /> Read & interpret
+              <Sparkles className="h-4 w-4" /> Read & Interpret
             </>
           )}
         </Button>
@@ -640,14 +644,18 @@ function SingleValueCheck({ profile }: { profile: Profile }) {
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-3">
-        <Button onClick={check} disabled={!labName.trim() || !value.trim() || busy}>
+        <Button
+          onClick={check}
+          disabled={!labName.trim() || !value.trim() || busy}
+          className="btn-glow-blue"
+        >
           {busy ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" /> Checking…
             </>
           ) : (
             <>
-              <Sparkles className="h-4 w-4" /> Check this value
+              <Sparkles className="h-4 w-4" /> Check This Value
             </>
           )}
         </Button>

@@ -245,6 +245,39 @@
   }
 }
 
+/* Pulsing blue glow for primary action buttons (Fill From This,
+   Read & Interpret, Check This Value). The animation eases between
+   a soft and a strong sky-blue halo so the button feels alive without
+   distracting from the page. Disabled buttons keep the glow but at
+   reduced intensity via opacity inheritance on the button itself. */
+.btn-glow-blue {
+  animation: btn-glow-blue-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes btn-glow-blue-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(56, 189, 248, 0.35),
+      0 0 12px 2px rgba(56, 189, 248, 0.45),
+      0 0 24px 6px rgba(56, 189, 248, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(56, 189, 248, 0.55),
+      0 0 22px 5px rgba(56, 189, 248, 0.65),
+      0 0 44px 12px rgba(56, 189, 248, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-glow-blue {
+    animation: none;
+    box-shadow:
+      0 0 0 1px rgba(56, 189, 248, 0.4),
+      0 0 16px 3px rgba(56, 189, 248, 0.5);
+  }
+}
+
 /* Page content sits above the wash and the tide. */
 .page-ocean > * {
   position: relative;
