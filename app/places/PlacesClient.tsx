@@ -126,7 +126,7 @@ export function PlacesClient() {
       >
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-meta text-sea-ink/75">
           <span className="inline-flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4" />
+            <ShieldCheck className="h-6 w-6" />
             <span className="text-ink-primary font-bold">Stays on your device</span>
           </span>
           <span className={cn("transition-opacity", savedFlash ? "opacity-100" : "opacity-0")}>
