@@ -120,7 +120,7 @@ export function PlacesClient() {
     <div className="page-ocean">
       <PageHero
         title="Type It Once. Use It Everywhere."
-        description="The Previsit Card and Lab Check both read from here. Everything stays in your browser unless you opt in below."
+        description="Add your meds, surgeries, and labs once — the Previsit Card and Lab Check pull from here automatically, so you never retype anything."
       >
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-meta text-sea-ink/75">
           <span className="inline-flex items-center gap-2">
@@ -374,7 +374,7 @@ function SmartFill({
   return (
     <div className="glass rounded-card p-7">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-accent" />
+        <Sparkles className="h-7 w-7 text-accent" />
         <h2 className="text-subsection">Smart Fill</h2>
       </div>
       <p className="mt-2 text-meta text-ink-secondary leading-relaxed">

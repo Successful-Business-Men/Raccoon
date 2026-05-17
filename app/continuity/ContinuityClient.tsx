@@ -108,7 +108,7 @@ export function ContinuityClient() {
           <aside className="lg:sticky lg:top-24 lg:self-start flex flex-col gap-6">
             <div className="glass rounded-card p-7">
               <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-ink-primary" />
+                <Users className="h-7 w-7 text-ink-primary" />
                 <h2 className="text-subsection">The Missing Book</h2>
               </div>
               <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
@@ -232,7 +232,7 @@ function UploadReport({ profile }: { profile: Profile }) {
   return (
     <div className="glass rounded-card p-7">
       <div className="flex items-center gap-2">
-        <Upload className="h-5 w-5 text-accent" />
+        <Upload className="h-7 w-7 text-accent" />
         <h2 className="text-subsection">Upload Your Blood Report</h2>
       </div>
       <p className="mt-2 text-meta text-ink-secondary leading-relaxed">
