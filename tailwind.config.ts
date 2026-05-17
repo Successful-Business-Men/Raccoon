@@ -88,9 +88,14 @@ const config: Config = {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-25%)" },
         },
+        aurora: {
+          from: { backgroundPosition: "50% 50%, 50% 50%" },
+          to: { backgroundPosition: "350% 50%, 350% 50%" },
+        },
       },
       animation: {
         marquee: "marquee 40s linear infinite",
+        aurora: "aurora 60s linear infinite",
       },
     },
   },
