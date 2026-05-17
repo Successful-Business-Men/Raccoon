@@ -90,9 +90,9 @@ export function ContinuityClient() {
               <div className="glass rounded-card p-6 flex items-start gap-3">
                 <AlertCircle className="h-7 w-7 shrink-0 text-status-restricted" />
                 <div className="text-meta text-ink-secondary leading-relaxed">
-                  <span className="text-ink-primary font-bold">
+                  <h3 className="text-[15px] font-bold text-ink-primary mb-1.5">
                     Heads up. We don't know your regimen yet.
-                  </span>{" "}
+                  </h3>
                   We can still answer, but the read will be generic. Add your
                   hormones on the <Link href="/places" className="underline">profile page</Link>{" "}
                   (Smart Fill takes one sentence) for a tailored result.

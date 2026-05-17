@@ -54,7 +54,10 @@ export function MapClient() {
       />
       <Container className="pb-16 relative">
       <div className="glass rounded-card p-4 mb-8 text-meta text-ink-secondary leading-relaxed">
-        <strong className="text-ink-primary">Best effort snapshot.</strong>{" "}
+        <h3 className="flex items-center gap-2 text-[15px] font-bold text-ink-primary mb-1.5">
+          <span aria-hidden>📋</span>
+          Best effort snapshot
+        </h3>
         State buckets reflect patterns reported by HRC, MAP, Lambda Legal,
         and KFF across 2024 and 2025. This isn't realtime legal
         adjudication, and the law in some states changes weekly. Always{" "}
