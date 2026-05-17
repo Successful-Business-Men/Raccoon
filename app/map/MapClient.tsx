@@ -49,7 +49,6 @@ export function MapClient() {
   return (
     <div className="page-ocean">
       <PageHero
-        eyebrow="Care Map"
         title="Where Your State Stands On Gender Affirming Care."
         description="The legal landscape for HRT, surgery, ID changes, and shield laws across all 50 states. Hover for a quick read, click a state for the full breakdown."
       />

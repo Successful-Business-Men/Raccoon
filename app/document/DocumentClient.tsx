@@ -47,7 +47,6 @@ export function DocumentClient() {
   return (
     <div className="page-ocean">
       <PageHero
-        eyebrow="Previsit Card"
         title="Hand It To The Front Desk. The Doctor Reads It In 30 Seconds."
         description="One box for today's reason. One box for your hormones. Print it, screenshot it, or show it on your phone."
       />

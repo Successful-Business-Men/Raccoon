@@ -14,7 +14,7 @@ export function StatusPill({ status, className }: { status: CareStatus; classNam
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-chip bg-surface-inset px-3 py-1 text-meta text-ink-primary",
+        "inline-flex items-center gap-2 rounded-btn bg-white/80 px-3 py-2 text-meta font-medium text-sea-ink shadow-[inset_0_0_0_1px_rgba(15,42,61,0.08)]",
         className
       )}
     >
