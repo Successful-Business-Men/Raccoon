@@ -286,38 +286,20 @@
   z-index: 1;
 }
 
-/* Aurora colour variants. Each variant defines four palette stops that
-   feed the repeating-linear-gradient inside <AuroraOverlay>. Sky reads
-   light-blue (Your Profile), amber reads warm sunlight (Previsit Card),
-   emerald reads clinical green (Lab Check), violet reads dusk-purple
-   (Care Map). */
-.aurora-sky {
+/* Aurora colour palette — every page uses the same sky-blue stops; only
+   the mask position changes per variant so each tool has its glow in a
+   different corner. */
+.aurora-sky,
+.aurora-amber,
+.aurora-emerald,
+.aurora-violet {
   --a1: #38bdf8;
   --a2: #bae6fd;
   --a3: #7dd3fc;
   --a4: #e0f2fe;
 }
-.aurora-amber {
-  --a1: #fbbf24;
-  --a2: #fde68a;
-  --a3: #fcd34d;
-  --a4: #fef3c7;
-}
-.aurora-emerald {
-  --a1: #34d399;
-  --a2: #a7f3d0;
-  --a3: #6ee7b7;
-  --a4: #d1fae5;
-}
-.aurora-violet {
-  --a1: #a78bfa;
-  --a2: #ddd6fe;
-  --a3: #c4b5fd;
-  --a4: #ede9fe;
-}
 
-/* Where the light is anchored. Each variant overrides the mask so the
-   four pages don't all glow from the same corner. */
+/* Where the light is anchored per page. */
 .aurora-sky .aurora-mask {
   -webkit-mask-image: radial-gradient(ellipse at 100% 0%, black 10%, transparent 70%);
   mask-image: radial-gradient(ellipse at 100% 0%, black 10%, transparent 70%);
