@@ -1,5 +1,5 @@
 import { anthropic, MODEL } from "@/lib/anthropic";
-import type { Profile } from "@/lib/profile";
+import { profileForPrompt, type Profile } from "@/lib/profile";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,7 +27,7 @@ type Payload = {
   lab_name: string;
   value: string;
   unit: string;
-  profile: Pick<Profile, "medications" | "surgeries" | "hormone_regimen_summary" | "sex_assigned_at_birth" | "age">;
+  profile: Profile;
 };
 
 export async function POST(req: Request) {
@@ -91,35 +91,16 @@ export async function POST(req: Request) {
 }
 
 function buildUserPrompt(p: Payload): string {
-  const lines: string[] = [];
-  lines.push(`Lab: ${p.lab_name}`);
-  lines.push(`Value: ${p.value}${p.unit ? " " + p.unit : ""}`);
-  lines.push("");
-  lines.push("Patient context:");
-  if (p.profile.age) lines.push(`- Age: ${p.profile.age}`);
-  if (p.profile.sex_assigned_at_birth) {
-    lines.push(`- Sex assigned at birth: ${p.profile.sex_assigned_at_birth}`);
-  }
-  if (p.profile.hormone_regimen_summary) {
-    lines.push(`- Regimen summary: ${p.profile.hormone_regimen_summary}`);
-  }
-  if (p.profile.medications.length) {
-    lines.push("- Medications:");
-    for (const m of p.profile.medications) {
-      lines.push(
-        `   · ${m.name}${m.dose ? " " + m.dose : ""}${m.route ? " (" + m.route + ")" : ""}${m.frequency ? " " + m.frequency : ""}${m.started ? " since " + m.started : ""}`
-      );
-    }
-  }
-  if (p.profile.surgeries.length) {
-    lines.push("- Surgical history:");
-    for (const s of p.profile.surgeries) {
-      lines.push(`   · ${s.name}${s.date ? " (" + s.date + ")" : ""}`);
-    }
-  }
-  lines.push("");
-  lines.push("Interpret this result. Return JSON only.");
-  return lines.join("\n");
+  const ctx = profileForPrompt(p.profile as Profile);
+  return [
+    `Lab: ${p.lab_name}`,
+    `Value: ${p.value}${p.unit ? " " + p.unit : ""}`,
+    "",
+    "Patient context:",
+    ctx || "- (no profile data provided)",
+    "",
+    "Interpret this result. Return JSON only.",
+  ].join("\n");
 }
 
 function extractJson(text: string): null | {

@@ -10,7 +10,6 @@ import { Pill } from "@/components/Pill";
 import {
   emptyProfile,
   loadProfile,
-  prettyRoute,
   type Profile,
 } from "@/lib/profile";
 
@@ -221,16 +220,7 @@ const PrintableCard = forwardRef<
                 </div>
                 <ul className="mt-1 list-disc pl-5 space-y-0.5">
                   {meds.map((m) => (
-                    <li key={m.id}>
-                      <span className="font-bold">{m.name || "—"}</span>
-                      {[m.dose, prettyRoute(m.route), m.frequency]
-                        .filter(Boolean)
-                        .map((s) => ` · ${s}`)
-                        .join("")}
-                      {m.started && (
-                        <span className="text-ink-secondary"> · since {m.started}</span>
-                      )}
-                    </li>
+                    <li key={m.id}>{m.description || "—"}</li>
                   ))}
                 </ul>
               </div>
@@ -243,7 +233,7 @@ const PrintableCard = forwardRef<
                 <ul className="mt-1 list-disc pl-5 space-y-0.5">
                   {surgeries.map((s) => (
                     <li key={s.id}>
-                      <span className="font-bold">{s.name || "—"}</span>
+                      {s.description || "—"}
                       {s.date && (
                         <span className="text-ink-secondary"> · {s.date}</span>
                       )}
