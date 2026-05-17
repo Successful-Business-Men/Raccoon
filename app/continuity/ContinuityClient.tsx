@@ -79,7 +79,7 @@ export function ContinuityClient() {
   return (
     <div className="page-ocean">
       <PageHero
-        title="A Weird Number Isn't Always A Problem."
+        title="A Weird Number Isn't Always A Problem"
         description="Upload a blood report or type a single value. We tell you whether the number is from your hormones, or from something separate worth bringing up. Not medical advice, just translation."
       />
 

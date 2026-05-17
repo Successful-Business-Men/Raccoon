@@ -119,7 +119,7 @@ export function PlacesClient() {
   return (
     <div className="page-ocean">
       <PageHero
-        title="Type It Once. Use It Everywhere."
+        title={<>Type It Once<br />Use It Everywhere</>}
         description="Add your meds, surgeries, and labs once. The Previsit Card and Lab Check pull from here automatically, so you never retype anything."
       >
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-meta text-sea-ink/75">
