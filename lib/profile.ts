@@ -21,12 +21,20 @@ export interface LabValue {
   date: string;
 }
 
+export interface Allergy {
+  id: string;
+  substance: string;
+  reaction: string;
+}
+
 export interface Profile {
   display_name: string;
   pronouns: string;
   age: string;
   sex_assigned_at_birth: "male" | "female" | "intersex" | "";
   hormone_regimen_summary: string;
+  allergies: Allergy[];
+  anatomical_inventory: string;
   medications: Medication[];
   surgeries: Surgery[];
   recent_labs: LabValue[];
@@ -42,6 +50,8 @@ export function emptyProfile(): Profile {
     age: "",
     sex_assigned_at_birth: "",
     hormone_regimen_summary: "",
+    allergies: [],
+    anatomical_inventory: "",
     medications: [],
     surgeries: [],
     recent_labs: [],
@@ -74,6 +84,8 @@ export function newId(): string {
 // dose/route/frequency/notes columns. Fold those into the new single-field
 // shape so nobody loses what they typed.
 function migrate(p: any): Profile {
+  if (!Array.isArray(p.allergies)) p.allergies = [];
+  if (typeof p.anatomical_inventory !== "string") p.anatomical_inventory = "";
   if (Array.isArray(p.medications)) {
     p.medications = p.medications.map((m: any) => {
       if (typeof m?.description === "string") return { id: m.id || newId(), description: m.description };
@@ -113,6 +125,14 @@ export function profileForPrompt(p: Profile): string {
   const lines: string[] = [];
   if (p.age) lines.push(`- Age: ${p.age}`);
   if (p.sex_assigned_at_birth) lines.push(`- Sex assigned at birth: ${p.sex_assigned_at_birth}`);
+  if (p.anatomical_inventory) lines.push(`- Anatomical inventory: ${p.anatomical_inventory}`);
+  if (p.allergies?.length) {
+    lines.push("- Allergies:");
+    for (const a of p.allergies) {
+      const bits = [a.substance, a.reaction].filter(Boolean).join(" — ");
+      if (bits) lines.push(`   · ${bits}`);
+    }
+  }
   if (p.hormone_regimen_summary) lines.push(`- Regimen summary: ${p.hormone_regimen_summary}`);
   if (p.medications.length) {
     lines.push("- Medications:");

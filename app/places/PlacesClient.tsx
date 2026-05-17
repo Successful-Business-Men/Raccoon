@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Plus, Trash2, Save, ShieldCheck, Sparkles, ChevronDown, Loader2, Wand2, AlertTriangle, CheckCircle2, ExternalLink, FlaskConical } from "lucide-react";
+import { Plus, Trash2, Save, ShieldCheck, Sparkles, ChevronDown, Loader2, Wand2, AlertTriangle, CheckCircle2, ExternalLink, FlaskConical, Siren, ScanLine } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
@@ -13,6 +13,7 @@ import {
   loadProfile,
   newId,
   saveProfile,
+  type Allergy,
   type LabValue,
   type Medication,
   type Profile,
@@ -44,6 +45,22 @@ export function PlacesClient() {
 
   function update<K extends keyof Profile>(key: K, value: Profile[K]) {
     setProfile((p) => ({ ...p, [key]: value }));
+  }
+
+  function addAllergy() {
+    setProfile((p) => ({
+      ...p,
+      allergies: [...p.allergies, { id: newId(), substance: "", reaction: "" }],
+    }));
+  }
+  function updateAllergy(id: string, patch: Partial<Allergy>) {
+    setProfile((p) => ({
+      ...p,
+      allergies: p.allergies.map((a) => (a.id === id ? { ...a, ...patch } : a)),
+    }));
+  }
+  function removeAllergy(id: string) {
+    setProfile((p) => ({ ...p, allergies: p.allergies.filter((a) => a.id !== id) }));
   }
 
   function addMed() {
@@ -139,6 +156,48 @@ export function PlacesClient() {
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
           <div className="flex flex-col gap-6">
             <SmartFill onApply={applySmartFill} />
+
+            <Section
+              title="Allergies"
+              subtitle="Listed first on your Previsit Card so clinicians see it before prescribing."
+              icon={<Siren className="h-5 w-5 text-status-banned" />}
+              action={
+                <Button size="sm" variant="secondary" onClick={addAllergy}>
+                  <Plus className="h-4 w-4" /> Add
+                </Button>
+              }
+            >
+              {profile.allergies.length === 0 ? (
+                <EmptyHint>No known allergies. Add one if you have any.</EmptyHint>
+              ) : (
+                <div className="space-y-2">
+                  {profile.allergies.map((a) => (
+                    <AllergyRow
+                      key={a.id}
+                      allergy={a}
+                      onChange={(patch) => updateAllergy(a.id, patch)}
+                      onCommit={flashSaved}
+                      onRemove={() => removeAllergy(a.id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </Section>
+
+            <Section
+              title="Anatomical Inventory"
+              subtitle="What's actually in your body now. Cuts through gendered EHR defaults so the right screenings get ordered."
+              icon={<ScanLine className="h-5 w-5 text-accent" />}
+            >
+              <textarea
+                value={profile.anatomical_inventory}
+                onChange={(e) => update("anatomical_inventory", e.target.value)}
+                onBlur={flashSaved}
+                rows={2}
+                placeholder="e.g. Cervix, ovaries, prostate present. Uterus removed 2023."
+                className="w-full rounded-btn border border-divider bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-accent/30"
+              />
+            </Section>
 
             <Section
               title="Medications"
@@ -800,11 +859,13 @@ function LabRow({
 function Section({
   title,
   subtitle,
+  icon,
   action,
   children,
 }: {
   title: string;
   subtitle?: string;
+  icon?: React.ReactNode;
   action?: React.ReactNode;
   children: React.ReactNode;
 }) {
@@ -812,7 +873,10 @@ function Section({
     <div className="glass rounded-card p-7">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-subsection">{title}</h2>
+          <div className="flex items-center gap-2">
+            {icon}
+            <h2 className="text-subsection">{title}</h2>
+          </div>
           {subtitle && (
             <p className="mt-1 text-meta text-ink-secondary">{subtitle}</p>
           )}
@@ -820,6 +884,45 @@ function Section({
         {action}
       </div>
       <div className="mt-5">{children}</div>
+    </div>
+  );
+}
+
+function AllergyRow({
+  allergy,
+  onChange,
+  onCommit,
+  onRemove,
+}: {
+  allergy: Allergy;
+  onChange: (patch: Partial<Allergy>) => void;
+  onCommit: () => void;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-btn border border-divider bg-surface px-3 py-2">
+      <Siren className="h-4 w-4 text-status-banned shrink-0" />
+      <input
+        value={allergy.substance}
+        onChange={(e) => onChange({ substance: e.target.value })}
+        onBlur={onCommit}
+        placeholder="Substance (e.g. penicillin)"
+        className="flex-[1] min-w-0 bg-transparent text-body focus:outline-none"
+      />
+      <input
+        value={allergy.reaction}
+        onChange={(e) => onChange({ reaction: e.target.value })}
+        onBlur={onCommit}
+        placeholder="Reaction (e.g. hives, anaphylaxis)"
+        className="flex-[1] min-w-0 bg-transparent text-body text-ink-secondary focus:outline-none border-l border-divider pl-2"
+      />
+      <button
+        onClick={onRemove}
+        className="text-ink-secondary hover:text-status-banned p-1"
+        aria-label="Remove allergy"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
     </div>
   );
 }
