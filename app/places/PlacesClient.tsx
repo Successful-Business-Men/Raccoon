@@ -136,7 +136,7 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by name, chain, city, or state"
-              className="w-full pl-11 pr-4 py-3 rounded-btn border border-divider bg-surface focus:outline-none focus:ring-2 focus:ring-accent/30 text-body"
+              className="w-full pl-11 pr-4 py-2.5 rounded-btn border border-divider bg-surface focus:outline-none focus:ring-2 focus:ring-accent/30 text-meta"
             />
           </div>
           <div className="relative">
@@ -144,7 +144,7 @@ export function PlacesClient({ places }: { places: PlaceRecord[] }) {
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="pl-10 pr-8 py-3 rounded-btn border border-divider bg-surface text-meta focus:outline-none focus:ring-2 focus:ring-accent/30 appearance-none"
+              className="pl-10 pr-8 py-2.5 rounded-btn border border-divider bg-surface text-meta focus:outline-none focus:ring-2 focus:ring-accent/30 appearance-none"
             >
               {SORTS.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -241,21 +241,21 @@ function PlaceCard({ place, score }: { place: PlaceRecord; score: SafetyScore })
     >
       <Link
         href={`/places/${place.place_id}`}
-        className="block p-6 hover:bg-surface-inset/40 transition-colors"
+        className="block p-5 hover:bg-surface-inset/40 transition-colors"
       >
-        <div className="flex items-center justify-between gap-5">
+        <div className="flex items-center justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary">
               {place.category} · {place.city}, {place.state_code}
             </div>
-            <h3 className="mt-1.5 text-subsection truncate">
+            <h3 className="mt-1 text-card truncate">
               {place.name}
             </h3>
-            <div className="mt-1 text-meta text-ink-secondary truncate">
+            <div className="mt-0.5 text-meta text-ink-secondary truncate">
               {place.address}
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-meta">
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-meta">
               <span
                 className={cn(
                   "inline-flex items-center gap-2 rounded-chip bg-surface-inset px-3 py-1 font-medium",
@@ -271,15 +271,15 @@ function PlaceCard({ place, score }: { place: PlaceRecord; score: SafetyScore })
               </span>
             </div>
           </div>
-          <ScoreRing score={score} size={128} className="shrink-0" />
+          <ScoreRing score={score} size={96} className="shrink-0" />
         </div>
 
-        <p className="mt-4 text-meta text-ink-secondary leading-relaxed">
+        <p className="mt-3 text-meta text-ink-secondary leading-relaxed">
           {TIER_DESCRIPTION[score.tier]}
         </p>
       </Link>
 
-      <div className="border-t divider-soft px-6 py-3 flex flex-wrap gap-x-5 gap-y-2 items-center text-meta">
+      <div className="border-t divider-soft px-5 py-3 flex flex-wrap gap-x-5 gap-y-2 items-center text-meta">
         <button
           onClick={() => setOpen((o) => !o)}
           className="inline-flex items-center gap-1.5 text-ink-primary hover:underline underline-offset-4"
@@ -306,7 +306,7 @@ function PlaceCard({ place, score }: { place: PlaceRecord; score: SafetyScore })
       </div>
 
       {open && (
-        <div className="border-t divider-soft bg-surface-inset px-6 py-5">
+        <div className="border-t divider-soft bg-surface-inset px-5 py-4">
           <div className="text-meta uppercase tracking-[0.12em] text-ink-secondary mb-3">
             Signals moving this score
           </div>
@@ -361,7 +361,7 @@ export function ComponentList({ score }: { score: SafetyScore }) {
 
 function Methodology() {
   return (
-    <section className="mt-12 rounded-card bg-surface-inset p-7">
+    <section className="mt-10 rounded-card bg-surface-inset p-6">
       <div className="flex items-start gap-3">
         <AlertTriangle className="h-5 w-5 mt-0.5 shrink-0 text-ink-primary" />
         <div className="text-meta text-ink-secondary leading-relaxed">
