@@ -250,3 +250,11 @@
   position: relative;
   z-index: 2;
 }
+
+/* Aurora overlay sits above the wash/tide but below the content, so the
+   colored lights play across the existing ocean backdrop without blurring
+   what the user is reading. */
+.page-ocean > .aurora-overlay {
+  position: fixed;
+  z-index: 1;
+}

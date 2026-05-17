@@ -6,7 +6,7 @@ import { Container } from "@/components/Container";
 import { PageHero } from "@/components/PageHero";
 import { Button } from "@/components/Button";
 import { Pill } from "@/components/Pill";
-import { AuroraBackground } from "@/components/ui/aurora-background";
+import { AuroraOverlay } from "@/components/ui/aurora-background";
 import { cn } from "@/lib/cn";
 import {
   emptyProfile,
@@ -118,7 +118,8 @@ export function PlacesClient() {
   }
 
   return (
-    <AuroraBackground>
+    <div className="page-ocean">
+      <AuroraOverlay />
       <PageHero
         title={<>Type It Once<br />Use It Everywhere</>}
         description="Add your meds, surgeries, and labs once. The Previsit Card and Lab Check pull from here automatically, so you never retype anything."
@@ -327,7 +328,7 @@ export function PlacesClient() {
           </aside>
         </div>
       </Container>
-    </AuroraBackground>
+    </div>
   );
 }
 
